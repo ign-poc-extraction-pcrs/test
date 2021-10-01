@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    Checkbox: <input type="checkbox" id="ign" checked>
+    Checkbox: <input type="checkbox" id="autre">
+    Checkbox: <input type="checkbox" id="ign" checked>
+    Checkbox: <input type="checkbox" id="autre">
+    
+
+<p id="text" style="display:none">Checkbox is CHECKED!</p>
+
+<script>
+
+function myFunction(event) {
+    var checkBoxIgn = document.querySelectorAll("#ign");
+    var checkBoxAutre = document.querySelectorAll("#autre");
+
+    checkBoxIgn.forEach((element, key) => {
+
+
+    if (event.target.id == "autre" && checkBoxIgn[key].checked && checkBoxAutre[key].checked){
+        checkBoxIgn[0].checked = false
+        checkBoxIgn[1].checked = false
+        checkBoxAutre[0].checked = true
+        checkBoxAutre[1].checked = true
+    } else if (event.target.id == "ign" && checkBoxAutre[key].checked && checkBoxIgn[key].checked){
+        checkBoxIgn[0].checked = true
+        checkBoxIgn[1].checked = true
+        checkBoxAutre[0].checked = false
+        checkBoxAutre[1].checked = false
+    }
+
+    if (event.target.id == "autre" && checkBoxIgn[key].checked == false && checkBoxAutre[key].checked == false){
+        checkBoxAutre[key].checked = true
+    }else if (event.target.id == "ign" && checkBoxIgn[key].checked == false && checkBoxAutre[key].checked == false){
+        checkBoxIgn[key].checked = true
+    }
+  
+//   // Get the output text
+//   var text = document.getElementById("text");
+
+//   // If the checkbox is checked, display the output text
+//   if (checkBox.checked == true){
+//     text.style.display = "block";
+//   } else {
+//     text.style.display = "none";
+//   }
+});
+}
+
+var checkBoxIgn = document.querySelectorAll("#ign");
+var checkBoxAutre = document.querySelectorAll("#autre");
+
+checkBoxIgn.forEach(element => {
+    element.addEventListener("click", myFunction)
+})
+
+checkBoxAutre.forEach(element => {
+    element.addEventListener("click", myFunction)
+})
+
+
+</script>
+</body>
+</html>
