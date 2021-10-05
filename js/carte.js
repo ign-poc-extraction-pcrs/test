@@ -35,4 +35,6 @@ info.onAdd = function (map) {
     };
 
 info.addTo(map)
+
+L.Control.geocoder().addTo(map);
 }
