@@ -1,70 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
+<html> 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<title>Poc PCRS</title>  
+<meta charset="UTF-8">
+<!-- <link rel="stylesheet" href="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7.3/leaflet.css" /> -->
+<link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""
+    />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 </head>
-<body>
-    Checkbox: <input type="checkbox" id="ign" checked>
-    Checkbox: <input type="checkbox" id="autre">
-    Checkbox: <input type="checkbox" id="ign" checked>
-    Checkbox: <input type="checkbox" id="autre">
-    
 
-<p id="text" style="display:none">Checkbox is CHECKED!</p>
+<body style="margin: 0; padding: 0">
 
-<script>
-
-function myFunction(event) {
-    var checkBoxIgn = document.querySelectorAll("#ign");
-    var checkBoxAutre = document.querySelectorAll("#autre");
-
-    checkBoxIgn.forEach((element, key) => {
-
-
-    if (event.target.id == "autre" && checkBoxIgn[key].checked && checkBoxAutre[key].checked){
-        checkBoxIgn[0].checked = false
-        checkBoxIgn[1].checked = false
-        checkBoxAutre[0].checked = true
-        checkBoxAutre[1].checked = true
-    } else if (event.target.id == "ign" && checkBoxAutre[key].checked && checkBoxIgn[key].checked){
-        checkBoxIgn[0].checked = true
-        checkBoxIgn[1].checked = true
-        checkBoxAutre[0].checked = false
-        checkBoxAutre[1].checked = false
-    }
-
-    if (event.target.id == "autre" && checkBoxIgn[key].checked == false && checkBoxAutre[key].checked == false){
-        checkBoxAutre[key].checked = true
-    }else if (event.target.id == "ign" && checkBoxIgn[key].checked == false && checkBoxAutre[key].checked == false){
-        checkBoxIgn[key].checked = true
-    }
-  
-//   // Get the output text
-//   var text = document.getElementById("text");
-
-//   // If the checkbox is checked, display the output text
-//   if (checkBox.checked == true){
-//     text.style.display = "block";
-//   } else {
-//     text.style.display = "none";
-//   }
-});
-}
-
-var checkBoxIgn = document.querySelectorAll("#ign");
-var checkBoxAutre = document.querySelectorAll("#autre");
-
-checkBoxIgn.forEach(element => {
-    element.addEventListener("click", myFunction)
-})
-
-checkBoxAutre.forEach(element => {
-    element.addEventListener("click", myFunction)
-})
-
-
-</script>
+  <div id="map"></div>
+  <script
+      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+      crossorigin=""
+    ></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  <script src="js/carteTest.js"></script>
 </body>
 </html>
