@@ -1,7 +1,7 @@
 //Appel et configuration carte
 var map = L.map('map', {
-    center: [47.58, -3.07],
-    zoom: 14
+    center: [47.57, -3.065],
+    zoom: 15
 });
 
 
