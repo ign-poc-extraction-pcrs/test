@@ -31,13 +31,13 @@ var baselayers = {
 // var pcrs = L.tileLayer.wms('https://vectortiles.ign.fr/wms?',
 //     { crs: "CRS:84", format: "image/png", layers: "PCRS", version: "1.3.0" });
 
-// // Gestion des couches
+// Gestion des couches
 
-// var data = { "Parcelbati": Parcelbati, "Cadastre": Cadastre, "Routes": Routes, "pcrs": pcrs };
+var data = {};
 
-// // Selecteur fonds de carte
+// Selecteur fonds de carte
 
-// L.control.layers(baselayers, data, { collapsed: false }).addTo(map);
+L.control.layers(baselayers, data, { collapsed: false }).addTo(map);
 
 
 // Echelle cartographique
