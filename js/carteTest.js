@@ -94,14 +94,14 @@ for (let x = x_min; x < x_max; x += pas) {
 
 
 // affiche le style pour chaque dalle
-function style(feature) {
+function style(fillColor, weight, opacity, color, dashArray, fillOpacity) {
     return {
-        fillColor: "#000",
-        weight: 2,
-        opacity: 1,
-        color: 'white',
-        dashArray: '4',
-        fillOpacity: 0.7
+        fillColor: fillColor,
+        weight: weight,
+        opacity: opacity,
+        color: color,
+        dashArray: dashArray,
+        fillOpacity: fillOpacity
     };
 }
 
@@ -109,5 +109,32 @@ function style(feature) {
 
 // on la dalle à la carte
 geojson = L.geoJson(dallage, {
-    style: style
+    style: style("#000", 2, 1, 'white', '0', 0.2)
+}).addTo(map);
+
+geojson = L.geoJson({
+    "type": "FeatureCollection",
+    "features": [{
+        "type": "Feature",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                // on change de projection les coordonnées
+                convertisseur.inverse([x_min, y_min])
+                    ,
+                convertisseur.inverse([x_max, y_min])
+                    ,
+                convertisseur.inverse([x_max, y_max])
+                    ,
+                convertisseur.inverse([x_min, y_max])
+                    ,
+                convertisseur.inverse([x_min, y_min])
+            ]
+            ]
+        }
+    }],
+}, 
+{
+    style: style("#fff", 3, 0.6, '#ad0000', '8', 0)
 }).addTo(map);
