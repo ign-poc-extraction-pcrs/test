@@ -74,17 +74,17 @@ for (let x = x_min; x < x_max; x += pas) {
                 "type": "Polygon",
                 "coordinates": [
                     [
-                    // on change de projection les coordonnées
-                    convertisseur.inverse([x, y])
+                        // on change de projection les coordonnées
+                        convertisseur.inverse([x, y])
                         ,
-                    convertisseur.inverse([x + pas, y])
+                        convertisseur.inverse([x + pas, y])
                         ,
-                    convertisseur.inverse([x + pas, y + pas])
+                        convertisseur.inverse([x + pas, y + pas])
                         ,
-                    convertisseur.inverse([x, y + pas])
+                        convertisseur.inverse([x, y + pas])
                         ,
-                    convertisseur.inverse([x, y])
-                ]
+                        convertisseur.inverse([x, y])
+                    ]
                 ]
             }
         })
@@ -105,34 +105,120 @@ function style(fillColor, weight, opacity, color, dashArray, fillOpacity) {
     };
 }
 
+// parametre à changer pour le design des dalles
+var params_design = {
+    "base" : {
+        "fill_color" : "white",
+        "weight" : 2,
+        "opacity" : 1,
+        "color" : "#000",
+        "dash_array" : "0",
+        "fill_opacity" : 0.2
+    },
+    "click": {
+        "weight" : 2,
+        "color" : '#f0ff00',
+        "dash_array" : "4",
+        "fill_opacity" : 0.7
+    },
+    "fly_over_whithout_click" : {
+        "opacity" : 0,
+        "color" : ''
+    },
+    "fly_over_click" : {
+        "fill_opacity" : 0.4
+    }
+}
+// recupere les parametre de base au chargement de la base
+var param_base = params_design["base"]
+var param_click = params_design["click"]
+var param_fly_over_whithout_click = params_design["fly_over_whithout_click"]
+var param_fly_over_click = params_design["fly_over_click"]
+
+
+function highlight_whithout_click(layer) {
+
+    "design quand on survole une dalle non clicker"
+    layer.setStyle(style(param_base["color"], param_base["opacity"], param_fly_over_whithout_click["opacity"], param_fly_over_whithout_click["color"], param_click["dash_array"], param_click["fill_opacity"]));
+}
+function highlight_click(layer) {
+    "design quand on survole une dalle clicker"
+    layer.setStyle(style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_fly_over_click["fill_opacity"]));
+}
+
 function highlightFeature(e) {
+    "Changement de design des dalles quand on survole une dalle, design différents quand la dalle a déjà été cliquer ou non"
     var layer = e.target;
-
-    layer.setStyle({
-        weight: 5,
-        color: '#666',
-        dashArray: '',
-        fillOpacity: 0.7
-    });
-
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        layer.bringToFront();
+    // si la dalle n'est pas cliquer
+    if (layer.options.color == param_base["fill_color"]) {
+        highlight_whithout_click(layer)
+    } else {
+        highlight_click(layer)
     }
 }
 
-function resetHighlight(e) {
-    geojson.resetStyle(e.target);
+function design_click(layer){
+    "design quand on click sur une dalle"
+    layer.setStyle(style(param_base["color"], param_click["weight"], param_base["opacity"], param_click["color"], param_click["dash_array"], param_click["fill_opacity"]));
 }
 
-function zoomToFeature(e) {
-    map.fitBounds(e.target.getBounds());
+function resetHighlight(e) {
+    "remet le design normal, tout depend du design si la dalle a été clicker ou non"
+    var layer = e.target
+    // si la dalle a été survolé mais pas clicker auparavant
+    if (!layer.options.color) {
+        geojson.resetStyle(layer);
+    }
+    //  si on survole on dalle clicker
+    else if (layer.options.color == param_base["fill_color"] && layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
+        design_click(layer)
+    }
+
 }
+
+function already_click(layer) {
+    "design quand on click sur une dalle déjà clicker"
+    layer.setStyle(style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]));
+}
+
+liste_dalle = []
+
+function remove_dalle_liste(liste_dalle, dalle) {
+    for( var i = 0; i < liste_dalle.length; i++){ 
+        if ( liste_dalle[i] === dalle) { 
+            return liste_dalle.splice(i, 1); 
+        }
+    }
+}
+
+
+function click(e) {
+    "changement de design et recuperation des données quand on clique sur une dalle"
+    var layer = e.target;
+    dalle = layer.feature["geometry"]
+
+    if (!layer.options.color && layer.options.fillOpacity == param_click["fill_opacity"]) {
+        design_click(layer)
+        if(!liste_dalle) {
+            liste_dalle = []
+        }
+        liste_dalle.push(dalle)
+    } else if (layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
+        already_click(layer)
+        liste_dalle = remove_dalle_liste(liste_dalle, dalle)
+    }
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+    }
+    console.log(liste_dalle);
+}
+
 
 function onEachFeature(feature, layer) {
     layer.on({
         mouseover: highlightFeature,
         mouseout: resetHighlight,
-        click: zoomToFeature
+        click: click
     });
 }
 
@@ -147,27 +233,27 @@ geojson = L.geoJson({
             "type": "Polygon",
             "coordinates": [
                 [
-                // on change de projection les coordonnées
-                convertisseur.inverse([x_min, y_min])
+                    // on change de projection les coordonnées
+                    convertisseur.inverse([x_min, y_min])
                     ,
-                convertisseur.inverse([x_max, y_min])
+                    convertisseur.inverse([x_max, y_min])
                     ,
-                convertisseur.inverse([x_max, y_max])
+                    convertisseur.inverse([x_max, y_max])
                     ,
-                convertisseur.inverse([x_min, y_max])
+                    convertisseur.inverse([x_min, y_max])
                     ,
-                convertisseur.inverse([x_min, y_min])
-            ]
+                    convertisseur.inverse([x_min, y_min])
+                ]
             ]
         }
     }],
-}, 
-{
-    style: style("#fff", 5, 0.6, '#ad0000', '8', 0)
-}).addTo(map);
+},
+    {
+        style: style("#fff", 5, 0.6, '#ad0000', '8', 0)
+    }).addTo(map);
 
 // on la dalle à la carte
 geojson = L.geoJson(dallage, {
-    style: style("#000", 2, 1, 'white', '0', 0.2),
+    style: style(param_base["color"], param_base["weight"], param_base["opacity"], params_design["base"]["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
     onEachFeature: onEachFeature
 }).addTo(map);
