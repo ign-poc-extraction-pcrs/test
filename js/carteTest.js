@@ -105,13 +105,40 @@ function style(fillColor, weight, opacity, color, dashArray, fillOpacity) {
     };
 }
 
+function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+        weight: 5,
+        color: '#666',
+        dashArray: '',
+        fillOpacity: 0.7
+    });
+
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+    }
+}
+
+function resetHighlight(e) {
+    geojson.resetStyle(e.target);
+}
+
+function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+}
+
+function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+    });
+}
 
 
-// on la dalle à la carte
-geojson = L.geoJson(dallage, {
-    style: style("#000", 2, 1, 'white', '0', 0.2)
-}).addTo(map);
 
+// on ajoute le dallage à la carte
 geojson = L.geoJson({
     "type": "FeatureCollection",
     "features": [{
@@ -136,5 +163,11 @@ geojson = L.geoJson({
     }],
 }, 
 {
-    style: style("#fff", 3, 0.6, '#ad0000', '8', 0)
+    style: style("#fff", 5, 0.6, '#ad0000', '8', 0)
+}).addTo(map);
+
+// on la dalle à la carte
+geojson = L.geoJson(dallage, {
+    style: style("#000", 2, 1, 'white', '0', 0.2),
+    onEachFeature: onEachFeature
 }).addTo(map);
