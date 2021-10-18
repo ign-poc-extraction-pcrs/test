@@ -22,16 +22,27 @@ var params_design = {
         "fill_opacity" : 0.2
     },
     "click": {
+        "fill_color" : "#f0ff00",
         "weight" : 2,
-        "color" : '#f0ff00',
+        "opacity" : 1,
+        "color" : '#000',
         "dash_array" : "4",
         "fill_opacity" : 0.7
     },
     "fly_over_whithout_click" : {
+        "fill_color" : "white",
+        "weight" : 1,
         "opacity" : 0,
-        "color" : ''
+        "color" : '',
+        "dash_array" : "4",
+        "fill_opacity" : 0.7
     },
     "fly_over_click" : {
+        "fill_color" : "white",
+        "weight" : 2,
+        "opacity" : 1,
+        "color" : "#000",
+        "dash_array" : "0",
         "fill_opacity" : 0.4
     }
 }

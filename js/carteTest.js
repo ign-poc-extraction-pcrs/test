@@ -128,7 +128,6 @@ function resetHighlight(e) {
     //  si on survole on dalle clicker
     else if (layer.options.color == param_base["fill_color"] && layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
         design_click(layer)
-        console.log(1);
     }
     popup(layer, "close")
 }
@@ -153,6 +152,7 @@ function click(e) {
 
     if (!layer.options.color && layer.options.fillOpacity == param_click["fill_opacity"]) {
         
+        
         if(!liste_dalle) {
             liste_dalle = []
         }
@@ -163,14 +163,15 @@ function click(e) {
             window.alert("tu ne peux séléctionner que 10 dalles maximum")
             geojson.resetStyle(layer);
         }
+        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+            layer.bringToFront();
+        }
         
     } else if (layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
         already_click(layer)
         liste_dalle = remove_dalle_liste(liste_dalle, dalle)
     }
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        layer.bringToFront();
-    }
+    
 }
 
 
@@ -214,6 +215,6 @@ geojson = L.geoJson({
 
 // on la dalle à la carte
 geojson = L.geoJson(dallage, {
-    style: style(param_base["color"], param_base["weight"], param_base["opacity"], params_design["base"]["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
+    style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
     onEachFeature: onEachFeature
 }).addTo(map);
