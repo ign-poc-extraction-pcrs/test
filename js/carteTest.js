@@ -141,6 +141,19 @@ var param_click = params_design["click"]
 var param_fly_over_whithout_click = params_design["fly_over_whithout_click"]
 var param_fly_over_click = params_design["fly_over_click"]
 
+function popup(layer, type="open"){
+    "function qui affiche une popup, au survol d'une dalle son nom"
+    nom_dalle = layer.feature["properties"].nom;
+    template = `<h4>${nom_dalle}</h4>`
+
+    if (type == "open"){
+        layer.bindPopup(template).openPopup()
+    }else{
+        layer.bindPopup(template).closePopup()
+    }
+    
+}
+
 
 function highlight_whithout_click(layer) {
 
@@ -161,8 +174,7 @@ function highlightFeature(e) {
     } else {
         highlight_click(layer)
     }
-    nom_dalle = layer.feature["properties"].nom;
-    layer.bindPopup(`<h1>${nom_dalle}</h1>`).openPopup()
+    popup(layer)
 }
 
 function design_click(layer){
@@ -181,7 +193,7 @@ function resetHighlight(e) {
     else if (layer.options.color == param_base["fill_color"] && layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
         design_click(layer)
     }
-    layer.bindPopup('<h1>hey</h1>').closePopup()
+    popup(layer, "close")
 }
 
 function already_click(layer) {

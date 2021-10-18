@@ -22,3 +22,6 @@
   display: none;
 }
 
+.leaflet-popup{
+  top: -90px;
+} 
