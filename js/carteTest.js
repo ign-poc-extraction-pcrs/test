@@ -159,6 +159,7 @@ function highlightFeature(e) {
     } else {
         highlight_click(layer)
     }
+    layer.bindPopup('<h1>hey</h1>').openPopup()
 }
 
 function design_click(layer){
@@ -177,7 +178,7 @@ function resetHighlight(e) {
     else if (layer.options.color == param_base["fill_color"] && layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
         design_click(layer)
     }
-
+    layer.bindPopup('<h1>hey</h1>').closePopup()
 }
 
 function already_click(layer) {
