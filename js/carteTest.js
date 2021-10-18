@@ -149,7 +149,7 @@ function remove_dalle_liste(liste_dalle, dalle) {
 function click(e) {
     "changement de design et recuperation des données quand on clique sur une dalle"
     var layer = e.target;
-    dalle = layer.feature["geometry"]
+    dalle = layer.feature
 
     if (!layer.options.color && layer.options.fillOpacity == param_click["fill_opacity"]) {
         
@@ -173,6 +173,7 @@ function click(e) {
         already_click(layer)
         liste_dalle = remove_dalle_liste(liste_dalle, dalle)
     }
+    dalles_download.update(liste_dalle)
     
 }
 
