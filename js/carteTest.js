@@ -65,9 +65,11 @@ let dallage = {
 }
 
 convertisseur = proj4("EPSG:2154")
+id = 0
 // on ajoute les dalles (carré) par rapport à aux coordonnées du dallage
 for (let x = x_min; x < x_max; x += pas) {
     for (let y = y_min; y < y_max; y += pas) {
+        id += 1
         dallage["features"].push({
             "type": "Feature",
             "geometry": {
@@ -86,12 +88,14 @@ for (let x = x_min; x < x_max; x += pas) {
                         convertisseur.inverse([x, y])
                     ]
                 ]
+            }, 
+            "properties": {
+                "id" : id
             }
         })
     }
 
 }
-
 
 // affiche le style pour chaque dalle
 function style(fillColor, weight, opacity, color, dashArray, fillOpacity) {
@@ -184,11 +188,13 @@ function already_click(layer) {
 liste_dalle = []
 
 function remove_dalle_liste(liste_dalle, dalle) {
-    for( var i = 0; i < liste_dalle.length; i++){ 
-        if ( liste_dalle[i] === dalle) { 
-            return liste_dalle.splice(i, 1); 
+    liste = []
+    liste_dalle.forEach(element => {
+        if (dalle != element){
+            liste.push(element)
         }
-    }
+    });
+    return liste
 }
 
 
