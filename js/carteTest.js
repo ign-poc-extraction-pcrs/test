@@ -52,6 +52,8 @@ x_max = 245000.000
 y_min = 6736000.000
 y_max = 6737000.000
 
+limit_select_dalle = 10
+
 // taille dalle
 pas = 200
 
@@ -220,11 +222,18 @@ function click(e) {
     dalle = layer.feature["geometry"]
 
     if (!layer.options.color && layer.options.fillOpacity == param_click["fill_opacity"]) {
-        design_click(layer)
+        
         if(!liste_dalle) {
             liste_dalle = []
         }
-        liste_dalle.push(dalle)
+        console.log(liste_dalle.length);
+        if (liste_dalle.length <= limit_select_dalle - 1){
+            design_click(layer)
+            liste_dalle.push(dalle)
+        }else{
+            window.alert("tu ne peux séléctionner que 10 dalles maximum")
+        }
+        
     } else if (layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
         already_click(layer)
         liste_dalle = remove_dalle_liste(liste_dalle, dalle)
@@ -232,7 +241,6 @@ function click(e) {
     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
         layer.bringToFront();
     }
-    console.log(liste_dalle);
 }
 
 
