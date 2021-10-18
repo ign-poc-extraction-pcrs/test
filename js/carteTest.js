@@ -90,7 +90,9 @@ for (let x = x_min; x < x_max; x += pas) {
                 ]
             }, 
             "properties": {
-                "id" : id
+                "id" : id,
+                "nom" : `PCRS-D56-2021-${x/100}-${(y + pas)/100}-LA93-0M05-RVB-TIFF`,
+                "extension" : "tiff"
             }
         })
     }
@@ -159,7 +161,8 @@ function highlightFeature(e) {
     } else {
         highlight_click(layer)
     }
-    layer.bindPopup('<h1>hey</h1>').openPopup()
+    nom_dalle = layer.feature["properties"].nom;
+    layer.bindPopup(`<h1>${nom_dalle}</h1>`).openPopup()
 }
 
 function design_click(layer){
