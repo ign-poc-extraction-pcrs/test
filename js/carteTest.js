@@ -135,6 +135,7 @@ function resetHighlight(e) {
 liste_dalle = []
 
 function remove_dalle_liste(liste_dalle, dalle) {
+    "supprime un element d'une liste"
     liste = []
     liste_dalle.forEach(element => {
         if (dalle != element){
@@ -152,10 +153,11 @@ function click(e) {
 
     if (!layer.options.color && layer.options.fillOpacity == param_click["fill_opacity"]) {
         
-        
+        // si la liste n'existe pas
         if(!liste_dalle) {
             liste_dalle = []
         }
+        // si la liste n'a pas depasser la limite de dalle max
         if (liste_dalle.length <= limit_select_dalle - 1){
             design_click(layer)
             liste_dalle.push(dalle)

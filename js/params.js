@@ -22,7 +22,7 @@ var params_design = {
         "fill_opacity" : 0.2
     },
     "click": {
-        "fill_color" : "#f0ff00",
+        "fill_color" : "#f3ca20",
         "weight" : 2,
         "opacity" : 1,
         "color" : '#000',
