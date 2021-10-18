@@ -44,19 +44,6 @@ L.control.layers(baselayers, data, { collapsed: false }).addTo(map);
 L.control.scale().addTo(map);
 L.Control.geocoder().addTo(map);
 
-
-// 4 coordonnées pour creer le dallages
-x_min = 244000.000
-x_max = 245000.000
-
-y_min = 6736000.000
-y_max = 6737000.000
-
-limit_select_dalle = 10
-
-// taille dalle
-pas = 200
-
 // reprojection en epsg2154
 proj4.defs("EPSG:2154", "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 
@@ -101,47 +88,10 @@ for (let x = x_min; x < x_max; x += pas) {
 
 }
 
-// affiche le style pour chaque dalle
-function style(fillColor, weight, opacity, color, dashArray, fillOpacity) {
-    return {
-        fillColor: fillColor,
-        weight: weight,
-        opacity: opacity,
-        color: color,
-        dashArray: dashArray,
-        fillOpacity: fillOpacity
-    };
-}
 
-// parametre à changer pour le design des dalles
-var params_design = {
-    "base" : {
-        "fill_color" : "white",
-        "weight" : 2,
-        "opacity" : 1,
-        "color" : "#000",
-        "dash_array" : "0",
-        "fill_opacity" : 0.2
-    },
-    "click": {
-        "weight" : 2,
-        "color" : '#f0ff00',
-        "dash_array" : "4",
-        "fill_opacity" : 0.7
-    },
-    "fly_over_whithout_click" : {
-        "opacity" : 0,
-        "color" : ''
-    },
-    "fly_over_click" : {
-        "fill_opacity" : 0.4
-    }
-}
-// recupere les parametre de base au chargement de la base
-var param_base = params_design["base"]
-var param_click = params_design["click"]
-var param_fly_over_whithout_click = params_design["fly_over_whithout_click"]
-var param_fly_over_click = params_design["fly_over_click"]
+
+
+
 
 function popup(layer, type="open"){
     "function qui affiche une popup, au survol d'une dalle son nom"
@@ -156,17 +106,6 @@ function popup(layer, type="open"){
     
 }
 
-
-function highlight_whithout_click(layer) {
-
-    "design quand on survole une dalle non clicker"
-    layer.setStyle(style(param_base["color"], param_base["opacity"], param_fly_over_whithout_click["opacity"], param_fly_over_whithout_click["color"], param_click["dash_array"], param_click["fill_opacity"]));
-}
-function highlight_click(layer) {
-    "design quand on survole une dalle clicker"
-    layer.setStyle(style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_fly_over_click["fill_opacity"]));
-}
-
 function highlightFeature(e) {
     "Changement de design des dalles quand on survole une dalle, design différents quand la dalle a déjà été cliquer ou non"
     var layer = e.target;
@@ -179,11 +118,6 @@ function highlightFeature(e) {
     popup(layer)
 }
 
-function design_click(layer){
-    "design quand on click sur une dalle"
-    layer.setStyle(style(param_base["color"], param_click["weight"], param_base["opacity"], param_click["color"], param_click["dash_array"], param_click["fill_opacity"]));
-}
-
 function resetHighlight(e) {
     "remet le design normal, tout depend du design si la dalle a été clicker ou non"
     var layer = e.target
@@ -194,13 +128,9 @@ function resetHighlight(e) {
     //  si on survole on dalle clicker
     else if (layer.options.color == param_base["fill_color"] && layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
         design_click(layer)
+        console.log(1);
     }
     popup(layer, "close")
-}
-
-function already_click(layer) {
-    "design quand on click sur une dalle déjà clicker"
-    layer.setStyle(style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]));
 }
 
 liste_dalle = []
@@ -226,12 +156,12 @@ function click(e) {
         if(!liste_dalle) {
             liste_dalle = []
         }
-        console.log(liste_dalle.length);
         if (liste_dalle.length <= limit_select_dalle - 1){
             design_click(layer)
             liste_dalle.push(dalle)
         }else{
             window.alert("tu ne peux séléctionner que 10 dalles maximum")
+            geojson.resetStyle(layer);
         }
         
     } else if (layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
