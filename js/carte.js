@@ -86,8 +86,26 @@ function resetHighlight(e) {
 function click(e) {
     "changement de design et recuperation des données quand on clique sur une dalle"
     var layer = e.target;
-    dalle = layer.feature
-    console.log(dalle);
+    // on recupere les coordonnées de la dalle
+    dalle = layer.feature.geometry.coordinates[0]
+
+    dalle_reprojection = []
+    // on change de projection, pour la remettre en L93
+    dalle.forEach(element => {
+        dalle_reprojection.push(convertisseur.forward(element)); 
+    });
+    // on arrondi les coordinates
+    dalle_reprojection.forEach(element => {
+        element[0] = Math.round(element[0])
+        element[1] = Math.round(element[1])
+    });
+    // on recupere les x_min et m_max
+    min = dalle_reprojection[0]
+    max = dalle_reprojection[2]
+
+    // on telecharge l'image select
+    url = `https://vectortiles.ign.fr/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=PCRS&FORMAT=image/tiff&BBOX=${min[0]},${min[1]},${max[0]},${max[1]}&CRS=EPSG:2154&STYLES=&WIDTH=1000&HEIGHT=1000&`
+    window.open(url, '_blank');
 }
 
 
