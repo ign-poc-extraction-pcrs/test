@@ -80,7 +80,7 @@ for (let x = x_min; x < x_max; x += pas) {
             }, 
             "properties": {
                 "id" : id,
-                "nom" : `PCRS-D56-2021-${x/100}-${(y + pas)/100}-LA93-0M05-RVB-TIFF`,
+                "nom" : `PCRS-D56-2020-${x/100}-${(y + pas)/100}-LA93-0M05-RVB-TIFF`,
                 "extension" : "tiff"
             }
         })
@@ -162,7 +162,7 @@ function click(e) {
             design_click(layer)
             liste_dalle.push(dalle)
         }else{
-            window.alert("tu ne peux séléctionner que 10 dalles maximum")
+            window.alert("La sélection ne peut excéder 10 dalles")
             geojson.resetStyle(layer);
         }
         if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
