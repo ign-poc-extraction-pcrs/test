@@ -46,3 +46,16 @@ var params_design = {
         "fill_opacity" : 0.4
     }
 }
+
+function popup(layer, type="open"){
+    "function qui affiche une popup, au survol d'une dalle son nom"
+    nom_dalle = layer.feature["properties"].nom;
+    template = `<h4>${nom_dalle}</h4>`
+
+    if (type == "open"){
+        layer.bindPopup(template).openPopup()
+    }else{
+        layer.bindPopup(template).closePopup()
+    }
+    
+}
