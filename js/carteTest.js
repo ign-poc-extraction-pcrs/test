@@ -88,24 +88,6 @@ for (let x = x_min; x < x_max; x += pas) {
 
 }
 
-
-
-
-
-
-function popup(layer, type="open"){
-    "function qui affiche une popup, au survol d'une dalle son nom"
-    nom_dalle = layer.feature["properties"].nom;
-    template = `<h4>${nom_dalle}</h4>`
-
-    if (type == "open"){
-        layer.bindPopup(template).openPopup()
-    }else{
-        layer.bindPopup(template).closePopup()
-    }
-    
-}
-
 function highlightFeature(e) {
     "Changement de design des dalles quand on survole une dalle, design différents quand la dalle a déjà été cliquer ou non"
     var layer = e.target;

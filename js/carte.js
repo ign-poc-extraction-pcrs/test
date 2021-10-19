@@ -73,12 +73,14 @@ function highlightFeature(e) {
     "Changement de design des dalles quand on survole une dalle"
     var layer = e.target;
     highlight_whithout_click(layer)
+    popup(layer)
 }
 
 function resetHighlight(e) {
     "remet le design normal, tout depend du design si la dalle a été clicker ou non"
     var layer = e.target
     geojson.resetStyle(layer);
+    popup(layer, "close")
 }
 
 function click(e) {

@@ -23,7 +23,7 @@ dalles_download.update = function (liste_dalle) {
 
     const div_liste_dalles = document.createElement("div")
     if (!liste_dalle || liste_dalle.length === 0) {
-        div_liste_dalles.innerHTML = "<h4> Aucune dalle sélectionnez </h4>"
+        div_liste_dalles.innerHTML = "<h4> Aucune dalle sélectionnées </h4>"
     }else{
         
         liste_dalle.forEach(element => {
