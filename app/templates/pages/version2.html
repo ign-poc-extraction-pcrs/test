@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Version 2{% endblock %}
+
+{% block link %}
+
+{% endblock %}
+
+{% block body %}
+  <div id="map"></div>
+{% endblock body %}
+
+{% block js %}
+<script src="{{ url_for('static',filename='js/carteTest.js') }}"></script>
+<script src="{{ url_for('static',filename='js/dalles_download.js') }}"></script>
+{% endblock js %}
