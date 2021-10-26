@@ -59,3 +59,47 @@ function popup(layer, type="open"){
     }
     
 }
+
+// reprojection en epsg2154
+proj4.defs("EPSG:2154", "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+
+// on definit le dictionnaire avec la nomenclature leaflet et on ajoutera les différents polygons dans la clé attributs
+let dallage = {
+    "type": "FeatureCollection",
+    "features": [],
+}
+
+convertisseur = proj4("EPSG:2154")
+id = 0
+// on ajoute les dalles (carré) par rapport à aux coordonnées du dallage
+for (let x = x_min; x < x_max; x += pas) {
+    for (let y = y_min; y < y_max; y += pas) {
+        id += 1
+        dallage["features"].push({
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        // on change de projection les coordonnées
+                        convertisseur.inverse([x, y])
+                        ,
+                        convertisseur.inverse([x + pas, y])
+                        ,
+                        convertisseur.inverse([x + pas, y + pas])
+                        ,
+                        convertisseur.inverse([x, y + pas])
+                        ,
+                        convertisseur.inverse([x, y])
+                    ]
+                ]
+            }, 
+            "properties": {
+                "id" : id,
+                "nom" : `2020-${x/100}-${(y + pas)/100}-LA93-0M05-RVB`,
+                "extension" : "tiff"
+            }
+        })
+    }
+
+}

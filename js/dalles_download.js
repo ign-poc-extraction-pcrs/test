@@ -30,7 +30,7 @@ dalles_download.update = function (liste_dalle) {
             console.log(element);
             div_liste_dalles.innerHTML += `<h4> ${element.properties.nom} </h4>`
         });
-        div_liste_dalles.innerHTML += `<h5> Nombre de dalles : ${liste_dalle.length} <span style="font-size: 10px;">(10 max)</span></h5>`
+        div_liste_dalles.innerHTML += `<h5> Nombre de dalles : ${liste_dalle.length} <span style="font-size: 10px;">(${limit_select_dalle} max)</span></h5>`
         div_liste_dalles.innerHTML += '<button type="submit">Télecharger</button>'
     }
 
