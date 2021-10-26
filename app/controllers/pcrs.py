@@ -16,16 +16,21 @@ def version1():
     os.makedirs("app/static/img", exist_ok=True)
     # on stocke l'image dans un dossier en la recuperant avec une requete wms avec sa bbox, avant de lui faire ses traitements
     requete_wms((244000,6736400,244200,6736600))
-    
-    # if os.path.isfile("app/static/img/image.tif"):
-    #     file = os.path.abspath("app/static/img/image.tif")
-    #     return send_file(file)
+
+    if os.path.isfile("app/static/img/test.tif"):
+        return redirect(url_for('pcrs.download', name = "test"))
+        
     return render_template('pages/version1.html')
 
 
 @pcrs.route('/version2')
 def version2():
     return render_template('pages/version2.html')
+
+@pcrs.route('/download/<name>')
+def download(name):
+    file = os.path.abspath(f"app/static/img/{name}.tif")
+    return send_file(file)
 
 
 def log_wms_serveur():
@@ -51,7 +56,7 @@ def requete_wms(bbox):
         style=[],
         size=(1000,1000)
         )
-    
-    img = open('app/static/img/test.tif', 'wb')
+    x_min, y_min, x_max, y_max = bbox
+    img = open(f'app/static/img/2020-{x_min}-{y_max}-LA93-0M05-RVB.tif', 'wb')
     img.write(dalle.read())
-    img.close
+    img.close()
