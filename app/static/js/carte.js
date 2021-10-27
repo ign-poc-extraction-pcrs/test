@@ -59,9 +59,16 @@ function click(e) {
     min = dalle_reprojection[0]
     max = dalle_reprojection[2]
 
+    annee = 2020
+    proj = "LA93"
+    resolution = "0M05"
+    canaux = "RVB"
+
+    document.location.href=`${serveur}download/${min[0]}-${min[1]}-${max[0]}-${max[1]}-${annee}-${proj}-${resolution}-${canaux}`;
+
     // on telecharge l'image select
-    url = `https://vectortiles.ign.fr/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=PCRS&FORMAT=image/tiff&BBOX=${min[0]},${min[1]},${max[0]},${max[1]}&CRS=EPSG:2154&STYLES=&WIDTH=1000&HEIGHT=1000&`
-    window.open(url, '_blank');
+    // url = `https://vectortiles.ign.fr/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=PCRS&FORMAT=image/tiff&BBOX=${min[0]},${min[1]},${max[0]},${max[1]}&CRS=EPSG:2154&STYLES=&WIDTH=1000&HEIGHT=1000&`
+    // window.open(url, '_blank');
 }
 
 

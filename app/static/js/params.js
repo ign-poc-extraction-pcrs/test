@@ -1,3 +1,5 @@
+serveur = "http://127.0.0.1:5000/"
+
 // limite de selection de dalle
 limit_select_dalle = 10
 
