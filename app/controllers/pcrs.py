@@ -55,7 +55,8 @@ def requete_wms(bbox, directory_dalles, name_dalle):
     """ on recupere la dalle à l'aide de la bbox, et on execute le requete wms, et on save l'img dans le dossier temporairement
     
     bbox(tuple): bbox d'une dalle
-    directory_dalles
+    directory_dalles(str): dossier ou il y'a toutes les dalles
+    name_dalle(str): nom de la dalle qui sera mise dans le dossier
     """
     wms = log_wms_serveur()
     dalle = wms.getmap(
