@@ -25,13 +25,23 @@ dalles_download.update = function (liste_dalle) {
     if (!liste_dalle || liste_dalle.length === 0) {
         div_liste_dalles.innerHTML = "<h4> Aucune dalle sélectionnées </h4>"
     }else{
-        
+        const form = document.createElement("form")
+
         liste_dalle.forEach(element => {
             console.log(element);
-            div_liste_dalles.innerHTML += `<h4> ${element.properties.nom} </h4>`
+            const dalle = document.createElement("h4")
+            dalle.innerHTML += `${element.properties.nom}`
+            form.appendChild(dalle)
         });
-        div_liste_dalles.innerHTML += `<h5> Nombre de dalles : ${liste_dalle.length} <span style="font-size: 10px;">(${limit_select_dalle} max)</span></h5>`
-        div_liste_dalles.innerHTML += '<button type="submit">Télecharger</button>'
+        const nb_dalle_limite = document.createElement("h5")
+        nb_dalle_limite.innerHTML += `Nombre de dalles : ${liste_dalle.length} <span style="font-size: 10px;">(${limit_select_dalle} max)</span>`
+        form.appendChild(nb_dalle_limite)
+
+        const button = document.createElement("button")
+        button.innerHTML += 'Télecharger'
+        form.appendChild(button)
+        
+        div_liste_dalles.appendChild(form)
     }
 
     this._div.appendChild(div_liste_dalles)
