@@ -27,7 +27,7 @@ def version2():
 @pcrs.route('/download/<int:x_min>-<int:y_min>-<int:x_max>-<int:y_max>-<annee>-<proj>-<resolution>-<canaux>')
 def download(x_min, y_min, x_max, y_max, annee, proj, resolution, canaux):
     directory_dalles = "app/static/img/"
-    name_dalle = f"{annee}-{x_min}-{y_max}-{proj}-{resolution}-{canaux}.tif"
+    name_dalle = f"{annee}-0{x_min//100}-{y_max//100}-{proj}-{resolution}-{canaux}.tif"
 
     # creation du dossier img si il n'existe pas
     os.makedirs(directory_dalles, exist_ok=True)
