@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, send_f
 from owslib.wms import WebMapService
 import requests
 import os
+import subprocess
 
 pcrs = Blueprint('pcrs', __name__, url_prefix='/')
 
@@ -74,5 +75,5 @@ def requete_wms_and_georeferecement(bbox, directory_dalles, name_dalle):
     img.close()
 
     x_min,y_min,x_max,y_max = bbox
-    status = os.system(f"gdal_edit.py -a_ullr {x_min*100} {y_min*100} {x_max*100} {y_max*100} -a_srs {srs} {directory_dalles}{name_dalle}")
-    
+    status = subprocess.run(f"gdal_edit.py -a_ullr {x_min*100} {y_min*100} {x_max*100} {y_max*100} -a_srs {srs} {directory_dalles}{name_dalle}")
+    print(f"gdal_edit.py -a_ullr {x_min*100} {y_min*100} {x_max*100} {y_max*100} -a_srs {srs} {directory_dalles}{name_dalle}")
