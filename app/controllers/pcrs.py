@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, send_file, jsonify
 from owslib.wms import WebMapService
 import requests
 import os
@@ -35,7 +35,7 @@ def download(x_min, y_min, x_max, y_max, annee, proj, resolution, canaux):
     # si la dalle est déjà dans le dossier img, alors on ne refait pas le requete wms et le géoreferencement, on la télécharge directement
     if not os.path.isfile(f"{directory_dalles}{name_dalle}"):
         # on stocke l'image dans un dossier en la recuperant avec une requete wms avec sa bbox, avant de lui faire ses traitements
-        requete_wms((x_min,y_min,x_max,y_max), directory_dalles, name_dalle)
+        requete_wms_and_georeferecement((x_min,y_min,x_max,y_max), directory_dalles, name_dalle)
 
     # on recupere le chemin absolu de l'image
     file = os.path.abspath(f"{directory_dalles}{name_dalle}")
@@ -51,18 +51,20 @@ def log_wms_serveur():
     wms = WebMapService('https://vectortiles.ign.fr/wms', version='1.3.0')
     return wms
 
-def requete_wms(bbox, directory_dalles, name_dalle):
+def requete_wms_and_georeferecement(bbox, directory_dalles, name_dalle):
     """ on recupere la dalle à l'aide de la bbox, et on execute le requete wms, et on save l'img dans le dossier temporairement
+    on attribue à la dalle un georeferencement
     
     bbox(tuple): bbox d'une dalle
     directory_dalles(str): dossier ou il y'a toutes les dalles
     name_dalle(str): nom de la dalle qui sera mise dans le dossier
     """
+    srs = 'EPSG:2154'
     wms = log_wms_serveur()
     dalle = wms.getmap(
         layers=['PCRS'],
         format='image/tiff',
-        srs='EPSG:2154',
+        srs=srs,
         bbox=bbox,
         style=[],
         size=(1000,1000)
@@ -70,3 +72,7 @@ def requete_wms(bbox, directory_dalles, name_dalle):
     img = open(f'{directory_dalles}{name_dalle}', 'wb')
     img.write(dalle.read())
     img.close()
+
+    x_min,y_min,x_max,y_max = bbox
+    status = os.system(f"gdal_edit.py -a_ullr {x_min*100} {y_min*100} {x_max*100} {y_max*100} -a_srs {srs} {name_dalle}")
+    
