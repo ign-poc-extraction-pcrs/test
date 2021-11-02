@@ -35,12 +35,22 @@ Ce dépôt a pour but de faire un poc sur l'extraction d'une/des dalles(s) pcrs 
 
 Se mettre à la racine du projet
 Création et activation de l'environnement virtuel (si besoin) :
+
+Windows :
 ```
 py -3 -m venv venv
 ```
 
 ```
 venv\Scripts\activate
+```
+Linux:
+```
+python3 -m venv venv
+```
+
+```
+. venv/bin/activate
 ```
 
 Installation des librairies :
