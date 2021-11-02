@@ -75,5 +75,5 @@ def requete_wms_and_georeferecement(bbox, directory_dalles, name_dalle):
     img.close()
 
     x_min,y_min,x_max,y_max = bbox
-    status = subprocess.run(f"gdal_edit.py -a_ullr {x_min*100} {y_min*100} {x_max*100} {y_max*100} -a_srs {srs} {directory_dalles}{name_dalle}")
+    status = subprocess.run(f"gdal_edit.py -a_ullr {x_min*100} {y_min*100} {x_max*100} {y_max*100} -a_srs {srs} {directory_dalles}{name_dalle}", shell=True)
     print(f"gdal_edit.py -a_ullr {x_min*100} {y_min*100} {x_max*100} {y_max*100} -a_srs {srs} {directory_dalles}{name_dalle}")
