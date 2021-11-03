@@ -30,7 +30,7 @@ dalles_download.update = function (liste_dalle) {
         liste_dalle.forEach(element => {
             console.log(element);
             const dalle = document.createElement("h4")
-            dalle.innerHTML += `${element.properties.nom}`
+            dalle.innerHTML += `<button class='remove_design_dalle id${element.properties.id}' type='button'>X</button> ${element.properties.nom}`
             form.appendChild(dalle)
         });
         const nb_dalle_limite = document.createElement("h5")
@@ -45,6 +45,27 @@ dalles_download.update = function (liste_dalle) {
     }
 
     this._div.appendChild(div_liste_dalles)
+
+    button_remove_design = document.querySelectorAll(".remove_design_dalle");
+    button_remove_design.forEach(button => {
+        button.addEventListener('click', () => {
+            id = button.className.split(' ')[1];
+            dalle = document.querySelector(`.leaflet-interactive.${id}`); 
+
+            dalle.setAttribute("stroke", param_base["fill_color"]) 
+            dalle.setAttribute("fill", param_base["color"]) 
+            dalle.setAttribute("width", param_base["weight"]) 
+            dalle.setAttribute("fill-opacity", param_base["fill_opacity"]) 
+            dalle.setAttribute("stroke-opacity", param_base["opacity"]) 
+            dalle.setAttribute("stroke-dasharray", param_base["dash_array"]) 
+            // liste_dalle = remove_dalle_liste(liste_dalle, dalle)
+        })
+
+        
+    });
+    
 }
 
 dalles_download.addTo(map)
+
+      
