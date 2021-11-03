@@ -28,7 +28,6 @@ dalles_download.update = function (liste_dalle) {
         const form = document.createElement("form")
 
         liste_dalle.forEach(element => {
-            console.log(element);
             const dalle = document.createElement("h4")
             dalle.innerHTML += `<button class='remove_design_dalle id${element.properties.id}' type='button'>X</button> ${element.properties.nom}`
             form.appendChild(dalle)
@@ -58,14 +57,18 @@ dalles_download.update = function (liste_dalle) {
             dalle.setAttribute("fill-opacity", param_base["fill_opacity"]) 
             dalle.setAttribute("stroke-opacity", param_base["opacity"]) 
             dalle.setAttribute("stroke-dasharray", param_base["dash_array"]) 
-            // liste_dalle = remove_dalle_liste(liste_dalle, dalle)
+            liste_dalle.forEach(element => {
+                id_dalle = id.split("id")[1]
+                if(id_dalle == element.properties.id){
+                    dalle_remove = element
+                }
+            });
+            liste_dalle = remove_dalle_liste(liste_dalle, dalle_remove)
+            dalles_download.update(liste_dalle)
+            new_liste_dalle = liste_dalle
+            statut = false
         })
-
-        
     });
-    
 }
 
 dalles_download.addTo(map)
-
-      

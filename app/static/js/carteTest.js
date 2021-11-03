@@ -51,9 +51,7 @@ function highlightFeature(e) {
     // si la dalle n'est pas cliquer
     if (layer._path.getAttribute("stroke") == param_base["fill_color"]) {
         highlight_whithout_click(layer)
-        console.log(1);
     } else {
-        console.log(2);
         highlight_click(layer)
     }
     popup(layer)
@@ -64,18 +62,18 @@ function resetHighlight(e) {
     var layer = e.target
     // si la dalle a été survolé mais pas clicker auparavant
     if (!layer.options.color) {
-        console.log(3);
         geojson.resetStyle(layer);
     }
     //  si on survole on dalle clicker
     else if (layer.options.color == param_base["fill_color"] && layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
-        console.log(4);
         design_click(layer)
     }
     popup(layer, "close")
 }
 
 liste_dalle = []
+new_liste_dalle = []
+statut = true
 
 function remove_dalle_liste(liste_dalle, dalle) {
     "supprime un element d'une liste"
@@ -88,14 +86,17 @@ function remove_dalle_liste(liste_dalle, dalle) {
     return liste
 }
 
-
 function click(e) {
     "changement de design et recuperation des données quand on clique sur une dalle"
     var layer = e.target;
     dalle = layer.feature
-
+    console.log(statut);
+    if (!statut){
+        liste_dalle = new_liste_dalle
+    }
+    statut = true
+    
     if (!layer.options.color && layer.options.fillOpacity == param_click["fill_opacity"]) {
-        console.log(5);
         // si la liste n'existe pas
         if(!liste_dalle) {
             liste_dalle = []
@@ -113,11 +114,12 @@ function click(e) {
         }
         
     } else if (layer.options.fillOpacity == param_fly_over_click["fill_opacity"]) {
-        console.log(6);
         already_click(layer)
         liste_dalle = remove_dalle_liste(liste_dalle, dalle)
     }
+
     dalles_download.update(liste_dalle)
+    console.log(liste_dalle);
     
 }
 
