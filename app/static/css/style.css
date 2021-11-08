@@ -25,3 +25,57 @@
 .leaflet-popup{
   top: -90px;
 } 
+
+.button-download{
+    background-color: white; 
+    color: black; 
+    border: 2px solid #008CBA;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;  
+    width: 130px;
+    height: 40px;
+}
+.button-download:hover {
+  background-color: #008CBA; 
+  color: white; 
+}
+
+.remove_design_dalle .nom_dalle{
+  display: inline-block;
+}
+
+.remove_design_dalle{
+  height: 20px;
+  width: 20px;
+  padding: 0;
+  background: #dc2500;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.remove_design_dalle:hover {
+  background: #b01e00;
+}
+
+.remove_design_dalle:active {
+  background: #dc2500;
+}
+
+.remove_design_dalle span {
+  display: inline-flex;
+  align-items: center;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.08);
+}
+

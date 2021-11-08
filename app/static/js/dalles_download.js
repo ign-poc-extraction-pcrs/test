@@ -32,7 +32,7 @@ dalles_download.update = function (liste_dalle) {
         liste_dalle.forEach(element => {
             const dalle = document.createElement("h4")
             console.log(element);
-            dalle.innerHTML += `<button class='remove_design_dalle id${element.properties.id}' type='button'>X</button> ${element.properties.nom}`
+            dalle.innerHTML += `<button class='remove_design_dalle id${element.properties.id}' type='button'><span>X</span></button> <span class="nom_dalle">${element.properties.nom}</span>`
             
             const input_hidden = document.createElement("input")
             input_hidden.setAttribute('type', 'hidden');
@@ -49,6 +49,7 @@ dalles_download.update = function (liste_dalle) {
 
         const button = document.createElement("button")
         button.setAttribute("type", "submit")
+        button.setAttribute("class", "button-download")
         button.innerHTML += 'Télecharger'
         form.appendChild(button)
         
