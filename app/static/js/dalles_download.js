@@ -23,20 +23,32 @@ dalles_download.update = function (liste_dalle) {
 
     const div_liste_dalles = document.createElement("div")
     if (!liste_dalle || liste_dalle.length === 0) {
-        div_liste_dalles.innerHTML = "<h4> Aucune dalle sélectionnées </h4>"
+        div_liste_dalles.innerHTML = "<h4> Aucune dalle sélectionnée </h4>"
     }else{
         const form = document.createElement("form")
+        form.setAttribute('method', 'post');
+        form.setAttribute('action', '/download');
 
         liste_dalle.forEach(element => {
             const dalle = document.createElement("h4")
+            console.log(element);
             dalle.innerHTML += `<button class='remove_design_dalle id${element.properties.id}' type='button'>X</button> ${element.properties.nom}`
+            
+            const input_hidden = document.createElement("input")
+            input_hidden.setAttribute('type', 'hidden');
+            input_hidden.setAttribute('name', 'dalle[]');
+            info_dalle = nomenclature_download(element["geometry"].coordinates[0])
+            input_hidden.value = `${info_dalle.min[0]}-${info_dalle.min[1]}-${info_dalle.max[0]}-${info_dalle.max[1]}-${info_dalle.annee}-${info_dalle.proj}-${info_dalle.resolution}-${info_dalle.canaux}`
+            
             form.appendChild(dalle)
+            form.appendChild(input_hidden)
         });
         const nb_dalle_limite = document.createElement("h5")
         nb_dalle_limite.innerHTML += `Nombre de dalles : ${liste_dalle.length} <span style="font-size: 10px;">(${limit_select_dalle} max)</span>`
         form.appendChild(nb_dalle_limite)
 
         const button = document.createElement("button")
+        button.setAttribute("type", "submit")
         button.innerHTML += 'Télecharger'
         form.appendChild(button)
         

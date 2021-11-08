@@ -103,3 +103,25 @@ for (let x = x_min; x < x_max; x += pas) {
     }
 
 }
+
+function nomenclature_download(dalle){
+    dalle_reprojection = []
+    // on change de projection, pour la remettre en L93
+    dalle.forEach(element => {
+        dalle_reprojection.push(convertisseur.forward(element)); 
+    });
+    // on arrondi les coordinates
+    dalle_reprojection.forEach(element => {
+        element[0] = Math.round(element[0])
+        element[1] = Math.round(element[1])
+    });
+    // on recupere les x_min et m_max
+    min = dalle_reprojection[0]
+    max = dalle_reprojection[2]
+
+    annee = 2020
+    proj = "LA93"
+    resolution = "0M05"
+    canaux = "RVB"
+    return {"min": min, "max": max, "annee": annee, "proj": proj, "resolution": resolution, "canaux": canaux}
+}
