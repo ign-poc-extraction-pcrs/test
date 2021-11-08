@@ -90,7 +90,6 @@ function click(e) {
     "changement de design et recuperation des données quand on clique sur une dalle"
     var layer = e.target;
     dalle = layer.feature
-    console.log(statut);
     if (!statut){
         liste_dalle = new_liste_dalle
     }
@@ -119,7 +118,6 @@ function click(e) {
     }
 
     dalles_download.update(liste_dalle)
-    console.log(liste_dalle);
     
 }
 
