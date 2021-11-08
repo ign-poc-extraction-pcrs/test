@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, send_file, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, send_file, jsonify, send_from_directory
 from owslib.wms import WebMapService
 import requests
 import os
+import uuid
+from io import BytesIO
 import subprocess
+from zipfile import ZipFile
 
 pcrs = Blueprint('pcrs', __name__, url_prefix='/')
 
@@ -21,26 +24,58 @@ def version1():
     return render_template('pages/version1.html')
 
 
-@pcrs.route('/version2')
+@pcrs.route('/version2', methods=['GET', 'POST'])
 def version2():
+
     return render_template('pages/version2.html')
 
 @pcrs.route('/download/<int:x_min>-<int:y_min>-<int:x_max>-<int:y_max>-<annee>-<proj>-<resolution>-<canaux>')
-def download(x_min, y_min, x_max, y_max, annee, proj, resolution, canaux):
+@pcrs.route('/download', methods=['GET', 'POST'])
+def download(x_min=None, y_min=None, x_max=None, y_max=None, annee=None, proj=None, resolution=None, canaux=None):
+    """ Route permettant de telecharger une dalle ou plusieurs dalles dans un zip"""
     directory_dalles = "app/static/img/"
-    name_dalle = f"{annee}-0{x_min//100}-{y_max//100}-{proj}-{resolution}-{canaux}.tif"
-
     # creation du dossier img si il n'existe pas
     os.makedirs(directory_dalles, exist_ok=True)
+    # si on download une seule dalle
+    if x_min :
+        name_dalle = f"{annee}-0{x_min//100}-{y_max//100}-{proj}-{resolution}-{canaux}.tif"
+        
+        # si la dalle est déjà dans le dossier img, alors on ne refait pas le requete wms et le géoreferencement, on la télécharge directement
+        if not os.path.isfile(f"{directory_dalles}{name_dalle}"):
+            # on stocke l'image dans un dossier en la recuperant avec une requete wms avec sa bbox, avant de lui faire ses traitements
+            requete_wms_and_georeferecement((x_min,y_min,x_max,y_max), directory_dalles, name_dalle)
 
-    # si la dalle est déjà dans le dossier img, alors on ne refait pas le requete wms et le géoreferencement, on la télécharge directement
-    if not os.path.isfile(f"{directory_dalles}{name_dalle}"):
-        # on stocke l'image dans un dossier en la recuperant avec une requete wms avec sa bbox, avant de lui faire ses traitements
-        requete_wms_and_georeferecement((x_min,y_min,x_max,y_max), directory_dalles, name_dalle)
+        # on recupere le chemin absolu de l'image
+        file = os.path.abspath(f"{directory_dalles}{name_dalle}")
+        return send_file(file)
 
-    # on recupere le chemin absolu de l'image
-    file = os.path.abspath(f"{directory_dalles}{name_dalle}")
-    return send_file(file)
+    # quand on clique sur le bouton telecharger on recupere sous forme de liste toutes les dalles séléctionner
+    if request.method == 'POST':
+        dalles = request.form.getlist('dalle[]')
+        memory_file = BytesIO()
+        zip_folder =  ZipFile(memory_file, 'w')
+        # on boucle sur chaques dalles
+        for dalle in dalles :
+            # on split les infos avec un "-" pour recuperer chaque parametre de la dalle (voir js pour le format de l'envoie)
+            dalle = dalle.split("-")
+            # on format dans un dictionnaire les parametres d'une dalle
+            dalle = {"x_min": int(dalle[0]), "y_min": int(dalle[1]), "x_max": int(dalle[2]), "y_max": int(dalle[3]), "annee": dalle[4], "proj": dalle[5], "resolution": dalle[6], "canaux": dalle[7]}
+            # nom de la dalle
+            name_dalle = f"{dalle['annee']}-0{dalle['x_min']//100}-{dalle['y_max']//100}-{dalle['proj']}-{dalle['resolution']}-{dalle['canaux']}.tif"
+
+            # si la dalle est déjà dans le dossier img, alors on ne refait pas le requete wms et le géoreferencement, on la télécharge directement
+            if not os.path.isfile(f"{directory_dalles}{name_dalle}"):
+                # on stocke l'image dans un dossier en la recuperant avec une requete wms avec sa bbox, avant de lui faire ses traitements
+                requete_wms_and_georeferecement((dalle['x_min'],dalle['y_min'],dalle['x_max'],dalle['y_max']), directory_dalles, name_dalle)
+            
+            # on recupere le chemin absolu de l'image
+            file = os.path.abspath(f"{directory_dalles}{name_dalle}")
+            # on ajoute le fichier dans le zip qui sera envoyé
+            zip_folder.write(file)
+
+        zip_folder.close()
+        memory_file.seek(0)
+        return send_file(memory_file, attachment_filename=f'telechargement_dalle.zip', as_attachment=True)
 
 
 def log_wms_serveur():
