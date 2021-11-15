@@ -71,7 +71,7 @@ def download(x_min=None, y_min=None, x_max=None, y_max=None, annee=None, proj=No
             # on recupere le chemin absolu de l'image
             file = os.path.abspath(f"{directory_dalles}{name_dalle}")
             # on ajoute le fichier dans le zip qui sera envoyé
-            zip_folder.write(file)
+            zip_folder.write(file, os.path.basename(file))
 
         zip_folder.close()
         memory_file.seek(0)
