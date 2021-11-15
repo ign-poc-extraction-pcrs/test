@@ -96,3 +96,23 @@ geojson = L.geoJson(dallage, {
     style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
     onEachFeature: onEachFeature
 }).addTo(map);
+
+// menu qui va afficher une info : "Cliquer sur une dalle pour la télécharger dans la version"
+const info_menu = L.control();
+
+// creation de la popup pour afficher l'info_menu
+info_menu.onAdd = function (map) {
+    // creation de la div
+    this._div = L.DomUtil.create('div', 'info');
+    if (!L.Browser.touch) {
+        L.DomEvent
+            .disableClickPropagation(this._div)
+            .disableScrollPropagation(this._div);
+    } else {
+        L.DomEvent.on(this._div, 'click', L.DomEvent.stopPropagation);
+    }
+    this._div.innerHTML = "Cliquer sur une dalle pour la télécharger"
+    return this._div;
+};
+
+info_menu.addTo(map)
