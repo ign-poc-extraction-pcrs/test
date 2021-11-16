@@ -75,7 +75,7 @@ def download(x_min=None, y_min=None, x_max=None, y_max=None, annee=None, proj=No
 
         zip_folder.close()
         memory_file.seek(0)
-        return send_file(memory_file, attachment_filename=f'telechargement_dalle.zip', as_attachment=True)
+        return send_file(memory_file, attachment_filename=f'telechargement_PCRS.zip', as_attachment=True)
 
 
 def log_wms_serveur():
