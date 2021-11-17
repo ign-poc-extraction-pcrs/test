@@ -31,6 +31,17 @@ Ce dépôt a pour but de faire un poc sur l'extraction d'une/des dalles(s) pcrs 
 * run.py : script qui appelle le dossier app et qui lance l'application web
 
 
+## Clone projet 
+Ajouter les proxy !
+```
+git config --global http.proxy $http_proxy
+git config --global https.proxy $https_proxy
+```
+```
+git clone https://github.com/ign-poc-extraction-pcrs/test.git
+```
+
+
 ## Run projet
 
 Se mettre à la racine du projet
