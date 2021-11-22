@@ -48,6 +48,7 @@ export HTTPS_PROXY=$https_proxy
 ```
 sudo apt-get install -y proj-bin gdal-bin
 pip3 install --upgrade pip
+sudo apt install python-gdal
 ```
 ```
 git clone https://github.com/ign-poc-extraction-pcrs/test.git
@@ -93,4 +94,11 @@ if __name__ == "__main__":
 Lancer le serveur :
 ```
 python3 run.py
+```
+
+Creation du cron :
+```
+sudo apt-get install cron
+crontab - e
+chemin/absolu/test/app/static/img/*
 ```
