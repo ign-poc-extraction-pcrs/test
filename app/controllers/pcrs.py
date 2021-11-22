@@ -11,7 +11,7 @@ pcrs = Blueprint('pcrs', __name__, url_prefix='/')
 
 @pcrs.route('/')
 def index():
-    return redirect(url_for('pcrs.version1'))
+    return redirect(url_for('pcrs.version2'))
 
 
 @pcrs.route('/version1')

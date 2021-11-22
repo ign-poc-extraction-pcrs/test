@@ -31,6 +31,30 @@ Ce dépôt a pour but de faire un poc sur l'extraction d'une/des dalles(s) pcrs 
 * run.py : script qui appelle le dossier app et qui lance l'application web
 
 
+## Clone projet (serveur prod)
+Ajouter les proxy !
+```
+git config --global http.proxy $http_proxy
+git config --global https.proxy $https_proxy
+```
+```
+vi .bashrc
+export http_proxy=http://proxy.fwcloud.ign.fr:3128
+export https_proxy=http://proxy.fwcloud.ign.fr:3128
+
+export HTTP_PROXY=$http_proxy
+export HTTPS_PROXY=$https_proxy
+```
+```
+sudo apt-get install -y proj-bin gdal-bin
+pip3 install --upgrade pip
+sudo apt install python-gdal
+```
+```
+git clone https://github.com/ign-poc-extraction-pcrs/test.git
+```
+
+
 ## Run projet
 
 Se mettre à la racine du projet
@@ -70,4 +94,11 @@ if __name__ == "__main__":
 Lancer le serveur :
 ```
 python3 run.py
+```
+
+Creation du cron :
+```
+sudo apt-get install cron
+crontab - e
+00 02 * * * rm chemin/absolu/test/app/static/img/*
 ```
