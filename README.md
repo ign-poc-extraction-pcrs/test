@@ -100,5 +100,5 @@ Creation du cron :
 ```
 sudo apt-get install cron
 crontab - e
-chemin/absolu/test/app/static/img/*
+00 02 * * * rm chemin/absolu/test/app/static/img/*
 ```
