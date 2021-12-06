@@ -103,7 +103,7 @@ def requete_wms_and_georeferecement(bbox, directory_dalles, name_dalle):
         srs=srs,
         bbox=bbox,
         style=[],
-        size=(1000,1000)
+        size=(4000,4000)
         )
     img = open(f'{directory_dalles}{name_dalle}', 'wb')
     img.write(dalle.read())
