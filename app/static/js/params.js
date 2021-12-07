@@ -11,6 +11,42 @@ x_max = 245000.000
 y_min = 6736000.000
 y_max = 6737000.000
 
+// Source : https://epsg.io/2154.proj4
+var proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+var bounds = L.bounds([-378305.81, 6093283.21], [1212610.74, 7186901.68]);
+// Source : https://github.com/IGNF/geoportal-extensions/blob/c606b749e060c5efc1a30137a1ed1d6d4ef47bfe/src/Leaflet/CRS/EPSG2154.js
+var resolutions = [104579.22454989408, 52277.53235379051, 26135.487078595408, 13066.891381800004, 6533.228604113456, 3266.5595244626675, 1633.2660045974187, 816.6295549860224, 408.31391467683596, 204.15674151090204, 102.07831678324082, 51.0391448966112, 25.519569074269395, 12.759783693647506, 6.379891635966491, 3.18994576530532, 1.5949728694977277, .7974864315474559, .398743214900604, .19937160727567999, .099685803696052, .049842901818919996];
+var origin = [0, 12000000];
+
+// Création du crs_2154
+var crs_2154 = new L.Proj.CRS('EPSG:2154', proj4_2154, {
+    resolutions: resolutions,
+    origin: origin,
+    bounds: bounds
+});
+
+// Création d'une carte en 2154
+var map = L.map('map', {
+    crs: crs_2154,
+    continuousWorld: true,
+}).setView([47.57, -3.065], 15);
+
+
+// Ajout fonds de carte (WMS)
+var baselayers = {
+
+
+    PlanIGNV2: L.tileLayer.wms('https://wxs.ign.fr/essentiels/geoportail/r/wms?', {
+        layers: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2',
+    }),
+    OrthoImage: L.tileLayer.wms('https://wxs.ign.fr/essentiels/geoportail/r/wms?', {
+        layers: 'ORTHOIMAGERY.ORTHOPHOTOS',
+    })
+   
+                             
+    
+}; baselayers.PlanIGNV2.addTo(map);
+
 // parametre à changer pour le design des dalles
 var params_design = {
     "base" : {
