@@ -1,38 +1,3 @@
-//Appel et configuration carte
-var map = L.map('map', {
-    center: [47.57, -3.065],
-    zoom: 15
-});
-
-
-// Ajout fonds de carte (WMS)
-var baselayers = {
-
-
-    PlanIGNV2: L.tileLayer('https://wxs.ign.fr/choisirgeoportail/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&format=image/png&style=normal'),
-    OrthoImage: L.tileLayer('https://wxs.ign.fr/choisirgeoportail/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=ORTHOIMAGERY.ORTHOPHOTOS&format=image/jpeg&style=normal'),
-
-}; baselayers.PlanIGNV2.addTo(map);
-
-// // Ajout du bati en wms comme couche 
-// var Parcelbati = L.tileLayer.wms('http://mapsref.brgm.fr/wxs/refcom-brgm/refign',
-//     { layers: 'PARVEC_BATIMENT', format: 'image/png', transparent: true }).addTo(map);
-
-// // Ajout du cadatre en wms comme couche 
-
-// var Cadastre = L.tileLayer.wms('http://geobretagne.fr/geoserver/cadastre/wms',
-//     { layers: 'CP.CadastralParcel', format: 'image/png', transparent: true }).addTo(map);
-
-// // Ajout des amanegements cyclables en wms comme couche 
-
-// var Routes = L.tileLayer.wms('https://public.sig.rennesmetropole.fr/geoserver/ows?',
-//     { layers: 'ref_rva:vgs_troncon_domanialite', format: 'image/png', transparent: true });
-
-// var pcrs = L.tileLayer.wms('https://vectortiles.ign.fr/wms?',
-//     { crs: "CRS:84", format: "image/png", layers: "PCRS", version: "1.3.0" });
-
-// Gestion des couches
-
 var data = {};
 
 // Selecteur fonds de carte

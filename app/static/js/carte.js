@@ -1,19 +1,3 @@
-//Appel et configuration carte
-var map = L.map('map', {
-    center: [47.57, -3.065],
-    zoom: 15
-});
-
-
-// Ajout fonds de carte (WMS)
-var baselayers = {
-
-
-    PlanIGNV2: L.tileLayer('https://wxs.ign.fr/choisirgeoportail/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&format=image/png&style=normal'),
-    OrthoImage: L.tileLayer('https://wxs.ign.fr/choisirgeoportail/geoportail/wmts?service=WMTS&request=GetTile&version=1.0.0&tilematrixset=PM&tilematrix={z}&tilecol={x}&tilerow={y}&layer=ORTHOIMAGERY.ORTHOPHOTOS&format=image/jpeg&style=normal'),
-
-}; baselayers.PlanIGNV2.addTo(map);
-
 var data = {};
 
 // Selecteur fonds de carte
