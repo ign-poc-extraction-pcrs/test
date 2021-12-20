@@ -29,6 +29,9 @@ const origin = [0, 12000000];
 // Création du converter
 proj4.defs("EPSG:2154", proj4_2154);
 const converter = proj4("EPSG:2154");
+// Param en dur
+const KEY = "c90xknypoz1flvgojchbphgt";
+const DATA_TYPE = "lidarhd";
 var map, key;
 
 
@@ -65,27 +68,37 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     L.control.layers(baseMaps).addTo(map);
 
+    // Ajout échelle et géocodage
+    L.control.scale().addTo(map);
+    L.Control.geocoder().addTo(map);
+
     // Pour le debug
     map.on('click', function (e) {
         var coord = e.latlng;
         console.log("You clicked the map at: [" + coord.lat + ", " + coord.lng + "]");
     });
 
-    document.getElementById('form_div').addEventListener('submit', listData);
+    document.getElementById('form_div').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Récupération de la clé et du type de données demandées
+        key = document.getElementById('key_input').value;
+        var dataType = document.getElementById('dataType').value.toLowerCase();
+        // On lance la fonction
+        listData(dataType);
+    });
 
+    // On lance le listing des données
+    key = KEY;
+    listData(DATA_TYPE);
 });
 
-function listData(e) {
-    e.preventDefault();
+function listData(dataType) {
     // On affiche la div de chargement
     document.getElementById("loading_div").style.display = "block";
     // On masque les div d'erreur et de formulaire
     document.getElementById("form_div").style.display = "none";
     document.getElementById("key_error_div").style.display = "none";
-    // Récupération de la clé et du type de données demandées
-    key = document.getElementById('key_input').value;
     document.getElementById('key_span').textContent = key;
-    var dataType = document.getElementById('dataType').value.toLowerCase();
 
     // getFeature info
     fetch(`https://wxs.ign.fr/${key}/telechargement/prepackage?request=GetCapabilities`)

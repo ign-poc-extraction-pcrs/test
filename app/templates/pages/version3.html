@@ -11,11 +11,11 @@
 
 {% block body %}
     <div class="full-screen row">
-        <div id="map" class="full-screen col-9"></div>
+        <div class="full-screen col-9"><div id="map"></div></div>
         <div id="side" class="col-3">
-            <h1>Téléchargement IGN</h1>
+            <h4 class="mt-4">Données brutes Lidar&nbsp;HD</h4>
             <div id="form_div">
-                <h3>Affichage des données disponibles</h3>
+                <h5>Affichage des données disponibles</h5>
                 <form>
                     <div class="form-group">
                         <label for="key_input">Entrez votre clé pour continuer !</label>
@@ -33,22 +33,22 @@
                 </form>
             </div>
             <div id="text_div" style="display: none;" class="mt-4">
-                <h3><span id="nb_dalles"></span> dalles trouvées</h3>
+                <h5><span id="nb_dalles"></span> dalles trouvées</h5>
                 <p>Cliquez sur une dalle pour afficher les données à télécharger...</p>
             </div>
             <div id="dalle_div" style="display: none;" class="mt-4">
-                <h3>Dalle <span id="name"></span></h3>
+                <h5>Dalle <span id="name"></span></h5>
                 <p>Fichiers disponibles :</p>
                 <ul id="files"></ul>
             </div>
             <div id="loading_div" style="display: none;" class="mt-4">
-                <h3>Chargement...</h3>
+                <h5>Chargement...</h5>
                 <div class="progress">
                     <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
                 </div>
             </div>
             <div id="key_error_div" style="display: none;" class="mt-4">
-                <h3>Clé invalide !</h3>
+                <h5>Clé invalide !</h5>
                 <p>La clé <span id="key_span"></span> n'est pas valide ou n'a pas les droits requis.</p>
             </div>
         </div>
