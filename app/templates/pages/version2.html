@@ -2,7 +2,7 @@
 {% block title %}Version 2{% endblock %}
 
 {% block link %}
-
+<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
 {% endblock %}
 
 {% block body %}
@@ -10,6 +10,8 @@
 {% endblock body %}
 
 {% block js %}
+<script src="{{ url_for('static',filename='js/params.js') }}"></script>
+<script src="{{ url_for('static',filename='js/design.js') }}"></script>
 <script src="{{ url_for('static',filename='js/carteTest.js') }}"></script>
 <script src="{{ url_for('static',filename='js/dalles_download.js') }}"></script>
 {% endblock js %}

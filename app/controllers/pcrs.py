@@ -15,19 +15,17 @@ def index():
 
 
 @pcrs.route('/version1')
-def version1():
-    
-
-    # if os.path.isfile("app/static/img/2020-244000-6736600-LA93-0M05-RVB.tif"):
-    #     return redirect(url_for('pcrs.download', name = "2020-244000-6736600-LA93-0M05-RVB"))
-        
+def version1():  
     return render_template('pages/version1.html')
 
 
 @pcrs.route('/version2', methods=['GET', 'POST'])
 def version2():
-
     return render_template('pages/version2.html')
+
+@pcrs.route('/version3', methods=['GET'])
+def version3():
+    return render_template('pages/version3.html')
 
 @pcrs.route('/download/<int:x_min>-<int:y_min>-<int:x_max>-<int:y_max>-<annee>-<proj>-<resolution>-<canaux>')
 @pcrs.route('/download', methods=['GET', 'POST'])

@@ -1,3 +1,4 @@
+<!-- aAJOUTER MODIFS VALENTIN LIDARHD -->
 # POC PCRS
 
 Ce dépôt a pour but de faire un poc sur l'extraction d'une/des dalles(s) pcrs à l'aide d'une carte.
@@ -17,7 +18,7 @@ Ce dépôt a pour but de faire un poc sur l'extraction d'une/des dalles(s) pcrs 
     
     * template/ : dossier qui contient tous les fichiers html appelé par les routes
         * layout/ : dossier contenant la barre de navigation et le footer d'une page html (peut être vide)
-        * pages/ : dossier contenant les différentes pages appelés par les routes (en l'occurrence version1 et version2)
+        * pages/ : dossier contenant les différentes pages appelés par les routes (en l'occurrence version1 et version2 pour le PCRS et version3 pour le LIDAR)
         * base : fichier contenant tout le haut commun de toutes les pages html
     
     * __init__.py : fichier qui initialise l'app + configure les différents fichiers de routes
