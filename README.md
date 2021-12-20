@@ -1,4 +1,3 @@
-<!-- aAJOUTER MODIFS VALENTIN LIDARHD -->
 # POC PCRS
 
 Ce dépôt a pour but de faire un poc sur l'extraction d'une/des dalles(s) pcrs à l'aide d'une carte.
@@ -102,4 +101,16 @@ Creation du cron :
 sudo apt-get install cron
 crontab - e
 00 02 * * * rm chemin/absolu/test/app/static/img/*
+```
+
+## Mise à jours sur cgdim:
+Il faut aller dans le depot git, puis git pull et redémarrer le serveur dans le screen
+```
+cd test/
+git pull
+screen -x
+ctrl + c
+python run.py
+ctrl + a
+ctrl + d
 ```
