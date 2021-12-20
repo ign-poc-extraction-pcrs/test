@@ -68,6 +68,10 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     L.control.layers(baseMaps).addTo(map);
 
+    // Ajout échelle et géocodage
+    L.control.scale().addTo(map);
+    L.Control.geocoder().addTo(map);
+
     // Pour le debug
     map.on('click', function (e) {
         var coord = e.latlng;
