@@ -19,7 +19,7 @@ dalles_download.onAdd = function (map) {
 // méthode que nous utiliserons pour mettre à jour la popup en fonctions des dalles ajouté ou retiré
 dalles_download.update = function (liste_dalle) {
     // on ecris dans la popup
-    this._div.innerHTML = "<h2>Liste des dalles sélectionnées</h2>"
+    this._div.innerHTML = '<h2 class="titre__liste-dalle">Liste des dalles sélectionnées</h2>'
 
     const div_liste_dalles = document.createElement("div")
     if (!liste_dalle || liste_dalle.length === 0) {
