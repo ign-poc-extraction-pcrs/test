@@ -88,13 +88,21 @@ function click(e) {
 
 
 function onEachFeature(feature, layer) {
+    var label = L.marker(layer.getBounds().getCenter(), {
+        icon: L.divIcon({
+          className: 'label-nom',
+          html: feature.properties["simple-nom"],
+          iconSize: [0, 0]
+        })
+      }).addTo(map);
+
     layer.on({
         mouseover: highlightFeature,
         mouseout: resetHighlight,
         click: click
     });
-}
 
+}
 
 
 // on ajoute le dallage à la carte
@@ -137,3 +145,14 @@ dalles.forEach((dalle, key) => {
         dalle.classList.add(`id${key}`)
     }
 });
+
+
+labels_polygon = document.querySelectorAll(".label-nom")
+labels_polygon.forEach(label => {
+    label.style.marginLeft = "-30px";
+    label.style.marginTop = "-8px";
+    label.style.color = "white";
+    label.style.fontWeight = '800';
+    label.style.fontSize = '8px';
+});
+console.log(labels_polygon);
