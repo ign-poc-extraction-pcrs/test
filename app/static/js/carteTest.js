@@ -88,18 +88,25 @@ function click(e) {
 
 
 function onEachFeature(feature, layer) {
+    // Ajout écouteur d'événement sur l'élément
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: click
+    });
+    // Ajout d'un label
     var label = L.marker(layer.getBounds().getCenter(), {
         icon: L.divIcon({
           className: 'label-nom',
           html: feature.properties["simple-nom"],
           iconSize: [0, 0]
         })
-      }).addTo(map);
-
-    layer.on({
-        mouseover: highlightFeature,
-        mouseout: resetHighlight,
-        click: click
+    }).addTo(map);
+    // Ajout écouteur d'événement sur le label qui lance l'événement de l'élément
+    label.on({
+        mouseover: function(){layer.fire('mouseover')},
+        mouseout: function(){layer.fire('mouseout')},
+        click: function(){layer.fire('click')},
     });
 
 }
