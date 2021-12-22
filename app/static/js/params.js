@@ -134,7 +134,8 @@ for (let x = x_min; x < x_max; x += pas) {
                 "id" : id,
                 "nom" : `2020-0${x/100}-${(y + pas)/100}-LA93-0M05-RVB`,
                 "extension" : "tiff",
-                "simple-nom": `0${x/100}-${(y + pas)/100}`
+                "x": `0${x/100}`,
+                "y":(y + pas)/100
             }
         })
     }

@@ -7,7 +7,7 @@ L.control.layers(baselayers, data, { collapsed: false }).addTo(map);
 
 // Echelle cartographique
 L.control.scale().addTo(map);
-L.Control.geocoder().addTo(map);
+L.Control.geocoder({position : 'topleft'}).addTo(map);
 
 
 function highlightFeature(e) {
@@ -98,7 +98,7 @@ function onEachFeature(feature, layer) {
     var label = L.marker(layer.getBounds().getCenter(), {
         icon: L.divIcon({
           className: 'label-nom',
-          html: feature.properties["simple-nom"],
+          html: `<p><span>${feature.properties["x"]}</span> <span>-</span> <span>${feature.properties["y"]}</span></p>`,
           iconSize: [0, 0]
         })
     }).addTo(map);
@@ -156,10 +156,80 @@ dalles.forEach((dalle, key) => {
 
 labels_polygon = document.querySelectorAll(".label-nom")
 labels_polygon.forEach(label => {
-    label.style.marginLeft = "-30px";
-    label.style.marginTop = "-8px";
+    // on modifie le style des labels
+    label.style.marginLeft = "-18px";
+    label.style.marginTop = "-30px";
     label.style.color = "white";
     label.style.fontWeight = '800';
-    label.style.fontSize = '8px';
+    label.style.fontSize = '10px';
+    // on modifie le style du "-" 
+    label.children[0].children[1].style.marginLeft = "17px"
+    // on cache les noms au chargement de la page, il ne doivent être affiché que si la checkbox est coché
+    label.style.display = "none"
 });
-console.log(labels_polygon);
+
+// menu qui va afficher les couches optionnels
+const couche_optionnel = L.control();
+
+// creation de la popup pour afficher les couches optionnels
+couche_optionnel.onAdd = function (map) {
+    // creation de la div
+    this._div = L.DomUtil.create('div', 'optionnel');
+    if (!L.Browser.touch) {
+        L.DomEvent
+            .disableClickPropagation(this._div)
+            .disableScrollPropagation(this._div);
+    } else {
+        L.DomEvent.on(this._div, 'click', L.DomEvent.stopPropagation);
+    }
+    this.update();
+    return this._div;
+};
+
+// méthode que nous utiliserons pour mettre à jour la popup en fonctions des couches selectionnez
+couche_optionnel.update = function () {
+    // creation des différents element html pour avoir la popup avec la/les checkbox
+    this._div.classList.add("leaflet-control-layers")
+    this._div.classList.add("leaflet-control-layers-expanded")
+
+    var section = document.createElement("section")
+    section.classList.add("leaflet-control-layers-list")
+    this._div.appendChild(section)
+
+    var div_leflet_control = document.createElement("div")
+    div_leflet_control.classList.add("leaflet-control-layers-base")
+    section.appendChild(div_leflet_control)
+
+    var label_nom_dalle = document.createElement("label")
+    div_leflet_control.appendChild(label_nom_dalle)
+
+    var div_nom_dalle = document.createElement("div")
+    label_nom_dalle.appendChild(div_nom_dalle)
+
+    var input_nom_dalle = document.createElement("input")
+    input_nom_dalle.classList.add("leaflet-control-layers-selector")
+    input_nom_dalle.classList.add("couche_optionnel_nom_dalle")
+    input_nom_dalle.type = "checkbox"
+    input_nom_dalle.name = 'leaflet-base-layers_68'
+    div_nom_dalle.appendChild(input_nom_dalle)
+
+    var span_nom_dalle = document.createElement("span")
+    span_nom_dalle.innerHTML = 'Nom dalle'
+    div_nom_dalle.appendChild(span_nom_dalle)
+}
+
+couche_optionnel.addTo(map)
+
+// recupération de la checkbox_nom_dalle pour voir si elle est coché ou non, si elle est coché on affiche les noms de dalles dans les polygons
+var checkBox_nom_dalle = document.querySelector(".couche_optionnel_nom_dalle");
+checkBox_nom_dalle.addEventListener('change', function() {
+    labels_polygon.forEach(label => {
+        // si la checkbox est checker on affiche tout les noms, sinon on les cachent
+        if (this.checked) {
+            label.style.display = "block"
+        } else {
+            label.style.display = "none"
+        }
+    })
+    
+  });
