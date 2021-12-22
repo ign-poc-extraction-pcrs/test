@@ -133,7 +133,9 @@ for (let x = x_min; x < x_max; x += pas) {
             "properties": {
                 "id" : id,
                 "nom" : `2020-0${x/100}-${(y + pas)/100}-LA93-0M05-RVB`,
-                "extension" : "tiff"
+                "extension" : "tiff",
+                "x": `0${x/100}`,
+                "y":(y + pas)/100
             }
         })
     }
