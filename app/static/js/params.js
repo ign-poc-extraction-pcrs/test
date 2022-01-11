@@ -5,11 +5,11 @@ limit_select_dalle = 10
 pas = 200
 
 // 4 coordonnées pour creer le dallages et dalles
-x_min = 244000.000
-x_max = 245000.000
+x_min = 238000.000
+x_max = 252000.000
 
 y_min = 6736000.000
-y_max = 6737000.000
+y_max = 6743000.000
 
 // Source : https://epsg.io/2154.proj4
 var proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
@@ -29,7 +29,7 @@ var crs_2154 = new L.Proj.CRS('EPSG:2154', proj4_2154, {
 var map = L.map('map', {
     crs: crs_2154,
     continuousWorld: true,
-}).setView([47.57, -3.065], 15);
+}).setView([47.60, -3.045], 13);
 
 
 // Ajout fonds de carte (WMS)
@@ -113,34 +113,36 @@ id = 0
 // on ajoute les dalles (carré) par rapport à aux coordonnées du dallage
 for (let x = x_min; x < x_max; x += pas) {
     for (let y = y_min; y < y_max; y += pas) {
-        id += 1
-        dallage["features"].push({
-            "type": "Feature",
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        // on change de projection les coordonnées
-                        convertisseur.inverse([x, y])
-                        ,
-                        convertisseur.inverse([x + pas, y])
-                        ,
-                        convertisseur.inverse([x + pas, y + pas])
-                        ,
-                        convertisseur.inverse([x, y + pas])
-                        ,
-                        convertisseur.inverse([x, y])
+        if(x != 238000 || y + pas > 6736400){
+            id += 1
+            dallage["features"].push({
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            // on change de projection les coordonnées
+                            convertisseur.inverse([x, y])
+                            ,
+                            convertisseur.inverse([x + pas, y])
+                            ,
+                            convertisseur.inverse([x + pas, y + pas])
+                            ,
+                            convertisseur.inverse([x, y + pas])
+                            ,
+                            convertisseur.inverse([x, y])
+                        ]
                     ]
-                ]
-            }, 
-            "properties": {
-                "id" : id,
-                "nom" : `2020-0${x/100}-${(y + pas)/100}-LA93-0M05-RVB`,
-                "extension" : "tiff",
-                "x": `0${x/100}`,
-                "y":(y + pas)/100
-            }
-        })
+                }, 
+                "properties": {
+                    "id" : id,
+                    "nom" : `2020-0${x/100}-${(y + pas)/100}-LA93-0M05-RVB`,
+                    "extension" : "tiff",
+                    "x": `0${x/100}`,
+                    "y":(y + pas)/100
+                }
+            })
+        }
     }
 
 }
