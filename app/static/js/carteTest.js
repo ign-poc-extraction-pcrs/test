@@ -108,7 +108,6 @@ function onEachFeature(feature, layer) {
         mouseout: function(){layer.fire('mouseout')},
         click: function(){layer.fire('click')},
     });
-
 }
 
 
@@ -211,14 +210,30 @@ couche_optionnel.update = function () {
     input_nom_dalle.classList.add("couche_optionnel_nom_dalle")
     input_nom_dalle.type = "checkbox"
     input_nom_dalle.name = 'leaflet-base-layers_68'
+    // si le zoom est en dessous de 15 on ne donne pas la possibilité de checker la checkbox et donc d'afficher les nom des dalles
+    if (map.getZoom() < 15) {
+        var textAlert = document.createElement("span")
+        textAlert.classList.add("text-alert-checkbox-nom-dalle")
+        textAlert.innerHTML = "Zoom trop petit </br>"
+        textAlert.style.opacity = "0.6"
+        div_nom_dalle.appendChild(textAlert)
+        input_nom_dalle.disabled = true
+    } 
     div_nom_dalle.appendChild(input_nom_dalle)
 
     var span_nom_dalle = document.createElement("span")
+    span_nom_dalle.classList.add("span-nom-dalle")
     span_nom_dalle.innerHTML = 'Nom dalle'
+    if (map.getZoom() < 15) {
+        span_nom_dalle.style.opacity = "0.6"
+    } 
     div_nom_dalle.appendChild(span_nom_dalle)
 }
 
 couche_optionnel.addTo(map)
+
+
+
 
 // recupération de la checkbox_nom_dalle pour voir si elle est coché ou non, si elle est coché on affiche les noms de dalles dans les polygons
 var checkBox_nom_dalle = document.querySelector(".couche_optionnel_nom_dalle");
@@ -233,3 +248,39 @@ checkBox_nom_dalle.addEventListener('change', function() {
     })
     
   });
+
+
+  function affichage_nom_dalle_menu(zoom) {
+    texteAlert_nom_dalle = document.querySelector(".text-alert-checkbox-nom-dalle")
+    span_nom_dalle = document.querySelector(".span-nom-dalle")
+    if (zoom >= 15) {
+        texteAlert_nom_dalle.style.display = "none"
+        span_nom_dalle.style.opacity = "1"
+    }else{
+        texteAlert_nom_dalle.style.display = "block"
+        span_nom_dalle.style.opacity = "0.6"
+    }
+  }
+
+
+map.on('zoomend', function() {
+    // quand on change le zoom de la carte les actions suivante se déroule
+    // l'objectif est de masquer les noms de dalle à un certain niveau de zoom car sinon elles sont trop petite
+    var currentZoom = map.getZoom();
+    input_nom_dalle = document.querySelector(".couche_optionnel_nom_dalle")
+    affichage_nom_dalle_menu(currentZoom)
+
+    // si le zoom est plus grand ou égal à 15 alors on donne la possibilité de cocher la checkbox pour afficher ou non les nom de dalle
+    if (currentZoom >= 15){
+        input_nom_dalle.disabled = false
+    }else{
+        // sinon a un zomm inferieur à 15 on enleve les nom de dalle, on décoche la checkbox et on ne donne pas la possibilité de 
+        // re checker la checkbox
+        labels_polygon.forEach(label => {
+            label.style.display = "none"
+        })
+        input_nom_dalle.checked = false
+        input_nom_dalle.disabled = true
+        
+    }
+});
