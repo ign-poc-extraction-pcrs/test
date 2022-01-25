@@ -99,7 +99,7 @@ function onEachFeature(feature, layer) {
         icon: L.divIcon({
           className: 'label-nom',
           html: `<p><span>${feature.properties["x"]}</span> <span>-</span> <span>${feature.properties["y"]}</span></p>`,
-          iconSize: [0, 0]
+          iconSize: [0, 0],
         })
     }).addTo(map);
     // Ajout écouteur d'événement sur le label qui lance l'événement de l'élément
@@ -142,7 +142,7 @@ geojson = L.geoJson({
 
 // permet d'affiche le dallage au dessus des autres couches
 map.createPane('dallage');
-map.getPane('dallage').style.zIndex = 6600;
+map.getPane('dallage').style.zIndex = 500;
 
 // on la dalle à la carte
 geojson = L.geoJson(dallage, {
@@ -310,7 +310,7 @@ input_limit_commune = document.querySelector(".limite_commune")
 input_limit_commune.addEventListener('change', function() {
     // creer un pane permet de mettre un z-index a la couche, on met donc un grand z-index car on veut que cette couche passe au dessus
     map.createPane('limit_commune');
-    map.getPane('limit_commune').style.zIndex = 6500;
+    map.getPane('limit_commune').style.zIndex = 499;
     map.getPane('limit_commune').style.pointerEvents = 'none';
 
     limit_commune = L.tileLayer.wms('https://wxs.ign.fr/essentiels/geoportail/r/wms?', {
