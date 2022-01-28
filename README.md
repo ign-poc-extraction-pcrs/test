@@ -7,8 +7,7 @@ Ce dépôt a pour but de faire un poc sur l'extraction d'une/des dalles(s) pcrs 
 * app/ : dossier où se situent tous les fichiers de l'application web
 
     * controllers/ dossier contenant les scripts python pour les routes (toutes les actions pour une route)
-        
-        * pcrs.py fichier contenant toutes les routes en rapport avec l'extraction des dalles pcrs 
+        * pcrs.py fichier contenant toutes les routes en rapport avec l'extraction des dalles pcrs
     
     * static/ : dossier contenant les fichiers appelés (css, js, img) dans les routes ou fichier html
         * css/ : dossier contenant les différents fichiers css (design)
@@ -31,26 +30,32 @@ Ce dépôt a pour but de faire un poc sur l'extraction d'une/des dalles(s) pcrs 
 * run.py : script qui appelle le dossier app et qui lance l'application web
 
 
-## Clone projet (serveur prod)
+## Installation projet (serveur prod)
+
+Installer
+```sh
+sudo apt update && sudo apt install -y git cron screen proj-bin gdal-bin python3 python3-pip python3-venv nginx
+```
+
 Ajouter les proxy !
+```sh
+vi ~/.bashrc
 ```
-git config --global http.proxy $http_proxy
-git config --global https.proxy $https_proxy
-```
-```
-vi .bashrc
+```sh
 export http_proxy=http://proxy.fwcloud.ign.fr:3128
 export https_proxy=http://proxy.fwcloud.ign.fr:3128
-
 export HTTP_PROXY=$http_proxy
 export HTTPS_PROXY=$https_proxy
 ```
+```sh
+source ~/.bashrc
+git config --global http.proxy $http_proxy
+git config --global https.proxy $https_proxy
 ```
-sudo apt-get install -y proj-bin gdal-bin
+```sh
 pip3 install --upgrade pip
-sudo apt install python-gdal
 ```
-```
+```sh
 git clone https://github.com/ign-poc-extraction-pcrs/test.git
 ```
 
@@ -64,27 +69,26 @@ Windows :
 ```
 py -3 -m venv venv
 ```
-
 ```
 venv\Scripts\activate
 ```
+
 Linux:
-```
+```sh
 python3 -m venv venv
 ```
-
-```
+```sh
 . venv/bin/activate
 ```
 
 Installation des librairies :
-```
+```sh
 pip install -r requirements.txt
 ```
 
 Création de run.py pour lancer le serveur\
 Dans run.py (mettre votre "host", si c'est en local enlever "host") :
-```
+```py
 from app import app
 
 if __name__ == "__main__":
@@ -92,25 +96,83 @@ if __name__ == "__main__":
 ```
 
 Lancer le serveur :
+
+En dev :
 ```
 python3 run.py
 ```
 
-Creation du cron :
+En prod :
+```sh
+screen -S pcrs
+cd ~/test
+. venv/bin/activate
+python3 run_prod.py
 ```
-sudo apt-get install cron
-crontab - e
+Puis Ctrl + A + D.
+
+## Autres installations à effectuer en prod
+
+### Configuration de nginx
+
+```sh
+sudo nano /etc/nginx/sites-available/pcrs
+sudo ln -s /etc/nginx/sites-available/pcrs /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/default
+```
+
+```
+server {
+    listen 80;
+
+#    server_name     *;
+
+    access_log      /var/log/nginx/pcrs.access.log;
+
+    proxy_request_buffering off;
+    proxy_buffering off;
+    proxy_buffer_size 4k;
+    proxy_read_timeout 10m;
+    proxy_send_timeout 10m;
+    keepalive_timeout 10m;
+
+    location / {
+
+        proxy_set_header        Client-IP $remote_addr;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Forwarded-For $remote_addr;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+
+        proxy_pass          http://localhost:5000/;
+        proxy_read_timeout  120;
+    }
+}
+```
+
+```sh
+sudo systemctl restart nginx
+```
+
+### Creation du cron
+
+```sh
+crontab -e
+```
+
+Ajouter :
+```
 00 02 * * * rm chemin/absolu/test/app/static/img/*
 ```
 
-## Mise à jours sur cgdim:
+### Mise à jour en prod
+
 Il faut aller dans le depot git, puis git pull et redémarrer le serveur dans le screen
 ```
 cd test/
 git pull
-screen -x
+screen -r pcrs
 ctrl + c
-python run.py
+python run_prod.py
 ctrl + a
 ctrl + d
 ```
