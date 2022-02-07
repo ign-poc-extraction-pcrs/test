@@ -99,7 +99,7 @@ function onEachFeature(feature, layer) {
         icon: L.divIcon({
           className: 'label-nom',
           html: `<p><span>${feature.properties["x"]}</span> <span>-</span> <span>${feature.properties["y"]}</span></p>`,
-          iconSize: [0, 0]
+          iconSize: [0, 0],
         })
     }).addTo(map);
     // Ajout écouteur d'événement sur le label qui lance l'événement de l'élément
@@ -139,10 +139,16 @@ geojson = L.geoJson({
         style: style("#fff", 5, 0.6, '#ad0000', '8', 0)
     }).addTo(map);
 
+
+// permet d'affiche le dallage au dessus des autres couches
+map.createPane('dallage');
+map.getPane('dallage').style.zIndex = 500;
+
 // on la dalle à la carte
 geojson = L.geoJson(dallage, {
     style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
-    onEachFeature: onEachFeature
+    onEachFeature: onEachFeature,
+    pane: 'dallage'
 }).addTo(map);
 
 dalles = document.querySelectorAll(".leaflet-interactive")
@@ -210,6 +216,12 @@ couche_optionnel.update = function () {
     input_nom_dalle.classList.add("couche_optionnel_nom_dalle")
     input_nom_dalle.type = "checkbox"
     input_nom_dalle.name = 'leaflet-base-layers_68'
+
+    var input_limit_commune = document.createElement("input")
+    input_limit_commune.classList.add("leaflet-control-layers-selector")
+    input_limit_commune.classList.add("limite_commune")
+    input_limit_commune.type = "checkbox"
+    input_limit_commune.name = 'leaflet-base-layers_68'
     // si le zoom est en dessous de 15 on ne donne pas la possibilité de checker la checkbox et donc d'afficher les nom des dalles
     if (map.getZoom() < 15) {
         var textAlert = document.createElement("span")
@@ -220,14 +232,22 @@ couche_optionnel.update = function () {
         input_nom_dalle.disabled = true
     } 
     div_nom_dalle.appendChild(input_nom_dalle)
+    
 
     var span_nom_dalle = document.createElement("span")
     span_nom_dalle.classList.add("span-nom-dalle")
     span_nom_dalle.innerHTML = 'Nom dalle'
+
+    var span_limit_commune = document.createElement("span")
+    span_limit_commune.classList.add("span-limit-commune")
+    span_limit_commune.innerHTML = 'Limite commune'
     if (map.getZoom() < 15) {
         span_nom_dalle.style.opacity = "0.6"
     } 
     div_nom_dalle.appendChild(span_nom_dalle)
+    div_nom_dalle.appendChild(document.createElement("hr"))
+    div_nom_dalle.appendChild(input_limit_commune)
+    div_nom_dalle.appendChild(span_limit_commune)
 }
 
 couche_optionnel.addTo(map)
@@ -284,3 +304,24 @@ map.on('zoomend', function() {
         
     }
 });
+
+
+input_limit_commune = document.querySelector(".limite_commune")
+input_limit_commune.addEventListener('change', function() {
+    // creer un pane permet de mettre un z-index a la couche, on met donc un grand z-index car on veut que cette couche passe au dessus
+    map.createPane('limit_commune');
+    map.getPane('limit_commune').style.zIndex = 499;
+    map.getPane('limit_commune').style.pointerEvents = 'none';
+
+    limit_commune = L.tileLayer.wms('https://wxs.ign.fr/essentiels/geoportail/r/wms?', {
+        layers: 'LIMITES_ADMINISTRATIVES_EXPRESS.LATEST', format: 'image/png',
+        pane: 'limit_commune'
+    })
+    
+    if (this.checked) {
+        map.addLayer(limit_commune)
+    } else {
+        limit_commune.removeLayer(map)
+    }
+})
+
