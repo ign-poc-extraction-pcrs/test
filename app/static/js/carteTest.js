@@ -306,6 +306,11 @@ map.on('zoomend', function() {
 });
 
 
+limit_commune = L.tileLayer.wms('https://wxs.ign.fr/essentiels/geoportail/r/wms?', {
+    layers: 'LIMITES_ADMINISTRATIVES_EXPRESS.LATEST', format: 'image/png',
+    pane: 'limit_commune'
+})
+
 input_limit_commune = document.querySelector(".limite_commune")
 input_limit_commune.addEventListener('change', function() {
     // creer un pane permet de mettre un z-index a la couche, on met donc un grand z-index car on veut que cette couche passe au dessus
@@ -313,15 +318,13 @@ input_limit_commune.addEventListener('change', function() {
     map.getPane('limit_commune').style.zIndex = 499;
     map.getPane('limit_commune').style.pointerEvents = 'none';
 
-    limit_commune = L.tileLayer.wms('https://wxs.ign.fr/essentiels/geoportail/r/wms?', {
-        layers: 'LIMITES_ADMINISTRATIVES_EXPRESS.LATEST', format: 'image/png',
-        pane: 'limit_commune'
-    })
-    
     if (this.checked) {
         map.addLayer(limit_commune)
+        console.log(map.hasLayer(limit_commune));
+         
     } else {
-        limit_commune.removeLayer(map)
+        console.log(map.hasLayer(limit_commune));
+        map.removeLayer(limit_commune)
     }
 })
 
