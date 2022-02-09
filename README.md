@@ -153,6 +153,46 @@ server {
 sudo systemctl restart nginx
 ```
 
+### installation de kakadu
+
+Récupérer kakadu sur gitlab (kakadu.7z) : http://gitlab.dev-arch-diff.ign.fr/tools/binaires/tree/master 
+Déplacer le zip dans un dossier kakadu 
+
+``` 
+cd ~
+mdkir kakadu
+```
+
+Extraire le zip 
+```
+cd kakadu
+apt install p7zip-full
+7z x kakadu.7z
+```
+
+Installation de quoi le complier
+```
+apt install default-jre default-jdk build-essential make gcc
+```
+
+Compilation
+```
+cd /kakadu/make
+export JAVA_HOME=/usr/lib/jvm/default-java
+make -f Makefile-Linux-x86-64-gcc
+```
+
+ajouter variable environnement dans le bashrc bashrc (vi ~/.bashrc)
+```
+export PATH=/home/pcrs-admin/kakadu/kakadu/bin/Linux-x86-64-gcc:$PATH
+export LD_LIBRARY_PATH=/home/pcrs-admin/kakadu/kakadu/bin/Linux-x86-64-gcc:$LD_LIBRARY_PATH
+```
+
+On relance le bashrc
+```
+source ~/.bashrc 
+```
+
 ### Creation du cron
 
 ```sh
