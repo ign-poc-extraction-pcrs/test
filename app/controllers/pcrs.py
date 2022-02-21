@@ -34,7 +34,7 @@ def download(x_min=None, y_min=None, x_max=None, y_max=None, annee=None, proj=No
     directory_dalles = "app/static/img/"
     # creation du dossier img si il n'existe pas
     os.makedirs(directory_dalles, exist_ok=True)
-    # si on download une seule dalle
+    # si on download une seule dalle (version1)
     if x_min :
         name_dalle = f"{annee}-0{x_min//100}-{y_max//100}-{proj}-{resolution}-{canaux}.tif"
         
@@ -47,7 +47,7 @@ def download(x_min=None, y_min=None, x_max=None, y_max=None, annee=None, proj=No
         file = os.path.abspath(f"{directory_dalles}{name_dalle}")
         return send_file(file)
 
-    # quand on clique sur le bouton telecharger on recupere sous forme de liste toutes les dalles séléctionner
+    # quand on clique sur le bouton telecharger on recupere sous forme de liste toutes les dalles séléctionner (version2)
     if request.method == 'POST':
         dalles = request.form.getlist('dalle[]')
         memory_file = BytesIO()
@@ -59,15 +59,15 @@ def download(x_min=None, y_min=None, x_max=None, y_max=None, annee=None, proj=No
             # on format dans un dictionnaire les parametres d'une dalle
             dalle = {"x_min": int(dalle[0]), "y_min": int(dalle[1]), "x_max": int(dalle[2]), "y_max": int(dalle[3]), "annee": dalle[4], "proj": dalle[5], "resolution": dalle[6], "canaux": dalle[7]}
             # nom de la dalle
-            name_dalle = f"{dalle['annee']}-0{dalle['x_min']//100}-{dalle['y_max']//100}-{dalle['proj']}-{dalle['resolution']}-{dalle['canaux']}.tif"
+            name_dalle = f"{dalle['annee']}-0{dalle['x_min']//100}-{dalle['y_max']//100}-{dalle['proj']}-{dalle['resolution']}-{dalle['canaux']}"
 
             # si la dalle est déjà dans le dossier img, alors on ne refait pas le requete wms et le géoreferencement, on la télécharge directement
-            if not os.path.isfile(f"{directory_dalles}{name_dalle}"):
+            if not os.path.isfile(f"{directory_dalles}{name_dalle}.jp2"):
                 # on stocke l'image dans un dossier en la recuperant avec une requete wms avec sa bbox, avant de lui faire ses traitements
                 requete_wms_and_georeferecement((dalle['x_min'],dalle['y_min'],dalle['x_max'],dalle['y_max']), directory_dalles, name_dalle)
             
             # on recupere le chemin absolu de l'image
-            file = os.path.abspath(f"{directory_dalles}{name_dalle}")
+            file = os.path.abspath(f"{directory_dalles}{name_dalle}.jp2")
             # on ajoute le fichier dans le zip qui sera envoyé
             zip_folder.write(file, os.path.basename(file))
 
@@ -78,10 +78,10 @@ def download(x_min=None, y_min=None, x_max=None, y_max=None, annee=None, proj=No
 
 def log_wms_serveur():
     """ connexion au serveur wms"""
-    os.environ['https_proxy'] = "http://proxy.ign.fr:3128"
-    os.environ['http_proxy'] = "http://proxy.ign.fr:3128"
-    os.environ['HTTPS_PROXY'] = "http://proxy.ign.fr:3128"
-    os.environ['HTTP_PROXYS'] = "http://proxy.ign.fr:3128"
+    # os.environ['https_proxy'] = "http://proxy.ign.fr:3128"
+    # os.environ['http_proxy'] = "http://proxy.ign.fr:3128"
+    # os.environ['HTTPS_PROXY'] = "http://proxy.ign.fr:3128"
+    # os.environ['HTTP_PROXYS'] = "http://proxy.ign.fr:3128"
     wms = WebMapService('https://vectortiles.ign.fr/wms', version='1.3.0')
     return wms
 
@@ -103,10 +103,12 @@ def requete_wms_and_georeferecement(bbox, directory_dalles, name_dalle):
         style=[],
         size=(4000,4000)
         )
-    img = open(f'{directory_dalles}{name_dalle}', 'wb')
+    img = open(f'{directory_dalles}{name_dalle}.tif', 'wb')
     img.write(dalle.read())
     img.close()
 
     x_min,y_min,x_max,y_max = bbox
-    status = subprocess.run(f"gdal_edit.py -a_ullr {x_min} {y_max} {x_max} {y_min} -a_srs {srs} {directory_dalles}{name_dalle}", shell=True)
-    print(f"gdal_edit.py -a_ullr {x_min} {y_min} {x_max} {y_max} -a_srs {srs} {directory_dalles}{name_dalle}")
+    conversion = "kdu_compress -i " + name_dalle + ".tif" + " -o " + name_dalle + ".jp2" " -rate 1.2 Sprofile=PROFILE1 Clayers=12 Clevels=8 Cblk='{64,64}' ORGgen_plt=yes Cprecincts='{256,256},{256,256},{128,128}' Corder=RPCL ORGtparts=R"
+    status = subprocess.run(conversion, shell=True)
+    print(conversion)
+    os.remove(f"{directory_dalles}{name_dalle}.tif") 
