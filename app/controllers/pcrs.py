@@ -108,7 +108,7 @@ def requete_wms_and_georeferecement(bbox, directory_dalles, name_dalle):
     img.close()
 
     x_min,y_min,x_max,y_max = bbox
-    conversion = "kdu_compress -i " + name_dalle + ".tif" + " -o " + name_dalle + ".jp2" " -rate 1.2 Sprofile=PROFILE1 Clayers=12 Clevels=8 Cblk='{64,64}' ORGgen_plt=yes Cprecincts='{256,256},{256,256},{128,128}' Corder=RPCL ORGtparts=R"
+    conversion = "kdu_compress -i " + directory_dalles + name_dalle + ".tif" + " -o " + directory_dalles + name_dalle + ".jp2" " -rate 1.2 Sprofile=PROFILE1 Clayers=12 Clevels=8 Cblk='{64,64}' ORGgen_plt=yes Cprecincts='{256,256},{256,256},{128,128}' Corder=RPCL ORGtparts=R"
     status = subprocess.run(conversion, shell=True)
     print(conversion)
     os.remove(f"{directory_dalles}{name_dalle}.tif") 
