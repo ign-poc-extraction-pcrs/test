@@ -154,7 +154,9 @@ geojson = L.geoJson(dallage, {
 dalles = document.querySelectorAll(".leaflet-interactive")
 dalles.forEach((dalle, key) => {
     if (key != 0){
-        dalle.classList.add(`id${key}`)
+        if(dalle.tagName == "path"){
+            dalle.classList.add(`id${key - (dalles.length / 2 - 0.5)}`)
+        }
     }
 });
 
