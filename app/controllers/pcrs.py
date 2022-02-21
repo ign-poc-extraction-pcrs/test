@@ -109,8 +109,8 @@ def requete_wms_and_georeferecement(bbox, directory_dalles, name_dalle):
 
     x_min,y_min,x_max,y_max = bbox
     # ajout du georeferencement
-    status = subprocess.run(f"gdal_edit.py -a_ullr {x_min} {y_max} {x_max} {y_min} -a_srs {srs} {directory_dalles}{name_dalle}", shell=True)
-    print(f"gdal_edit.py -a_ullr {x_min} {y_min} {x_max} {y_max} -a_srs {srs} {directory_dalles}{name_dalle}")
+    status = subprocess.run(f"gdal_edit.py -a_ullr {x_min} {y_max} {x_max} {y_min} -a_srs {srs} {directory_dalles}{name_dalle}.tif", shell=True)
+    print(f"gdal_edit.py -a_ullr {x_min} {y_min} {x_max} {y_max} -a_srs {srs} {directory_dalles}{name_dalle}.tif")
     # cmd qui convertit du tif en jp2
     conversion = "kdu_compress -i " + directory_dalles + name_dalle + ".tif" + " -o " + directory_dalles + name_dalle + ".jp2" " -rate 1.2 Sprofile=PROFILE1 Clayers=12 Clevels=8 Cblk='{64,64}' ORGgen_plt=yes Cprecincts='{256,256},{256,256},{128,128}' Corder=RPCL ORGtparts=R"
     tif_to_jp2 = subprocess.run(conversion, shell=True)
