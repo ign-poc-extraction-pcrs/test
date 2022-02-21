@@ -185,7 +185,7 @@ make -f Makefile-Linux-x86-64-gcc
 ajouter variable environnement dans le bashrc bashrc (vi ~/.bashrc)
 ```
 export PATH=/home/pcrs-admin/kakadu/kakadu/bin/Linux-x86-64-gcc:$PATH
-export LD_LIBRARY_PATH=/home/pcrs-admin/kakadu/kakadu/bin/Linux-x86-64-gcc:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/pcrs-admin/kakadu/kakadu/lib/Linux-x86-64-gcc:$LD_LIBRARY_PATH
 ```
 
 On relance le bashrc
