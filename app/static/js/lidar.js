@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Création et ajout des fonds de carte en 2154
-    var orthoImage = L.tileLayer('https://wxs.ign.fr/lambert93/geoportail/wmts?layer={layer}&style=normal&tilematrixset=LAMB93&Service=WMTS&Request=GetTile&VERSION=1.0.0&form_divat=image/jpeg&TileMatrix={z}&TileCol={x}&TileRow={y}', {
+    var orthoImage = L.tileLayer('https://wxs.ign.fr/lambert93/geoportail/wmts?layer={layer}&style=normal&tilematrixset=LAMB93&Service=WMTS&Request=GetTile&VERSION=1.0.0&format=image/jpeg&TileMatrix={z}&TileCol={x}&TileRow={y}', {
         layer: "ORTHOIMAGERY.ORTHOPHOTOS.BDORTHO.L93",
         continuousWorld: true,
     }).addTo(map);
