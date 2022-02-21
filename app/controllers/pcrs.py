@@ -108,7 +108,11 @@ def requete_wms_and_georeferecement(bbox, directory_dalles, name_dalle):
     img.close()
 
     x_min,y_min,x_max,y_max = bbox
+    # ajout du georeferencement
+    status = subprocess.run(f"gdal_edit.py -a_ullr {x_min} {y_max} {x_max} {y_min} -a_srs {srs} {directory_dalles}{name_dalle}", shell=True)
+    # cmd qui convertit du tif en jp2
     conversion = "kdu_compress -i " + directory_dalles + name_dalle + ".tif" + " -o " + directory_dalles + name_dalle + ".jp2" " -rate 1.2 Sprofile=PROFILE1 Clayers=12 Clevels=8 Cblk='{64,64}' ORGgen_plt=yes Cprecincts='{256,256},{256,256},{128,128}' Corder=RPCL ORGtparts=R"
     status = subprocess.run(conversion, shell=True)
     print(conversion)
+    # on supprime le tif qui nous servait à telecharger la dalle, mais c'est le jp2 qui est envoyer dans le zip
     os.remove(f"{directory_dalles}{name_dalle}.tif") 
