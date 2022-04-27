@@ -175,6 +175,9 @@ labels_polygon.forEach(label => {
     label.style.display = "none"
 });
 
+
+
+
 // menu qui va afficher les couches optionnels
 const couche_optionnel = L.control();
 
@@ -234,6 +237,7 @@ couche_optionnel.update = function () {
         input_nom_dalle.disabled = true
     } 
     div_nom_dalle.appendChild(input_nom_dalle)
+
     
 
     var span_nom_dalle = document.createElement("span")
@@ -291,6 +295,7 @@ map.on('zoomend', function() {
     var currentZoom = map.getZoom();
     input_nom_dalle = document.querySelector(".couche_optionnel_nom_dalle")
     affichage_nom_dalle_menu(currentZoom)
+    console.log(map.getZoom());
 
     // si le zoom est plus grand ou égal à 15 alors on donne la possibilité de cocher la checkbox pour afficher ou non les nom de dalle
     if (currentZoom >= 15){
@@ -304,6 +309,27 @@ map.on('zoomend', function() {
         input_nom_dalle.checked = false
         input_nom_dalle.disabled = true
         
+    }
+
+    if (map.getZoom() > 16) {
+        labels_polygon.forEach(label => {
+            label.style.fontSize = '60px';
+            label.style.marginLeft = "-65px";
+            label.style.marginTop = "-185px";
+        })
+    }else if(map.getZoom() == 16){
+        labels_polygon.forEach(label => {
+            label.style.fontSize = '20px';
+            label.style.marginLeft = "-25px";
+            label.style.marginTop = "-60px";
+        })
+    }
+    else{
+        labels_polygon.forEach(label => {
+            label.style.fontSize = '10px';
+            label.style.marginLeft = "-18px";
+            label.style.marginTop = "-30px";
+        })
     }
 });
 
