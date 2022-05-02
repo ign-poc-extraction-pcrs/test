@@ -78,10 +78,6 @@ def download(x_min=None, y_min=None, x_max=None, y_max=None, annee=None, proj=No
 
 def log_wms_serveur():
     """ connexion au serveur wms"""
-    os.environ['https_proxy'] = "http://proxy.ign.fr:3128"
-    os.environ['http_proxy'] = "http://proxy.ign.fr:3128"
-    os.environ['HTTPS_PROXY'] = "http://proxy.ign.fr:3128"
-    os.environ['HTTP_PROXYS'] = "http://proxy.ign.fr:3128"
     wms = WebMapService('https://wxs.ign.fr/ortho/geoportail/r/wms', version='1.3.0')
 
     return wms
