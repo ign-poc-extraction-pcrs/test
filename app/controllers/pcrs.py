@@ -83,6 +83,7 @@ def log_wms_serveur():
     os.environ['HTTPS_PROXY'] = "http://proxy.ign.fr:3128"
     os.environ['HTTP_PROXYS'] = "http://proxy.ign.fr:3128"
     wms = WebMapService('https://wxs.ign.fr/ortho/geoportail/r/wms', version='1.3.0')
+
     return wms
 
 def requete_wms_and_georeferecement(bbox, directory_dalles, name_dalle):
