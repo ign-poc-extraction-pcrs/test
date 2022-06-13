@@ -108,9 +108,9 @@ Il faut aller dans le depot git, puis git pull et redémarrer le serveur dans le
 ```
 cd test/
 git pull
-screen -x
+screen -r prod_pcrs
 ctrl + c
-python run.py
+python3 run.py
 ctrl + a
 ctrl + d
 ```
