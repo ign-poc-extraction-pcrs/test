@@ -1,5 +1,5 @@
 body, html { padding: 0; margin: 0; height: 100%; }
-.full-screen  { min-height: 100%; }
+.full-screen, #map { min-height: 100%; }
 ul#files>li>span.size {margin-left: 1em;}
 .leaflet-popup-content {text-align: center;}
 .leaflet-popup-content h6 {font-weight: bold;}
