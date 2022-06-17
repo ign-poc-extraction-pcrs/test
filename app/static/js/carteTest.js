@@ -311,13 +311,20 @@ map.on('zoomend', function() {
         
     }
 
-    if (map.getZoom() > 16) {
+    if (map.getZoom() == 17) {
         labels_polygon.forEach(label => {
-            label.style.fontSize = '60px';
-            label.style.marginLeft = "-65px";
-            label.style.marginTop = "-185px";
+            label.style.fontSize = '30px';
+            label.style.marginLeft = "-35px";
+            label.style.marginTop = "-100px";
         })
-    }else if(map.getZoom() == 16){
+    }else if(map.getZoom() == 18){
+        labels_polygon.forEach(label => {
+            label.style.fontSize = '40px';
+            label.style.marginLeft = "-45px";
+            label.style.marginTop = "-140px";
+        })
+    }
+    else if(map.getZoom() == 16){
         labels_polygon.forEach(label => {
             label.style.fontSize = '20px';
             label.style.marginLeft = "-25px";
