@@ -295,6 +295,9 @@ function clickFeature(e) {
     var name = layer.feature["properties"].name;
     var milesime = document.querySelector("#milesime")
 
+    coordonnee = name.split("_")[8]
+    document.getElementById("name").textContent = coordonnee
+
     // suppression des enfants (autres li)
     milesime.innerHTML = '';
 
