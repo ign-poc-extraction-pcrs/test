@@ -42,8 +42,8 @@ var baselayers = {
     OrthoImage: L.tileLayer.wms('https://wxs.ign.fr/essentiels/geoportail/r/wms?', {
         layers: 'ORTHOIMAGERY.ORTHOPHOTOS',
     }),
-    Pcrs: L.tileLayer.wms('https://vectortiles.ign.fr/wms?', {
-        layers: 'PCRS', version: "1.3.0"
+    Pcrs: L.tileLayer.wms('https://wxs.ign.fr/ortho/geoportail/r/wms?', {
+        layers: 'PCRS.LAMB93',
     })
    
                              
