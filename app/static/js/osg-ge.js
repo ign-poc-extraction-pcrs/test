@@ -31,7 +31,7 @@ proj4.defs("EPSG:2154", proj4_2154);
 const converter = proj4("EPSG:2154");
 // Param en dur
 const KEY = "62v7cyx875p3ijnv49640xqy";
-const DATA_TYPE = "lidarhd";
+const DATA_TYPE = "ocsge";
 var map, key;
 
 
@@ -80,40 +80,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // On lance le listing des données
     key = KEY;
-    // listData(DATA_TYPE);
-    test_data()
+    listData(DATA_TYPE);
+    // test_data()
 });
-list_dalle = [{ "name": "OCS_GE_1-1_PREDICTIONS_NAF_2016_TIF_LAMB93_D032-0426-6435_2022-06-01" },
-    { "name": "OCS_GE_1-1_PREDICTIONS_NAF_2019_TIF_LAMB93_D032-0426-6435_2022-06-01" },
-    { "name": "OCS_GE_1-1_PREDICTIONS_NAF_2016_TIF_LAMB93_D032-0416-6435_2022-06-01" },
-    { "name": "OCS_GE_1-1_PREDICTIONS_NAF_2019_TIF_LAMB93_D032-0416-6435_2022-06-01" }]
-function test_data() {
-    
-    // Création du dallage
-    var dallage = create_dallage(list_dalle);
-    document.getElementById("text_div").style.display = "block";
-    nb_dalle_2016 = 0
-    nb_dalle_2019 = 0
-    list_dalle.forEach(dalle => {
-        annee = dalle["name"].split("_")[5]
-        if (annee == 2019){
-            nb_dalle_2019 += 1
-        }else if (annee == 2016){
-            nb_dalle_2016 += 1
-        }
-    });
-    document.getElementById("nb_dalles_2016").textContent = nb_dalle_2016;
-    document.getElementById("nb_dalles_2019").textContent = nb_dalle_2019;
-
-    // Ajout du dallage
-    add_dallage(dallage);
-}
 
 function listData(dataType) {
     // On affiche la div de chargement
     document.getElementById("loading_div").style.display = "block";
     // On masque les div d'erreur et de formulaire
-    document.getElementById("form_div").style.display = "none";
+    // document.getElementById("form_div").style.display = "none";
     document.getElementById("key_error_div").style.display = "none";
     document.getElementById('key_span').textContent = key;
 
@@ -121,7 +96,6 @@ function listData(dataType) {
     fetch(`https://wxs.ign.fr/${key}/telechargement/prepackage?request=GetCapabilities`)
         .then(function (response) {
             if (response.ok) {
-                console.log(response.text());
                 return response.text();
             } else {
                 throw Error(response.statusText);
@@ -133,20 +107,31 @@ function listData(dataType) {
             var data = parser.parseFromString(xml, "text/xml");
 
             // Récupération des ressources LidarHD
-            var lidarHdResources = get_resources(data, dataType);
-            // On affiche text
-            document.getElementById("text_div").style.display = "block";
-            document.getElementById("nb_dalles").textContent = `${lidarHdResources.length}`;
+            var ocsgeResources = get_resources(data, dataType);
 
             // Création du dallage
-            var dallage = create_dallage(lidarHdResources);
+            var dallage = create_dallage(ocsgeResources);
+
+            document.getElementById("text_div").style.display = "block";
+            nb_dalle_2016 = 0
+            nb_dalle_2019 = 0
+            ocsgeResources.forEach(dalle => {
+                annee = dalle["name"].split("_")[4]
+                if (annee == 2019){
+                    nb_dalle_2019 += 1
+                }else if (annee == 2016){
+                    nb_dalle_2016 += 1
+                }
+            });
+            document.getElementById("nb_dalles_2016").textContent = nb_dalle_2016;
+            document.getElementById("nb_dalles_2019").textContent = nb_dalle_2019;
 
             // Ajout du dallage
             add_dallage(dallage);
         })
         .catch(function () {
             // On affiche les div de formulaire et d'erreur, on masque celle de dalle et de text
-            document.getElementById("form_div").style.display = "block";
+            // document.getElementById("form_div").style.display = "block";
             document.getElementById("key_error_div").style.display = "block";
             document.getElementById("dalle_div").style.display = "none";
             document.getElementById("text_div").style.display = "none";
@@ -161,7 +146,7 @@ function listData(dataType) {
 
 function get_resources(data, dataType) {
     // Récupération des ressources LidarHD
-    var lidarHdResources = [];
+    var ocsgeResources = [];
     var resources = data.getElementsByTagName("Resources")[0].getElementsByTagName("Resource");
     for (let resource of resources) {
         var keyValue = {};
@@ -171,10 +156,10 @@ function get_resources(data, dataType) {
             }
         }
         if (keyValue.name.toLowerCase().includes(dataType)) {
-            lidarHdResources.push(keyValue);
+            ocsgeResources.push(keyValue);
         }
     }
-    return lidarHdResources;
+    return ocsgeResources;
 }
 
 function get_files(data) {
@@ -199,41 +184,48 @@ function create_dallage(resources) {
         "features": [],
     }
 
+    match_x_y_exist = []
     for (let resource of resources) {
-        date = resource.name.split("_")[5]
-        if (date == "2016") {
-            match_x_y = resource.name.split("_")[8].split("-")
-            // var match_x_y = REGEX_X_Y.exec(resource.name);
-            if (match_x_y) {
-                var x_min = parseInt(match_x_y[1]) * 1000;
-                var y_max = parseInt(match_x_y[2]) * 1000;
-                var x_max = x_min + SIZE;
-                var y_min = y_max - SIZE;
-
-                dallage["features"].push({
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [
-                            [
-                                // on change la projection les coordonnées
-                                converter.inverse([x_min, y_min]),
-                                converter.inverse([x_max, y_min]),
-                                converter.inverse([x_max, y_max]),
-                                converter.inverse([x_min, y_max]),
-                                converter.inverse([x_min, y_min]),
-                            ]
-                        ]
-                    },
-                    "properties": resource,
-                });
-            } else {
-                console.error(resource.name);
-            }
+        name_dalle = resource.name.split("$")[1]
+        resource.file = resource.name
+        resource.name = name_dalle
+        date = name_dalle.split("_")[4]
+        match_x_y = name_dalle.split("_")[7].split("-")
+        coor = name_dalle.split("_")[7]
+        
+        if (match_x_y_exist.includes(coor)) {
+            resource.nb_dalle = 2
         }
+        match_x_y_exist.push(coor)
+        if (match_x_y) {
+            var x_min = parseInt(match_x_y[1]) * 1000;
+            var y_max = parseInt(match_x_y[2]) * 1000;
+            var x_max = x_min + SIZE;
+            var y_min = y_max - SIZE;
+
+            dallage["features"].push({
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            // on change la projection les coordonnées
+                            converter.inverse([x_min, y_min]),
+                            converter.inverse([x_max, y_min]),
+                            converter.inverse([x_max, y_max]),
+                            converter.inverse([x_min, y_max]),
+                            converter.inverse([x_min, y_min]),
+                        ]
+                    ]
+                },
+                "properties": resource,
+            });
+        } else {
+            console.error(resource.name);
+        }
+        
 
     }
-
     return dallage;
 }
 
@@ -258,6 +250,10 @@ function show_popup(layer, type = "open") {
     "Fonction qui affiche une popup, au survol d'une dalle son nom."
     var dalle_name = layer.feature["properties"].name;
     var dalle_names = dalle_name.split("2016")
+    if (dalle_names.length == 1){
+        dalle_names = dalle_name.split("2019")
+    }
+    
     var title = dalle_names[0].slice(0, -1)
     var text = dalle_names[1].substring(1)
     template = `<h6>${title}</h6><p>${text}</p>`
@@ -289,38 +285,70 @@ function clickFeature(e) {
     document.getElementById("dalle_div").style.display = "none";
 
     
-    
-
     var layer = e.target;
     var name = layer.feature["properties"].name;
-    var milesime = document.querySelector("#milesime")
+    var file = layer.feature["properties"].file;
 
-    coordonnee = name.split("_")[8]
+    coordonnee = name.split("_")[7]
     document.getElementById("name").textContent = coordonnee
 
+    dalles = []
+    dalles.push({"name" :name, "date": name.split("_")[4], "file": file})
+    if (layer.feature["properties"].nb_dalle){
+        if (name.split("_")[4] == 2019){
+            name = name.replace("2019", "2016")
+            file = file.replace("2019", "2016")
+        }else{
+            name = name.replace("2016", "2019")
+            file = file.replace("2016", "2019")
+        }
+        dalles.push({"name" :name, "date": name.split("_")[4], "file": file})
+    }
+
+    
+    var milesime = document.querySelector("#milesime")
     // suppression des enfants (autres li)
     milesime.innerHTML = '';
 
-    var li_2016 = document.createElement('li');
-    li_2016.textContent = 2016
-    var br = document.createElement('br');
-    li_2016.appendChild(br)
-    var balise_a = document.createElement('a');
-    balise_a.setAttribute('href', "https://www.google.com/");
-    balise_a.textContent = name
-    li_2016.appendChild(balise_a)
+    dalles.forEach(dalle => {
+        var url = `https://wxs.ign.fr/${key}/telechargement/prepackage/${dalle["file"]}`;
+        // Requête
+        fetch(url)
+            .then(function (response) {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw Error(response.statusText);
+                }
+            })
+            .then(function (xml) {
+                // On parse le document XML
+                var parser = new DOMParser();
+                var data = parser.parseFromString(xml, "text/xml");
 
-    var li_2019 = document.createElement('li');
-    li_2019.textContent = 2019
-    var br = document.createElement('br');
-    li_2019.appendChild(br)
-    var balise_a = document.createElement('a');
-    balise_a.setAttribute('href', "https://www.google.com/");
-    balise_a.textContent = name.replace("2016", "2019");
-    li_2019.appendChild(balise_a)
+                // Récupération des fichiers
+                var files = get_files(data);
 
-    milesime.appendChild(li_2016)
-    milesime.appendChild(li_2019)
+                // Affichage des fichiers
+                show_files(files, url, dalle, milesime);
+
+                // On monte la div dalle
+                document.getElementById("dalle_div").style.display = "block";
+                // On masque la div de chargement
+                document.getElementById("loading_div").style.display = "none";
+            })
+            .catch(function() {
+                // On affiche les div de formulaire et d'erreur, on masque celle de dalle et de text
+                document.getElementById("key_error_div").style.display = "block";
+                document.getElementById("dalle_div").style.display = "none";
+                document.getElementById("text_div").style.display = "none";
+            }).finally(function () {
+                // On masque la div de chargement
+                document.getElementById("loading_div").style.display = "none";
+            })
+            ;
+    });
+
 
     // On monte la div dalle
     document.getElementById("dalle_div").style.display = "block";
@@ -329,80 +357,36 @@ function clickFeature(e) {
         
 }
 
+function show_files(files, base_url, dalle, milesime) {
+    var li = document.createElement('li');
+    li.textContent = dalle["date"]
+    var br = document.createElement('br');
+    li.appendChild(br)
 
-// function clickFeature(e) {
-//     // On affiche la div de chargement
-//     document.getElementById("loading_div").style.display = "block";
-//     // On masque la div de dalle
-//     document.getElementById("dalle_div").style.display = "none";
-//     // On récupère l'élément cliqué
-//     var layer = e.target;
-//     var name = layer.feature["properties"].name;
-//     var match = REGEX_X_Y.exec(name);
-//     document.getElementById("name").textContent = match[0];
-//     // Url de la requête pour récupérer les détails de la ressource
-//     var url = `https://wxs.ign.fr/${key}/telechargement/prepackage/${name}`;
-//     // Requête
-//     fetch(url)
-//         .then(function (response) {
-//             if (response.ok) {
-//                 return response.text();
-//             } else {
-//                 throw Error(response.statusText);
-//             }
-//         })
-//         .then(function (xml) {
-//             // On parse le document XML
-//             var parser = new DOMParser();
-//             var data = parser.parseFromString(xml, "text/xml");
-
-//             // Récupération des fichiers
-//             var files = get_files(data);
-
-//             // Affichage des fichiers
-//             show_files(files, url);
-
-//             // On monte la div dalle
-//             document.getElementById("dalle_div").style.display = "block";
-//             // On masque la div de chargement
-//             document.getElementById("loading_div").style.display = "none";
-//         })
-//         .catch(function () {
-//             // On affiche les div de formulaire et d'erreur, on masque celle de dalle et de text
-//             document.getElementById("form_div").style.display = "block";
-//             document.getElementById("key_error_div").style.display = "block";
-//             document.getElementById("dalle_div").style.display = "none";
-//             document.getElementById("text_div").style.display = "none";
-//         }).finally(function () {
-//             // On masque la div de chargement
-//             document.getElementById("loading_div").style.display = "none";
-//         })
-//         ;
-// }
-
-function show_files(files, base_url) {
-    // Récupération de la liste de fichiers
-    var ulFiles = document.getElementById('files');
-    // Suppression des enfants
-    for (let child of ulFiles.childNodes) {
-        ulFiles.removeChild(child);
-    }
-    // Ajout des fichiers
-    for (let file of files) {
-        var fileName = file.fileName;
+    files.forEach(file => {
+        var filename = file.fileName
         var fileSize = bytesToSize(parseInt(file.fileSize));
-        var url = `${base_url}/file/${fileName}`;
-        var li = document.createElement('li');
-        var a = document.createElement('a');
-        a.textContent = `${fileName}`;
-        a.setAttribute('href', url);
-        li.appendChild(a);
+        var balise_a = document.createElement('a');
+        balise_a.setAttribute('href', `${base_url}/file/${filename}`);
+        balise_a.textContent = `- ${filename}`
+        
         var span = document.createElement('span');
         span.setAttribute('class', 'size');
         span.textContent = `${fileSize}`;
+        
+        li.appendChild(balise_a)
+        var br = document.createElement('br');
+        li.appendChild(br)
         li.appendChild(span);
-        ulFiles.appendChild(li);
-    }
+        var br = document.createElement('br');
+        li.appendChild(br)
+        var br = document.createElement('br');
+        li.appendChild(br)
+    });
+    
+
+    milesime.appendChild(li)
+    
 }
 
 function bytesToSize(bytes) {
@@ -412,3 +396,31 @@ function bytesToSize(bytes) {
     var size = (bytes / Math.pow(1024, i)).toFixed(2).replace('.', ',');
     return `${size} ${sizes[i]}`;
 };
+
+
+
+// list_dalle = [{ "name": "OCSGE_IA-PREDICTIONS-NAF_TIF-PACK_D032_2019$OCS_GE_1-1_PREDICTIONS_NAF_2016_TIF_LAMB93_D032-0426-6435_2022-06-01" },
+//     { "name": "OCSGE_IA-PREDICTIONS-NAF_TIF-PACK_D032_2019$OCS_GE_1-1_PREDICTIONS_NAF_2019_TIF_LAMB93_D032-0426-6435_2022-06-01" },
+//     { "name": "OCSGE_IA-PREDICTIONS-NAF_TIF-PACK_D032_2019$OCS_GE_1-1_PREDICTIONS_NAF_2016_TIF_LAMB93_D032-0416-6435_2022-06-01" },
+//     { "name": "OCSGE_IA-PREDICTIONS-NAF_TIF-PACK_D032_2019$OCS_GE_1-1_PREDICTIONS_NAF_2019_TIF_LAMB93_D032-0406-6435_2022-06-01" }]
+// function test_data() {
+    
+//     // Création du dallage
+//     var dallage = create_dallage(list_dalle);
+//     document.getElementById("text_div").style.display = "block";
+//     nb_dalle_2016 = 0
+//     nb_dalle_2019 = 0
+//     list_dalle.forEach(dalle => {
+//         annee = dalle["name"].split("_")[5]
+//         if (annee == 2019){
+//             nb_dalle_2019 += 1
+//         }else if (annee == 2016){
+//             nb_dalle_2016 += 1
+//         }
+//     });
+//     document.getElementById("nb_dalles_2016").textContent = nb_dalle_2016;
+//     document.getElementById("nb_dalles_2019").textContent = nb_dalle_2019;
+
+//     // Ajout du dallage
+//     add_dallage(dallage);
+// }
