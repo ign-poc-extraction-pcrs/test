@@ -185,6 +185,7 @@ function create_dallage(resources) {
     }
 
     match_x_y_exist = []
+    ressources = {}
     for (let resource of resources) {
         name_dalle = resource.name.split("$")[1]
         resource.file = resource.name
@@ -195,6 +196,13 @@ function create_dallage(resources) {
         
         if (match_x_y_exist.includes(coor)) {
             resource.nb_dalle = 2
+            ressources[coor].push(resource.file)
+            resource.ressources = ressources[coor]
+        }
+        else{
+            ressources[coor] = []
+            ressources[coor].push(resource.file)
+            resource.ressources = ressources[coor]
         }
         match_x_y_exist.push(coor)
         if (match_x_y) {
@@ -286,25 +294,18 @@ function clickFeature(e) {
 
     
     var layer = e.target;
+    var ressources = layer.feature["properties"].ressources
     var name = layer.feature["properties"].name;
     var file = layer.feature["properties"].file;
 
     coordonnee = name.split("_")[7]
     document.getElementById("name").textContent = coordonnee
-
+    
     dalles = []
-    dalles.push({"name" :name, "date": name.split("_")[4], "file": file})
-    if (layer.feature["properties"].nb_dalle){
-        if (name.split("_")[4] == 2019){
-            name = name.replace("2019", "2016")
-            file = file.replace("2019", "2016")
-        }else{
-            name = name.replace("2016", "2019")
-            file = file.replace("2016", "2019")
-        }
-        dalles.push({"name" :name, "date": name.split("_")[4], "file": file})
-    }
-
+    ressources.forEach(element => {
+        name = element.split("$")[1]
+        dalles.push({"name" : name, "date": name.split("_")[4], "file": element})
+    });
     
     var milesime = document.querySelector("#milesime")
     // suppression des enfants (autres li)
