@@ -97,7 +97,7 @@ def requete_wms_and_georeferecement(bbox, directory_dalles, name_dalle):
     srs = 'EPSG:2154'
     wms = log_wms_serveur()
     dalle = wms.getmap(
-        layers=['PCRS'],
+        layers=['PCRS.LAMB93'],
         format='image/tiff',
         srs=srs,
         bbox=bbox,
