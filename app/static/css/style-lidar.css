@@ -25,7 +25,28 @@ ul#files>li>span.size {margin-left: 1em;}
     padding-right: 25px;
 }
 
-.download_shp{
-    position: relative;
-    bottom: 0px;
+
+
+@media all and (min-width: 1500px){
+    .box_download span{
+        font-size: 17px
+    }
+    .box_download button{
+        padding-right: 15px;
+    }
+}
+
+@media all and (max-width: 1499px){
+    .box_download span{
+        font-size: 12px;
+    }
+    .box_download button{
+        padding-right: 25px;
+    }
+}
+
+@media screen and (min-height: 1000px){
+    .button_download{
+        background-color: red;
+    }
 }
