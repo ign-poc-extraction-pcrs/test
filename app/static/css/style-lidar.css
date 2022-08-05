@@ -60,7 +60,7 @@ button:hover{
 
 .shp::before{
     background-color:  #f5b7b1 ;
-    content:"-- Téléchargement grille SHP";
+    content:"-- Tableau d'assemblage en .shp";
 }
 
 .shp::after{
