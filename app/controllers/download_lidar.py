@@ -6,6 +6,7 @@ import xmltodict
 from io import BytesIO
 from zipfile import ZipFile
 import os
+from pathlib import Path
 
 from app.utils.create_shp import create_shp_file
 
@@ -16,13 +17,14 @@ def download_shp():
     # path and file du shp
     PATH_SHP = "/tmp/api_dispo_produit_tmp_file"
     file_shp = "TA_diff_pkk_lidarhd"
+    path_prj = Path(__file__).parent / "../static/files/TA_diff_pkk_lidarhd.prj"
 
     # recuperation des paquets lidar
     create_shp_lidar(PATH_SHP, file_shp)  
     # chemin absolue du shp
     file = f"{PATH_SHP}/{file_shp}"
     # les extensions du shp
-    extensions = ["dbf", "shp", "prj", "shx"]  
+    extensions = ["dbf", "shp", "shx"]  
     # creation du zip
     memory_file = BytesIO()
     zip_folder =  ZipFile(memory_file, 'w')
@@ -30,6 +32,9 @@ def download_shp():
     for extension in extensions:
         # on ajoute le fichier dans le zip qui sera envoyé
         zip_folder.write(f"{file}.{extension}", os.path.basename(f"{file}.{extension}"))
+    
+    # on ajoute le fichier prj déjà existant dans le zip qui sera envoyé
+    zip_folder.write(path_prj, os.path.basename(path_prj))
 
     zip_folder.close()
     memory_file.seek(0)
@@ -140,3 +145,4 @@ def isint(x):
         return False
     else:
         return a == b
+
