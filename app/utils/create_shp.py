@@ -35,6 +35,3 @@ def create_shp_file(path: str, colonnes: List[Dict], data: List[Dict], epsg_code
             shp.shape(value_ta[geom_colonne])
             column_value = [value_ta[key] for key in column_key]
             shp.record(*column_value)
-    # ajout du ficher de projection : # creation du fichier projection epsg:2154
-    with open(f'{path}.prj', "w", encoding="UTF-8") as prj:
-        prj.write(CRS.from_epsg(epsg_code).to_wkt())
