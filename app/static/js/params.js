@@ -4,13 +4,6 @@ limit_select_dalle = 10
 // taille dalle
 pas = 200
 
-// 4 coordonnées pour creer le dallages et dalles
-x_min = 238000.000
-x_max = 252000.000
-
-y_min = 6736000.000
-y_max = 6743000.000
-
 // Source : https://epsg.io/2154.proj4
 var proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
 var bounds = L.bounds([-378305.81, 6093283.21], [1212610.74, 7186901.68]);
@@ -29,7 +22,7 @@ var crs_2154 = new L.Proj.CRS('EPSG:2154', proj4_2154, {
 var map = L.map('map', {
     crs: crs_2154,
     continuousWorld: true,
-}).setView([47.60, -3.045], 13);
+}).setView([47.60, -3.045], 14);
 
 
 // Ajout fonds de carte (WMS)
@@ -98,54 +91,6 @@ function popup(layer, type = "open") {
     }
 
 }
-map.on('moveend', function() { 
-    const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
-    proj4.defs("EPSG:2154", proj4_2154);
-    const converter = proj4("EPSG:2154");
-
-    var northEast = map.getBounds()._northEast
-    var southWest = map.getBounds()._southWest
-
-    northEast = converter.forward([northEast.lng, northEast.lat])
-    southWest = converter.forward([southWest.lng, southWest.lat])
-    northWest = [northEast[0],southWest[1]]
-    southEast = [southWest[0],northEast[1]]
-
-    // Make a request for a user with a given ID
-    axios.get(`http://127.0.0.1:5000/api/get/dalles/${northEast[0]}-${southWest[1]}-${southWest[0]}-${northEast[1]}`)
-    .then(function (response) {
-        if(response.data.statut == "erreur"){
-            window.alert("Nous rencontrons un probléme, nous travaillons dessus")
-        }else{
-            dalles_json = response.data.result
-            dalles = create_dalle(dalles_json)
-            // permet d'affiche le dallage au dessus des autres couches
-            map.createPane('dallage');
-            map.getPane('dallage').style.zIndex = 500;
-
-            // suppresion des dalles et nomdes dalles à chaque fois qu'on se déplace
-            map.removeLayer(geojson)
-            document.querySelectorAll(".coor_dalle").forEach(span => {
-                span.remove()
-            });
-            
-            // on la dalle à la carte
-            geojson = L.geoJson(dalles, {
-                style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
-                onEachFeature: onEachFeature,
-                pane: 'dallage'
-            }).addTo(map);      
-        }
-        
-    })
-    .catch(function (error) {
-
-        console.log(error);
-    })
-    .then(function () {
-        // always executed
-    });
-});
 
 // reprojection en epsg2154
 proj4.defs("EPSG:2154", "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
@@ -176,6 +121,55 @@ proj4.defs("EPSG:2154", "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0
 //         // always executed
 //     });
 
+geojson = []
+function display_dalle() {
+    const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+    proj4.defs("EPSG:2154", proj4_2154);
+    const converter = proj4("EPSG:2154");
+
+    var northEast = map.getBounds()._northEast
+    var southWest = map.getBounds()._southWest
+
+    northEast = converter.forward([northEast.lng, northEast.lat])
+    southWest = converter.forward([southWest.lng, southWest.lat])
+    northWest = [northEast[0],southWest[1]]
+    southEast = [southWest[0],northEast[1]]
+
+    // Make a request for a user with a given ID
+    axios.get(`http://127.0.0.1:5000/api/get/dalles/${northEast[0]}-${southWest[1]}-${southWest[0]}-${northEast[1]}`)
+    .then(function (response) {
+        if(response.data.statut == "erreur"){
+            window.alert("Nous rencontrons un probléme, nous travaillons dessus")
+        }else{
+            dalles_json = response.data.result
+            dalles = create_dalle(dalles_json)
+            // permet d'affiche le dallage au dessus des autres couches
+            map.createPane('dallage');
+            map.getPane('dallage').style.zIndex = 500;
+
+            // suppresion des dalles et nomdes dalles à chaque fois qu'on se déplace
+            map.removeLayer(geojson)
+            document.querySelectorAll(".coor_dalle").forEach(span => {
+                span.remove()
+            });
+
+            // on la dalle à la carte
+            geojson = L.geoJson(dalles, {
+                style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
+                onEachFeature: onEachFeature,
+                pane: 'dallage'
+            }).addTo(map);     
+        }
+        
+    })
+    .catch(function (error) {
+
+        console.log(error);
+    })
+    .then(function () {
+        // always executed
+    });
+}
 
 function create_dalle(dalles_json) {
     const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
@@ -290,3 +284,9 @@ function nomenclature_download(dalle) {
     canaux = "RVB"
     return { "min": min, "max": max, "annee": annee, "proj": proj, "resolution": resolution, "canaux": canaux }
 }
+
+// on veut afficher les dalles au chargement de la page
+display_dalle()
+map.on('moveend', function() { 
+    display_dalle()
+});
