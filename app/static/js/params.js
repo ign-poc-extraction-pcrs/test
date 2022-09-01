@@ -45,113 +45,235 @@ var baselayers = {
     Pcrs: L.tileLayer.wms('https://wxs.ign.fr/ortho/geoportail/r/wms?', {
         layers: 'PCRS.LAMB93',
     })
-   
-                             
-    
+
+
+
 }; baselayers.PlanIGNV2.addTo(map);
 
 // parametre à changer pour le design des dalles
 var params_design = {
-    "base" : {
-        "fill_color" : "white",
-        "weight" : 2,
-        "opacity" : 1,
-        "color" : "#000",
-        "dash_array" : "0",
-        "fill_opacity" : 0.2
+    "base": {
+        "fill_color": "white",
+        "weight": 2,
+        "opacity": 1,
+        "color": "#000",
+        "dash_array": "0",
+        "fill_opacity": 0.2
     },
     "click": {
-        "fill_color" : "#f3ca20",
-        "weight" : 2,
-        "opacity" : 1,
-        "color" : '#000',
-        "dash_array" : "4",
-        "fill_opacity" : 0.7
+        "fill_color": "#f3ca20",
+        "weight": 2,
+        "opacity": 1,
+        "color": '#000',
+        "dash_array": "4",
+        "fill_opacity": 0.7
     },
-    "fly_over_whithout_click" : {
-        "fill_color" : "white",
-        "weight" : 1,
-        "opacity" : 0,
-        "color" : '',
-        "dash_array" : "4",
-        "fill_opacity" : 0.7
+    "fly_over_whithout_click": {
+        "fill_color": "white",
+        "weight": 1,
+        "opacity": 0,
+        "color": '',
+        "dash_array": "4",
+        "fill_opacity": 0.7
     },
-    "fly_over_click" : {
-        "fill_color" : "white",
-        "weight" : 2,
-        "opacity" : 1,
-        "color" : "#000",
-        "dash_array" : "0",
-        "fill_opacity" : 0.4
+    "fly_over_click": {
+        "fill_color": "white",
+        "weight": 2,
+        "opacity": 1,
+        "color": "#000",
+        "dash_array": "0",
+        "fill_opacity": 0.4
     }
 }
 
-function popup(layer, type="open"){
+function popup(layer, type = "open") {
     "function qui affiche une popup, au survol d'une dalle son nom"
     nom_dalle = layer.feature["properties"].nom;
     template = `<h4>${nom_dalle}</h4>`
 
-    if (type == "open"){
+    if (type == "open") {
         layer.bindPopup(template).openPopup()
-    }else{
+    } else {
         layer.bindPopup(template).closePopup()
     }
-    
+
 }
+map.on('moveend', function() { 
+    const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+    proj4.defs("EPSG:2154", proj4_2154);
+    const converter = proj4("EPSG:2154");
+
+    var northEast = map.getBounds()._northEast
+    var southWest = map.getBounds()._southWest
+
+    northEast = converter.forward([northEast.lng, northEast.lat])
+    southWest = converter.forward([southWest.lng, southWest.lat])
+    northWest = [northEast[0],southWest[1]]
+    southEast = [southWest[0],northEast[1]]
+
+    // Make a request for a user with a given ID
+    axios.get(`http://127.0.0.1:5000/api/get/dalles/${northEast[0]}-${southWest[1]}-${southWest[0]}-${northEast[1]}`)
+    .then(function (response) {
+        if(response.data.statut == "erreur"){
+            window.alert("Nous rencontrons un probléme, nous travaillons dessus")
+        }else{
+            dalles_json = response.data.result
+            dalles = create_dalle(dalles_json)
+            // permet d'affiche le dallage au dessus des autres couches
+            map.createPane('dallage');
+            map.getPane('dallage').style.zIndex = 500;
+
+            // suppresion des dalles et nomdes dalles à chaque fois qu'on se déplace
+            map.removeLayer(geojson)
+            document.querySelectorAll(".coor_dalle").forEach(span => {
+                span.remove()
+            });
+            
+            // on la dalle à la carte
+            geojson = L.geoJson(dalles, {
+                style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
+                onEachFeature: onEachFeature,
+                pane: 'dallage'
+            }).addTo(map);      
+        }
+        
+    })
+    .catch(function (error) {
+
+        console.log(error);
+    })
+    .then(function () {
+        // always executed
+    });
+});
 
 // reprojection en epsg2154
 proj4.defs("EPSG:2154", "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 
-// on definit le dictionnaire avec la nomenclature leaflet et on ajoutera les différents polygons dans la clé attributs
-let dallage = {
-    "type": "FeatureCollection",
-    "features": [],
-}
 
-convertisseur = proj4("EPSG:2154")
-id = 0
-// on ajoute les dalles (carré) par rapport à aux coordonnées du dallage
-for (let x = x_min; x < x_max; x += pas) {
-    for (let y = y_min; y < y_max; y += pas) {
-        if(x != 238000 || y + pas > 6736400){
-            id += 1
-            dallage["features"].push({
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [
-                        [
-                            // on change de projection les coordonnées
-                            convertisseur.inverse([x, y])
-                            ,
-                            convertisseur.inverse([x + pas, y])
-                            ,
-                            convertisseur.inverse([x + pas, y + pas])
-                            ,
-                            convertisseur.inverse([x, y + pas])
-                            ,
-                            convertisseur.inverse([x, y])
+
+// // Make a request for a user with a given ID
+// axios.get('http://127.0.0.1:5000/api/get/dalle')
+//     .then(function (response) {
+//         dalles_json = response.data.result.dalles
+//         dalles = create_dalle(dalles_json)
+//         // permet d'affiche le dallage au dessus des autres couches
+//         map.createPane('dallage');
+//         map.getPane('dallage').style.zIndex = 500;
+
+//         // on la dalle à la carte
+//         geojson = L.geoJson(dalles, {
+//             style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
+//             onEachFeature: onEachFeature,
+//             pane: 'dallage'
+//         }).addTo(map);
+//     })
+//     .catch(function (error) {
+
+//         console.log(error);
+//     })
+//     .then(function () {
+//         // always executed
+//     });
+
+
+function create_dalle(dalles_json) {
+    const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+    proj4.defs("EPSG:2154", proj4_2154);
+    const converter = proj4("EPSG:2154");
+    // on definit le dictionnaire avec la nomenclature leaflet et on ajoutera les différents polygons dans la clé attributs
+    let dallage = {
+        "type": "FeatureCollection",
+        "features": [],
+    }
+    convertisseur = proj4("EPSG:2154")
+    id = 0
+
+    for (let dalle of dalles_json) {
+        var x_min = dalle["x_min"]
+        var y_max = dalle["y_max"]
+        var x_max = dalle["x_max"]
+        var y_min = dalle["y_min"]
+        for (let x = x_min; x < x_max; x += pas) {
+            for (let y = y_min; y < y_max; y += pas) {
+                id += 1
+                dallage["features"].push({
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                // on change la projection les coordonnées
+                                converter.inverse([x, y]),
+                                converter.inverse([x + pas, y]),
+                                converter.inverse([x + pas, y + pas]),
+                                converter.inverse([x, y + pas]),
+                                converter.inverse([x, y]),
+                            ]
                         ]
-                    ]
-                }, 
-                "properties": {
-                    "id" : id,
-                    "nom" : `2020-0${x/100}-${(y + pas)/100}-LA93-0M05-RVB`,
-                    "extension" : "tiff",
-                    "x": `0${x/100}`,
-                    "y":(y + pas)/100
-                }
-            })
+                    },
+                    "properties": {
+                        "id": id,
+                        "nom": `2020-0${x_min / 100}-${y_max / 100}-LA93-0M05-RVB`,
+                        "extension": "tiff",
+                        "x": `0${x_min / 100}`,
+                        "y": y_max / 100
+                    }
+                });
+            }
         }
+
+        
     }
 
+    return dallage
 }
 
-function nomenclature_download(dalle){
+
+
+
+// on ajoute les dalles (carré) par rapport à aux coordonnées du dallage
+// for (let x = x_min; x < x_max; x += pas) {
+//     for (let y = y_min; y < y_max; y += pas) {
+//         if(x != 238000 || y + pas > 6736400){
+//             id += 1
+//             dallage["features"].push({
+//                 "type": "Feature",
+//                 "geometry": {
+//                     "type": "Polygon",
+//                     "coordinates": [
+//                         [
+//                             // on change de projection les coordonnées
+//                             convertisseur.inverse([x, y])
+//                             ,
+//                             convertisseur.inverse([x + pas, y])
+//                             ,
+//                             convertisseur.inverse([x + pas, y + pas])
+//                             ,
+//                             convertisseur.inverse([x, y + pas])
+//                             ,
+//                             convertisseur.inverse([x, y])
+//                         ]
+//                     ]
+//                 }, 
+//                 "properties": {
+//                     "id" : id,
+//                     "nom" : `2020-0${x/100}-${(y + pas)/100}-LA93-0M05-RVB`,
+//                     "extension" : "tiff",
+//                     "x": `0${x/100}`,
+//                     "y":(y + pas)/100
+//                 }
+//             })
+//         }
+//     }
+
+// }
+
+function nomenclature_download(dalle) {
     dalle_reprojection = []
     // on change de projection, pour la remettre en L93
     dalle.forEach(element => {
-        dalle_reprojection.push(convertisseur.forward(element)); 
+        dalle_reprojection.push(convertisseur.forward(element));
     });
     // on arrondi les coordinates
     dalle_reprojection.forEach(element => {
@@ -166,5 +288,5 @@ function nomenclature_download(dalle){
     proj = "LA93"
     resolution = "0M05"
     canaux = "RVB"
-    return {"min": min, "max": max, "annee": annee, "proj": proj, "resolution": resolution, "canaux": canaux}
+    return { "min": min, "max": max, "annee": annee, "proj": proj, "resolution": resolution, "canaux": canaux }
 }

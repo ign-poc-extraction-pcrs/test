@@ -98,7 +98,7 @@ function onEachFeature(feature, layer) {
     var label = L.marker(layer.getBounds().getCenter(), {
         icon: L.divIcon({
           className: 'label-nom',
-          html: `<p><span>${feature.properties["x"]}</span> <span>-</span> <span>${feature.properties["y"]}</span></p>`,
+          html: `<p class="coor_dalle"><span>${feature.properties["x"]}</span> <span>${feature.properties["y"]}</span></p>`,
           iconSize: [0, 0],
         })
     }).addTo(map);
@@ -112,50 +112,50 @@ function onEachFeature(feature, layer) {
 
 
 // on ajoute le dallage à la carte
-geojson = L.geoJson({
-    "type": "FeatureCollection",
-    "features": [{
-        "type": "Feature",
-        "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    // on change de projection les coordonnées
-                    convertisseur.inverse([x_min, y_min])
-                    ,
-                    convertisseur.inverse([x_max, y_min])
-                    ,
-                    convertisseur.inverse([x_max, y_max])
-                    ,
-                    convertisseur.inverse([x_min, y_max])
-                    ,
-                    convertisseur.inverse([x_min, y_min])
-                ]
-            ]
-        }
-    }],
-},
-    {
-        style: style("#fff", 5, 0.6, '#ad0000', '8', 0)
-    }).addTo(map);
+// geojson = L.geoJson({
+//     "type": "FeatureCollection",
+//     "features": [{
+//         "type": "Feature",
+//         "geometry": {
+//             "type": "Polygon",
+//             "coordinates": [
+//                 [
+//                     // on change de projection les coordonnées
+//                     convertisseur.inverse([x_min, y_min])
+//                     ,
+//                     convertisseur.inverse([x_max, y_min])
+//                     ,
+//                     convertisseur.inverse([x_max, y_max])
+//                     ,
+//                     convertisseur.inverse([x_min, y_max])
+//                     ,
+//                     convertisseur.inverse([x_min, y_min])
+//                 ]
+//             ]
+//         }
+//     }],
+// },
+//     {
+//         style: style("#fff", 5, 0.6, '#ad0000', '8', 0)
+//     }).addTo(map);
 
 
-// permet d'affiche le dallage au dessus des autres couches
-map.createPane('dallage');
-map.getPane('dallage').style.zIndex = 500;
+// // permet d'affiche le dallage au dessus des autres couches
+// map.createPane('dallage');
+// map.getPane('dallage').style.zIndex = 500;
 
-// on la dalle à la carte
-geojson = L.geoJson(dallage, {
-    style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
-    onEachFeature: onEachFeature,
-    pane: 'dallage'
-}).addTo(map);
+// // on la dalle à la carte
+// geojson = L.geoJson(dallage, {
+//     style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
+//     onEachFeature: onEachFeature,
+//     pane: 'dallage'
+// }).addTo(map);
 
 dalles = document.querySelectorAll(".leaflet-interactive")
 dalles.forEach((dalle, key) => {
     if (key != 0){
         if(dalle.tagName == "path"){
-            dalle.classList.add(`id${key - (dalles.length / 2 - 0.5)}`)
+            dalle.classList.add(`id${key - (dalles.length / 2 - 1)}`)
         }
     }
 });
@@ -258,7 +258,11 @@ couche_optionnel.update = function () {
 
 couche_optionnel.addTo(map)
 
-
+// Pour le debug
+map.on('click', function (e) {
+    var coord = e.latlng;
+    console.log("You clicked the map at: [" + coord.lat + ", " + coord.lng + "]");
+});
 
 
 // recupération de la checkbox_nom_dalle pour voir si elle est coché ou non, si elle est coché on affiche les noms de dalles dans les polygons
