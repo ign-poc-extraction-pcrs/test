@@ -239,8 +239,15 @@ function create_dalle(dalles_json) {
         var y_max = dalle["y_max"]
         var x_max = dalle["x_max"]
         var y_min = dalle["y_min"]
+
         for (let x = x_min; x < x_max; x += pas) {
             for (let y = y_min; y < y_max; y += pas) {
+                console.log(x);
+                console.log(y);
+                console.log(x_min);
+                console.log(y_max);
+                console.log(x_max);
+                console.log(y_min);
                 id += 1
                 dallage["features"].push({
                     "type": "Feature",
@@ -259,10 +266,10 @@ function create_dalle(dalles_json) {
                     },
                     "properties": {
                         "id": id,
-                        "nom": `2020-0${x_min / 100}-${y_max / 100}-LA93-0M05-RVB`,
+                        "nom": `2020-0${x / 100}-${y / 100 + 2}-LA93-0M05-RVB`,
                         "extension": "tiff",
-                        "x": `0${x_min / 100}`,
-                        "y": y_max / 100
+                        "x": `0${x / 100}`,
+                        "y": y / 100 + 2
                     }
                 });
             }
