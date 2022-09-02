@@ -162,18 +162,16 @@ dalles.forEach((dalle, key) => {
 
 
 labels_polygon = document.querySelectorAll(".label-nom")
-labels_polygon.forEach(label => {
-    // on modifie le style des labels
-    label.style.marginLeft = "-18px";
-    label.style.marginTop = "-30px";
-    label.style.color = "white";
-    label.style.fontWeight = '800';
-    label.style.fontSize = '10px';
-    // on modifie le style du "-" 
-    label.children[0].children[1].style.marginLeft = "17px"
-    // on cache les noms au chargement de la page, il ne doivent être affiché que si la checkbox est coché
-    label.style.display = "none"
-});
+// labels_polygon.forEach(label => {
+//     // on modifie le style des labels
+//     label.style.marginLeft = "-18px";
+//     label.style.marginTop = "-30px";
+//     label.style.color = "white";
+//     label.style.fontWeight = '800';
+//     label.style.fontSize = '10px';
+//     // on cache les noms au chargement de la page, il ne doivent être affiché que si la checkbox est coché
+//     label.style.display = "none"
+// });
 
 
 
@@ -227,15 +225,18 @@ couche_optionnel.update = function () {
     input_limit_commune.classList.add("limite_commune")
     input_limit_commune.type = "checkbox"
     input_limit_commune.name = 'leaflet-base-layers_68'
+
+    var textAlert = document.createElement("span")
+    textAlert.classList.add("text-alert-checkbox-nom-dalle")
+    textAlert.innerHTML = "Zoom trop petit </br>"
+    textAlert.style.opacity = "0.6"
+    div_nom_dalle.appendChild(textAlert)
     // si le zoom est en dessous de 15 on ne donne pas la possibilité de checker la checkbox et donc d'afficher les nom des dalles
     if (map.getZoom() < 15) {
-        var textAlert = document.createElement("span")
-        textAlert.classList.add("text-alert-checkbox-nom-dalle")
-        textAlert.innerHTML = "Zoom trop petit </br>"
-        textAlert.style.opacity = "0.6"
-        div_nom_dalle.appendChild(textAlert)
         input_nom_dalle.disabled = true
-    } 
+    }else{
+        textAlert.style.display = "none"
+    }
     div_nom_dalle.appendChild(input_nom_dalle)
 
     
@@ -299,7 +300,6 @@ map.on('zoomend', function() {
     var currentZoom = map.getZoom();
     input_nom_dalle = document.querySelector(".couche_optionnel_nom_dalle")
     affichage_nom_dalle_menu(currentZoom)
-    console.log(map.getZoom());
 
     // si le zoom est plus grand ou égal à 15 alors on donne la possibilité de cocher la checkbox pour afficher ou non les nom de dalle
     if (currentZoom >= 15){
@@ -314,34 +314,7 @@ map.on('zoomend', function() {
         input_nom_dalle.disabled = true
         
     }
-
-    if (map.getZoom() == 17) {
-        labels_polygon.forEach(label => {
-            label.style.fontSize = '30px';
-            label.style.marginLeft = "-35px";
-            label.style.marginTop = "-100px";
-        })
-    }else if(map.getZoom() == 18){
-        labels_polygon.forEach(label => {
-            label.style.fontSize = '40px';
-            label.style.marginLeft = "-45px";
-            label.style.marginTop = "-140px";
-        })
-    }
-    else if(map.getZoom() == 16){
-        labels_polygon.forEach(label => {
-            label.style.fontSize = '20px';
-            label.style.marginLeft = "-25px";
-            label.style.marginTop = "-60px";
-        })
-    }
-    else{
-        labels_polygon.forEach(label => {
-            label.style.fontSize = '10px';
-            label.style.marginLeft = "-18px";
-            label.style.marginTop = "-30px";
-        })
-    }
+    design_name_dalle_zoom()
 });
 
 

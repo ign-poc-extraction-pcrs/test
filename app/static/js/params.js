@@ -22,7 +22,7 @@ var crs_2154 = new L.Proj.CRS('EPSG:2154', proj4_2154, {
 var map = L.map('map', {
     crs: crs_2154,
     continuousWorld: true,
-}).setView([47.60, -3.045], 14);
+}).setView([47.60, -3.045], 15);
 
 
 // Ajout fonds de carte (WMS)
@@ -95,6 +95,35 @@ function popup(layer, type = "open") {
 // reprojection en epsg2154
 proj4.defs("EPSG:2154", "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 
+function design_name_dalle_zoom() {
+    if (map.getZoom() == 17) {
+        labels_polygon.forEach(label => {
+            label.style.fontSize = '30px';
+            label.style.marginLeft = "-40px";
+            label.style.marginTop = "-80px";
+        })
+    }else if(map.getZoom() == 18){
+        labels_polygon.forEach(label => {
+            label.style.fontSize = '40px';
+            label.style.marginLeft = "-45px";
+            label.style.marginTop = "-120px";
+        })
+    }
+    else if(map.getZoom() == 16){
+        labels_polygon.forEach(label => {
+            label.style.fontSize = '20px';
+            label.style.marginLeft = "-25px";
+            label.style.marginTop = "-50px";
+        })
+    }
+    else{
+        labels_polygon.forEach(label => {
+            label.style.fontSize = '10px';
+            label.style.marginLeft = "-15px";
+            label.style.marginTop = "-25px";
+        })
+    }
+}
 
 
 // // Make a request for a user with a given ID
@@ -149,7 +178,7 @@ function display_dalle() {
 
             // suppresion des dalles et nomdes dalles à chaque fois qu'on se déplace
             map.removeLayer(geojson)
-            document.querySelectorAll(".coor_dalle").forEach(span => {
+            document.querySelectorAll(".label-nom").forEach(span => {
                 span.remove()
             });
 
@@ -160,6 +189,25 @@ function display_dalle() {
                 pane: 'dallage'
             }).addTo(map);     
         }
+
+        labels_polygon = document.querySelectorAll(".label-nom")
+        labels_polygon.forEach(label => {
+            // on modifie le style des labels
+            label.style.marginLeft = "-18px";
+            label.style.marginTop = "-30px";
+            label.style.color = "white";
+            label.style.fontWeight = '800';
+            label.style.fontSize = '10px';
+            // on cache les noms au chargement de la page, il ne doivent être affiché que si la checkbox est coché
+            input_display_nom_dalle = document.querySelector(".couche_optionnel_nom_dalle");
+            if(input_display_nom_dalle.checked){
+                label.style.display = "block"
+            }else{
+                label.style.display = "none"
+            }
+            
+        });
+        design_name_dalle_zoom()
         
     })
     .catch(function (error) {
