@@ -226,9 +226,15 @@ couche_optionnel.update = function () {
     input_limit_commune.type = "checkbox"
     input_limit_commune.name = 'leaflet-base-layers_68'
 
+    var zoom = document.createElement("span")
+    zoom.classList.add("text-alert-zoom")
+    zoom.innerHTML = `Zoom: ${map.getZoom()}</br>`
+    zoom.style.opacity = "0.6"
+    div_nom_dalle.appendChild(zoom)
+
     var textAlert = document.createElement("span")
     textAlert.classList.add("text-alert-checkbox-nom-dalle")
-    textAlert.innerHTML = "Zoom trop petit </br>"
+    textAlert.innerHTML = "Cochable au zoom 15 ou plus</br>"
     textAlert.style.opacity = "0.6"
     div_nom_dalle.appendChild(textAlert)
     // si le zoom est en dessous de 15 on ne donne pas la possibilité de checker la checkbox et donc d'afficher les nom des dalles
@@ -283,6 +289,7 @@ checkBox_nom_dalle.addEventListener('change', function() {
 
   function affichage_nom_dalle_menu(zoom) {
     texteAlert_nom_dalle = document.querySelector(".text-alert-checkbox-nom-dalle")
+    zoom_menu = document.querySelector(".text-alert-zoom")
     span_nom_dalle = document.querySelector(".span-nom-dalle")
     if (zoom >= 15) {
         texteAlert_nom_dalle.style.display = "none"

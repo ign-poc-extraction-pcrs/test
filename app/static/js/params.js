@@ -190,6 +190,9 @@ function display_dalle() {
             }).addTo(map);     
         }
 
+        zoom_menu = document.querySelector(".text-alert-zoom")
+        zoom_menu.innerHTML = `Zoom: ${map.getZoom()}</br>`
+
         labels_polygon = document.querySelectorAll(".label-nom")
         labels_polygon.forEach(label => {
             // on modifie le style des labels
