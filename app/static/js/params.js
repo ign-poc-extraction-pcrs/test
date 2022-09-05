@@ -212,6 +212,17 @@ function display_dalle() {
         });
         design_name_dalle_zoom()
         
+        // permet d'attribuer l'id à chaque dalle pour pouvoir la supprimer si on la déselectionne
+        dalles = document.querySelectorAll(".leaflet-interactive")
+        dalles.forEach((dalle, key) => {
+            if (key != 0){
+                if(dalle.tagName == "path"){
+                    dalle.classList.add(`id${key - (dalles.length / 2 - 1)}`)
+                }
+            }
+        });
+
+        
     })
     .catch(function (error) {
 
@@ -242,12 +253,6 @@ function create_dalle(dalles_json) {
 
         for (let x = x_min; x < x_max; x += pas) {
             for (let y = y_min; y < y_max; y += pas) {
-                console.log(x);
-                console.log(y);
-                console.log(x_min);
-                console.log(y_max);
-                console.log(x_max);
-                console.log(y_min);
                 id += 1
                 dallage["features"].push({
                     "type": "Feature",

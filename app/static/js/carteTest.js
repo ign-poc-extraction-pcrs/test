@@ -151,14 +151,14 @@ function onEachFeature(feature, layer) {
 //     pane: 'dallage'
 // }).addTo(map);
 
-dalles = document.querySelectorAll(".leaflet-interactive")
-dalles.forEach((dalle, key) => {
-    if (key != 0){
-        if(dalle.tagName == "path"){
-            dalle.classList.add(`id${key - (dalles.length / 2 - 1)}`)
-        }
-    }
-});
+// dalles = document.querySelectorAll(".leaflet-interactive")
+// dalles.forEach((dalle, key) => {
+//     if (key != 0){
+//         if(dalle.tagName == "path"){
+//             dalle.classList.add(`id${key - (dalles.length / 2 - 1)}`)
+//         }
+//     }
+// });
 
 
 labels_polygon = document.querySelectorAll(".label-nom")
