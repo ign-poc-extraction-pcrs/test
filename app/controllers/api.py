@@ -26,14 +26,14 @@ def get_dalle():
     return jsonify({"statut": statut, "result": data})
 
 
-@api.route('/get/dalles/<float:x_min>-<float:y_min>-<float:x_max>-<float:y_max>', methods=['GET', 'POST'])
+@api.route('/get/dalles/<float(signed=True):x_min>/<float(signed=True):y_min>/<float(signed=True):x_max>/<float(signed=True):y_max>', methods=['GET', 'POST'])
 def test(x_min=None, y_min=None, x_max=None, y_max=None):
     bdd = get_connexion_bdd()
     dalles = []
     # si il n'y a aucun probleme avec la connexion à la base
     if bdd :
         #  on recupere les dalles qui sont dans la bbox envoyer
-        bdd.execute(f"SELECT nom FROM pcrs.dalle WHERE dalle.geom && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
+        bdd.execute(f"SELECT nom FROM dalle WHERE geom && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
         dalles = bdd.fetchall()
         dalles = get_coordonees(dalles)
         dalles = new_format_dalle(dalles)
@@ -52,7 +52,8 @@ def get_connexion_bdd():
         cursor: curseur pour executer des requetes à la base
     """
     try :
-        conn = psycopg2.connect(database="geoportail", user="pzgp", host="kriek2.ign.fr", password="sonia999", port="5433")
+        conn = psycopg2.connect(database="test", user="postgres", host="localhost", password="root")
+        # conn = psycopg2.connect(database="geoportail", user="pzgp", host="kriek2.ign.fr", password="sonia999", port="5433")
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     except psycopg2.OperationalError as e:
         return False
