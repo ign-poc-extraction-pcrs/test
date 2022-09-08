@@ -22,7 +22,7 @@ var crs_2154 = new L.Proj.CRS('EPSG:2154', proj4_2154, {
 var map = L.map('map', {
     crs: crs_2154,
     continuousWorld: true,
-}).setView([47.60, -3.045], 15);
+}).setView([46.60, 2.045], 7);
 
 
 // Ajout fonds de carte (WMS)
