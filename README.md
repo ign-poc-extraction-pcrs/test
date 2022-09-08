@@ -34,7 +34,7 @@ Ce dépôt a pour but de faire un poc sur l'extraction d'une/des dalles(s) pcrs 
 
 Installer
 ```sh
-sudo apt update && sudo apt install -y git cron screen proj-bin gdal-bin python3 python3-pip python3-venv nginx libpq-dev
+sudo apt update && sudo apt install -y git cron screen proj-bin gdal-bin python3 python3-pip python3-venv python-gdal nginx libpq-dev postgresql postgis postgresql-postgis
 ```
 
 Ajouter les proxy !
