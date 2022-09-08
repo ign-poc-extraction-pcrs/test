@@ -75,7 +75,7 @@ def get_coordonees(dalles):
         # on recupere la partie du nom ou il y'a les coordonnées
         dalle = dalle["nom"].split("-")
         # si ce n'est pas une dalle
-        if len(dalle) > 4:
+        if len(dalle) > 4 and dalle[2].isdigit():
             x_min = int(dalle[2]) * 1000
             y_max = int(dalle[3]) * 1000
             coordonnées.append({

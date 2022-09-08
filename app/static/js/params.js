@@ -156,6 +156,7 @@ function display_dalle() {
     proj4.defs("EPSG:2154", proj4_2154);
     const converter = proj4("EPSG:2154");
 
+
     var northEast = map.getBounds()._northEast
     var southWest = map.getBounds()._southWest
 
@@ -164,6 +165,7 @@ function display_dalle() {
     northWest = [northEast[0],southWest[1]]
     southEast = [southWest[0],northEast[1]]
 
+    
     // Make a request for a user with a given ID
     axios.get(`http://127.0.0.1:5000/api/get/dalles/${northEast[0]}-${southWest[1]}-${southWest[0]}-${northEast[1]}`)
     .then(function (response) {
@@ -171,57 +173,66 @@ function display_dalle() {
             window.alert("Nous rencontrons un probléme, nous travaillons dessus")
         }else{
             dalles_json = response.data.result
-            dalles = create_dalle(dalles_json)
-            // permet d'affiche le dallage au dessus des autres couches
-            map.createPane('dallage');
-            map.getPane('dallage').style.zIndex = 500;
+            if (map.getZoom() >= 15){
+                dalles = create_dalle(dalles_json)
+                // permet d'affiche le dallage au dessus des autres couches
+                map.createPane('dallage');
+                map.getPane('dallage').style.zIndex = 500;
 
-            // suppresion des dalles et nomdes dalles à chaque fois qu'on se déplace
-            map.removeLayer(geojson)
-            document.querySelectorAll(".label-nom").forEach(span => {
-                span.remove()
-            });
+                display_none_dalle()
 
-            // on la dalle à la carte
-            geojson = L.geoJson(dalles, {
-                style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
-                onEachFeature: onEachFeature,
-                pane: 'dallage'
-            }).addTo(map);     
-        }
-
-        zoom_menu = document.querySelector(".text-alert-zoom")
-        zoom_menu.innerHTML = `Zoom: ${map.getZoom()}</br>`
-
-        labels_polygon = document.querySelectorAll(".label-nom")
-        labels_polygon.forEach(label => {
-            // on modifie le style des labels
-            label.style.marginLeft = "-18px";
-            label.style.marginTop = "-30px";
-            label.style.color = "white";
-            label.style.fontWeight = '800';
-            label.style.fontSize = '10px';
-            // on cache les noms au chargement de la page, il ne doivent être affiché que si la checkbox est coché
-            input_display_nom_dalle = document.querySelector(".couche_optionnel_nom_dalle");
-            if(input_display_nom_dalle.checked){
-                label.style.display = "block"
-            }else{
-                label.style.display = "none"
-            }
+                // on la dalle à la carte
+                geojson = L.geoJson(dalles, {
+                    style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
+                    onEachFeature: onEachFeature,
+                    pane: 'dallage'
+                }).addTo(map);     
             
-        });
-        design_name_dalle_zoom()
-        
-        // permet d'attribuer l'id à chaque dalle pour pouvoir la supprimer si on la déselectionne
-        dalles = document.querySelectorAll(".leaflet-interactive")
-        dalles.forEach((dalle, key) => {
-            if (key != 0){
-                if(dalle.tagName == "path"){
-                    dalle.classList.add(`id${key - (dalles.length / 2 - 1)}`)
-                }
-            }
-        });
 
+                display_level_zoom()
+
+                labels_polygon = document.querySelectorAll(".label-nom")
+                labels_polygon.forEach(label => {
+                    // on modifie le style des labels
+                    label.style.marginLeft = "-18px";
+                    label.style.marginTop = "-30px";
+                    label.style.color = "white";
+                    label.style.fontWeight = '800';
+                    label.style.fontSize = '10px';
+                    // on cache les noms au chargement de la page, il ne doivent être affiché que si la checkbox est coché
+                    input_display_nom_dalle = document.querySelector(".couche_optionnel_nom_dalle");
+                    if(input_display_nom_dalle.checked){
+                        label.style.display = "block"
+                    }else{
+                        label.style.display = "none"
+                    }
+                    
+                });
+                design_name_dalle_zoom()
+                
+                // permet d'attribuer l'id à chaque dalle pour pouvoir la supprimer si on la déselectionne
+                dalles = document.querySelectorAll(".leaflet-interactive")
+                dalles.forEach((dalle, key) => {
+                    if (key != 0){
+                        if(dalle.tagName == "path"){
+                            dalle.classList.add(`id${key - (dalles.length / 2 - 1)}`)
+                        }
+                    }
+                });
+        }else{
+            display_none_dalle()
+            display_level_zoom()
+            var markers = new L.MarkerClusterGroup();
+
+            dalles_json.forEach(dalle => {
+                coordonnee = converter.inverse([dalle["x_max"], dalle["y_max"]])
+                var marker = new L.Marker(new L.LatLng(coordonnee[1], coordonnee[0]));
+                marker.bindPopup("dalle");
+                markers.addLayer(marker);
+            });
+             map.addLayer(markers);
+        }
+    }
         
     })
     .catch(function (error) {
@@ -284,6 +295,20 @@ function create_dalle(dalles_json) {
     }
 
     return dallage
+}
+
+function display_none_dalle() {
+    // suppresion des dalles et nomdes dalles à chaque fois qu'on se déplace
+    map.removeLayer(geojson)
+    document.querySelectorAll(".label-nom").forEach(span => {
+        span.remove()
+    });
+}
+
+function display_level_zoom() {
+    // affiche le niveau de zoom dans le petit menu
+    zoom_menu = document.querySelector(".text-alert-zoom")
+    zoom_menu.innerHTML = `Zoom: ${map.getZoom()}</br>`
 }
 
 
