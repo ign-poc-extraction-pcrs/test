@@ -98,7 +98,7 @@ function onEachFeature(feature, layer) {
     var label = L.marker(layer.getBounds().getCenter(), {
         icon: L.divIcon({
           className: 'label-nom',
-          html: `<p><span>${feature.properties["x"]}</span> <span>-</span> <span>${feature.properties["y"]}</span></p>`,
+          html: `<p class="coor_dalle"><span>${feature.properties["x"]}</span> <span>${feature.properties["y"]}</span></p>`,
           iconSize: [0, 0],
         })
     }).addTo(map);
@@ -112,68 +112,66 @@ function onEachFeature(feature, layer) {
 
 
 // on ajoute le dallage à la carte
-geojson = L.geoJson({
-    "type": "FeatureCollection",
-    "features": [{
-        "type": "Feature",
-        "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    // on change de projection les coordonnées
-                    convertisseur.inverse([x_min, y_min])
-                    ,
-                    convertisseur.inverse([x_max, y_min])
-                    ,
-                    convertisseur.inverse([x_max, y_max])
-                    ,
-                    convertisseur.inverse([x_min, y_max])
-                    ,
-                    convertisseur.inverse([x_min, y_min])
-                ]
-            ]
-        }
-    }],
-},
-    {
-        style: style("#fff", 5, 0.6, '#ad0000', '8', 0)
-    }).addTo(map);
+// geojson = L.geoJson({
+//     "type": "FeatureCollection",
+//     "features": [{
+//         "type": "Feature",
+//         "geometry": {
+//             "type": "Polygon",
+//             "coordinates": [
+//                 [
+//                     // on change de projection les coordonnées
+//                     convertisseur.inverse([x_min, y_min])
+//                     ,
+//                     convertisseur.inverse([x_max, y_min])
+//                     ,
+//                     convertisseur.inverse([x_max, y_max])
+//                     ,
+//                     convertisseur.inverse([x_min, y_max])
+//                     ,
+//                     convertisseur.inverse([x_min, y_min])
+//                 ]
+//             ]
+//         }
+//     }],
+// },
+//     {
+//         style: style("#fff", 5, 0.6, '#ad0000', '8', 0)
+//     }).addTo(map);
 
 
-// permet d'affiche le dallage au dessus des autres couches
-map.createPane('dallage');
-map.getPane('dallage').style.zIndex = 500;
+// // permet d'affiche le dallage au dessus des autres couches
+// map.createPane('dallage');
+// map.getPane('dallage').style.zIndex = 500;
 
-// on la dalle à la carte
-geojson = L.geoJson(dallage, {
-    style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
-    onEachFeature: onEachFeature,
-    pane: 'dallage'
-}).addTo(map);
+// // on la dalle à la carte
+// geojson = L.geoJson(dallage, {
+//     style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
+//     onEachFeature: onEachFeature,
+//     pane: 'dallage'
+// }).addTo(map);
 
-dalles = document.querySelectorAll(".leaflet-interactive")
-dalles.forEach((dalle, key) => {
-    if (key != 0){
-        if(dalle.tagName == "path"){
-            dalle.classList.add(`id${key - (dalles.length / 2 - 0.5)}`)
-        }
-    }
-});
+// dalles = document.querySelectorAll(".leaflet-interactive")
+// dalles.forEach((dalle, key) => {
+//     if (key != 0){
+//         if(dalle.tagName == "path"){
+//             dalle.classList.add(`id${key - (dalles.length / 2 - 1)}`)
+//         }
+//     }
+// });
 
 
 labels_polygon = document.querySelectorAll(".label-nom")
-labels_polygon.forEach(label => {
-    // on modifie le style des labels
-    label.style.marginLeft = "-18px";
-    label.style.marginTop = "-30px";
-    label.style.color = "white";
-    label.style.fontWeight = '800';
-    label.style.fontSize = '10px';
-    // on modifie le style du "-" 
-    label.children[0].children[1].style.marginLeft = "17px"
-    // on cache les noms au chargement de la page, il ne doivent être affiché que si la checkbox est coché
-    label.style.display = "none"
-});
+// labels_polygon.forEach(label => {
+//     // on modifie le style des labels
+//     label.style.marginLeft = "-18px";
+//     label.style.marginTop = "-30px";
+//     label.style.color = "white";
+//     label.style.fontWeight = '800';
+//     label.style.fontSize = '10px';
+//     // on cache les noms au chargement de la page, il ne doivent être affiché que si la checkbox est coché
+//     label.style.display = "none"
+// });
 
 
 
@@ -227,15 +225,24 @@ couche_optionnel.update = function () {
     input_limit_commune.classList.add("limite_commune")
     input_limit_commune.type = "checkbox"
     input_limit_commune.name = 'leaflet-base-layers_68'
+
+    var zoom = document.createElement("span")
+    zoom.classList.add("text-alert-zoom")
+    zoom.innerHTML = `Zoom: ${map.getZoom()}</br>`
+    zoom.style.opacity = "0.6"
+    div_nom_dalle.appendChild(zoom)
+
+    var textAlert = document.createElement("span")
+    textAlert.classList.add("text-alert-checkbox-nom-dalle")
+    textAlert.innerHTML = "Cochable au zoom 15 ou plus</br>"
+    textAlert.style.opacity = "0.6"
+    div_nom_dalle.appendChild(textAlert)
     // si le zoom est en dessous de 15 on ne donne pas la possibilité de checker la checkbox et donc d'afficher les nom des dalles
     if (map.getZoom() < 15) {
-        var textAlert = document.createElement("span")
-        textAlert.classList.add("text-alert-checkbox-nom-dalle")
-        textAlert.innerHTML = "Zoom trop petit </br>"
-        textAlert.style.opacity = "0.6"
-        div_nom_dalle.appendChild(textAlert)
         input_nom_dalle.disabled = true
-    } 
+    }else{
+        textAlert.style.display = "none"
+    }
     div_nom_dalle.appendChild(input_nom_dalle)
 
     
@@ -258,7 +265,11 @@ couche_optionnel.update = function () {
 
 couche_optionnel.addTo(map)
 
-
+// Pour le debug
+map.on('click', function (e) {
+    var coord = e.latlng;
+    console.log("You clicked the map at: [" + coord.lat + ", " + coord.lng + "]");
+});
 
 
 // recupération de la checkbox_nom_dalle pour voir si elle est coché ou non, si elle est coché on affiche les noms de dalles dans les polygons
@@ -278,6 +289,7 @@ checkBox_nom_dalle.addEventListener('change', function() {
 
   function affichage_nom_dalle_menu(zoom) {
     texteAlert_nom_dalle = document.querySelector(".text-alert-checkbox-nom-dalle")
+    zoom_menu = document.querySelector(".text-alert-zoom")
     span_nom_dalle = document.querySelector(".span-nom-dalle")
     if (zoom >= 15) {
         texteAlert_nom_dalle.style.display = "none"
@@ -295,7 +307,6 @@ map.on('zoomend', function() {
     var currentZoom = map.getZoom();
     input_nom_dalle = document.querySelector(".couche_optionnel_nom_dalle")
     affichage_nom_dalle_menu(currentZoom)
-    console.log(map.getZoom());
 
     // si le zoom est plus grand ou égal à 15 alors on donne la possibilité de cocher la checkbox pour afficher ou non les nom de dalle
     if (currentZoom >= 15){
@@ -310,34 +321,7 @@ map.on('zoomend', function() {
         input_nom_dalle.disabled = true
         
     }
-
-    if (map.getZoom() == 17) {
-        labels_polygon.forEach(label => {
-            label.style.fontSize = '30px';
-            label.style.marginLeft = "-35px";
-            label.style.marginTop = "-100px";
-        })
-    }else if(map.getZoom() == 18){
-        labels_polygon.forEach(label => {
-            label.style.fontSize = '40px';
-            label.style.marginLeft = "-45px";
-            label.style.marginTop = "-140px";
-        })
-    }
-    else if(map.getZoom() == 16){
-        labels_polygon.forEach(label => {
-            label.style.fontSize = '20px';
-            label.style.marginLeft = "-25px";
-            label.style.marginTop = "-60px";
-        })
-    }
-    else{
-        labels_polygon.forEach(label => {
-            label.style.fontSize = '10px';
-            label.style.marginLeft = "-18px";
-            label.style.marginTop = "-30px";
-        })
-    }
+    design_name_dalle_zoom()
 });
 
 
