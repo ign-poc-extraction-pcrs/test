@@ -151,6 +151,7 @@ function design_name_dalle_zoom() {
 //     });
 
 geojson = []
+markers = null
 function display_dalle() {
     const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
     proj4.defs("EPSG:2154", proj4_2154);
@@ -167,13 +168,19 @@ function display_dalle() {
 
     
     // Make a request for a user with a given ID
-    axios.get(`http://127.0.0.1:5000/api/get/dalles/${northEast[0]}-${southWest[1]}-${southWest[0]}-${northEast[1]}`)
+    axios.get(`http://127.0.0.1:5000/api/get/dalles/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
     .then(function (response) {
         if(response.data.statut == "erreur"){
             window.alert("Nous rencontrons un probléme, nous travaillons dessus")
         }else{
             dalles_json = response.data.result
+            
             if (map.getZoom() >= 15){
+                console.log(markers);
+                if (markers != null){
+                    map.removeLayer(markers)
+                }
+                
                 dalles = create_dalle(dalles_json)
                 // permet d'affiche le dallage au dessus des autres couches
                 map.createPane('dallage');
@@ -222,15 +229,24 @@ function display_dalle() {
         }else{
             display_none_dalle()
             display_level_zoom()
-            var markers = new L.MarkerClusterGroup();
+            if (markers != null){
+                map.removeLayer(markers)
+            }
+
+            markers = new L.MarkerClusterGroup();
 
             dalles_json.forEach(dalle => {
                 coordonnee = converter.inverse([dalle["x_max"], dalle["y_max"]])
-                var marker = new L.Marker(new L.LatLng(coordonnee[1], coordonnee[0]));
-                marker.bindPopup("dalle");
+                marker = new L.Marker(new L.LatLng(coordonnee[1], coordonnee[0]));
+                // marker.bindPopup("dalle");
+                marker.on('click', function(e){
+                    map.setView(e.latlng, 15);
+                });
+                
                 markers.addLayer(marker);
+                
             });
-             map.addLayer(markers);
+            map.addLayer(markers);
         }
     }
         
