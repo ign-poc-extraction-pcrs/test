@@ -168,7 +168,7 @@ function display_dalle() {
 
     
     // Make a request for a user with a given ID
-    axios.get(`http://127.0.0.1:5000/api/get/dalles/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
+    axios.get(`http://pcrs-dev.ign.fr/api/get/dalles/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
     .then(function (response) {
         if(response.data.statut == "erreur"){
             window.alert("Nous rencontrons un probléme, nous travaillons dessus")
@@ -215,16 +215,6 @@ function display_dalle() {
                     
                 });
                 design_name_dalle_zoom()
-                
-                // permet d'attribuer l'id à chaque dalle pour pouvoir la supprimer si on la déselectionne
-                dalles = document.querySelectorAll(".leaflet-interactive")
-                dalles.forEach((dalle, key) => {
-                    if (key != 0){
-                        if(dalle.tagName == "path"){
-                            dalle.classList.add(`id${key - (dalles.length / 2 - 1)}`)
-                        }
-                    }
-                });
 
                 // recuperation des boutons de la liste des dalles pour pouvoir redesigner les dalles quand on bouge la carte
                 document.querySelectorAll(".remove_design_dalle").forEach(button => {
