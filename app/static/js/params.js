@@ -168,7 +168,7 @@ function display_dalle() {
 
     
     // Make a request for a user with a given ID
-    axios.get(`https://127.0.0.1:5000/api/get/dalles/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
+    axios.get(`https://pcrs-dev.ign.fr/api/get/dalles/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
     .then(function (response) {
         if(response.data.statut == "erreur"){
             window.alert("Nous rencontrons un probléme, nous travaillons dessus")
