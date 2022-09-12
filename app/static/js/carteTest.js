@@ -112,67 +112,11 @@ function onEachFeature(feature, layer) {
 }
 
 
-// on ajoute le dallage à la carte
-// geojson = L.geoJson({
-//     "type": "FeatureCollection",
-//     "features": [{
-//         "type": "Feature",
-//         "geometry": {
-//             "type": "Polygon",
-//             "coordinates": [
-//                 [
-//                     // on change de projection les coordonnées
-//                     convertisseur.inverse([x_min, y_min])
-//                     ,
-//                     convertisseur.inverse([x_max, y_min])
-//                     ,
-//                     convertisseur.inverse([x_max, y_max])
-//                     ,
-//                     convertisseur.inverse([x_min, y_max])
-//                     ,
-//                     convertisseur.inverse([x_min, y_min])
-//                 ]
-//             ]
-//         }
-//     }],
-// },
-//     {
-//         style: style("#fff", 5, 0.6, '#ad0000', '8', 0)
-//     }).addTo(map);
 
-
-// // permet d'affiche le dallage au dessus des autres couches
-// map.createPane('dallage');
-// map.getPane('dallage').style.zIndex = 500;
-
-// // on la dalle à la carte
-// geojson = L.geoJson(dallage, {
-//     style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
-//     onEachFeature: onEachFeature,
-//     pane: 'dallage'
-// }).addTo(map);
-
-// dalles = document.querySelectorAll(".leaflet-interactive")
-// dalles.forEach((dalle, key) => {
-//     if (key != 0){
-//         if(dalle.tagName == "path"){
-//             dalle.classList.add(`id${key - (dalles.length / 2 - 1)}`)
-//         }
-//     }
-// });
 
 
 labels_polygon = document.querySelectorAll(".label-nom")
-// labels_polygon.forEach(label => {
-//     // on modifie le style des labels
-//     label.style.marginLeft = "-18px";
-//     label.style.marginTop = "-30px";
-//     label.style.color = "white";
-//     label.style.fontWeight = '800';
-//     label.style.fontSize = '10px';
-//     // on cache les noms au chargement de la page, il ne doivent être affiché que si la checkbox est coché
-//     label.style.display = "none"
-// });
+
 
 
 

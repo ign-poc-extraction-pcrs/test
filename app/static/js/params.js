@@ -331,45 +331,6 @@ function display_level_zoom() {
 }
 
 
-
-
-// on ajoute les dalles (carré) par rapport à aux coordonnées du dallage
-// for (let x = x_min; x < x_max; x += pas) {
-//     for (let y = y_min; y < y_max; y += pas) {
-//         if(x != 238000 || y + pas > 6736400){
-//             id += 1
-//             dallage["features"].push({
-//                 "type": "Feature",
-//                 "geometry": {
-//                     "type": "Polygon",
-//                     "coordinates": [
-//                         [
-//                             // on change de projection les coordonnées
-//                             convertisseur.inverse([x, y])
-//                             ,
-//                             convertisseur.inverse([x + pas, y])
-//                             ,
-//                             convertisseur.inverse([x + pas, y + pas])
-//                             ,
-//                             convertisseur.inverse([x, y + pas])
-//                             ,
-//                             convertisseur.inverse([x, y])
-//                         ]
-//                     ]
-//                 }, 
-//                 "properties": {
-//                     "id" : id,
-//                     "nom" : `2020-0${x/100}-${(y + pas)/100}-LA93-0M05-RVB`,
-//                     "extension" : "tiff",
-//                     "x": `0${x/100}`,
-//                     "y":(y + pas)/100
-//                 }
-//             })
-//         }
-//     }
-
-// }
-
 function nomenclature_download(dalle) {
     dalle_reprojection = []
     // on change de projection, pour la remettre en L93
