@@ -31,8 +31,7 @@ dalles_download.update = function (liste_dalle) {
 
         liste_dalle.forEach(element => {
             const dalle = document.createElement("h4")
-            console.log(element);
-            dalle.innerHTML += `<button class='remove_design_dalle id${element.properties.id}' type='button'><span>X</span></button> <span class="nom_dalle">${element.properties.nom}</span>`
+            dalle.innerHTML += `<button class='remove_design_dalle id${element.properties.x}_${element.properties.y}' type='button'><span>X</span></button> <span class="nom_dalle">${element.properties.nom}</span>`
             
             const input_hidden = document.createElement("input")
             input_hidden.setAttribute('type', 'hidden');
@@ -61,8 +60,8 @@ dalles_download.update = function (liste_dalle) {
     button_remove_design = document.querySelectorAll(".remove_design_dalle");
     button_remove_design.forEach(button => {
         button.addEventListener('click', () => {
-            id = button.className.split(' ')[1];
-            dalle = document.querySelector(`.leaflet-interactive.${id}`); 
+            id_dalle = button.className.split(' ')[1];
+            dalle = document.querySelector(`.${id_dalle}`); 
 
             dalle.setAttribute("stroke", param_base["fill_color"]) 
             dalle.setAttribute("fill", param_base["color"]) 
@@ -71,11 +70,13 @@ dalles_download.update = function (liste_dalle) {
             dalle.setAttribute("stroke-opacity", param_base["opacity"]) 
             dalle.setAttribute("stroke-dasharray", param_base["dash_array"]) 
             liste_dalle.forEach(element => {
-                id_dalle = id.split("id")[1]
+                console.log(id_dalle);
+                console.log(element.properties.id);
                 if(id_dalle == element.properties.id){
                     dalle_remove = element
                 }
             });
+            console.log(dalle_remove);
             liste_dalle = remove_dalle_liste(liste_dalle, dalle_remove)
             dalles_download.update(liste_dalle)
             new_liste_dalle = liste_dalle

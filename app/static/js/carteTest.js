@@ -44,7 +44,7 @@ function remove_dalle_liste(liste_dalle, dalle) {
     "supprime un element d'une liste"
     liste = []
     liste_dalle.forEach(element => {
-        if (dalle != element){
+        if (dalle.properties.id != element.properties.id){
             liste.push(element)
         }
     });
@@ -94,6 +94,7 @@ function onEachFeature(feature, layer) {
         mouseout: resetHighlight,
         click: click
     });
+    layer.setStyle({className: `id${feature.properties["x"]}_${feature.properties["y"]}`})
     // Ajout d'un label
     var label = L.marker(layer.getBounds().getCenter(), {
         icon: L.divIcon({
