@@ -168,7 +168,7 @@ function display_dalle() {
 
     
     // Make a request for a user with a given ID
-    axios.get(`https://pcrs-dev.ign.fr/api/get/dalles/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
+    axios.get(`http://127.0.0.1:5000/api/get/dalles/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
     .then(function (response) {
         if(response.data.statut == "erreur"){
             window.alert("Nous rencontrons un probléme, nous travaillons dessus")
@@ -176,7 +176,6 @@ function display_dalle() {
             dalles_json = response.data.result
             
             if (map.getZoom() >= 15){
-                console.log(markers);
                 if (markers != null){
                     map.removeLayer(markers)
                 }
@@ -225,6 +224,20 @@ function display_dalle() {
                             dalle.classList.add(`id${key - (dalles.length / 2 - 1)}`)
                         }
                     }
+                });
+
+                // recuperation des boutons de la liste des dalles pour pouvoir redesigner les dalles quand on bouge la carte
+                document.querySelectorAll(".remove_design_dalle").forEach(button => {
+                    id = button.className.split(' ')[1];
+                    dalle = document.querySelector(`.${id}`); 
+
+                    // param_click["color"], param_click["weight"], param_click["opacity"], param_click["fill_color"], param_click["dash_array"], param_click["fill_opacity"]
+                    dalle.setAttribute("stroke", param_click["fill_color"]) 
+                    dalle.setAttribute("fill", param_click["color"]) 
+                    dalle.setAttribute("width", param_click["weight"]) 
+                    dalle.setAttribute("fill-opacity", param_click["fill_opacity"]) 
+                    dalle.setAttribute("stroke-opacity", param_click["opacity"]) 
+                    dalle.setAttribute("stroke-dasharray", param_click["dash_array"]) 
                 });
         }else{
             display_none_dalle()
@@ -297,7 +310,7 @@ function create_dalle(dalles_json) {
                         ]
                     },
                     "properties": {
-                        "id": id,
+                        "id": `id0${x / 100}_${y / 100 + 2}`,
                         "nom": `2020-0${x / 100}-${y / 100 + 2}-LA93-0M05-RVB`,
                         "extension": "tiff",
                         "x": `0${x / 100}`,
