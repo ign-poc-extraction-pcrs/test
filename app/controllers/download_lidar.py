@@ -64,9 +64,9 @@ def get_paquets_lidar():
     json_lidar = json.loads(json_lidar)
     # on recupere les differents paquets lidar [list]
     paquets_lidar = json_lidar["Download_Capabilities"]["Capability"]["Resources"]["Resource"]
+    print(len(paquets_lidar))
     # on boucle sur chaque paquet pour recuperer les coordonnées
     return paquets_lidar
-
 
 def create_shp_lidar(path_shp, file_shp):
     """Creation du shapefile lidar
@@ -82,11 +82,12 @@ def create_shp_lidar(path_shp, file_shp):
     for key , paquet in enumerate(paquets_lidar) :
         # on recupere le x et y du nom du paquet
         name_paquet = paquet["Name"]
-        x = name_paquet.split("-")[2].split("_")[0]
-        y = name_paquet.split("-")[2].split("_")[1]
         name = paquet["Name"].split("$")[-1]
-
+        x = name.split("-")[2].split("_")[0]
+        y = name.split("-")[2].split("_")[1]
+        
         if isint(x) and isint(y):
+            
             # on convertit les bonnes coordonnées
             x_min = int(x) * 1000
             y_min = int(y) * 1000
@@ -99,7 +100,6 @@ def create_shp_lidar(path_shp, file_shp):
             data.append({name_colonne: name, 
                         "url_telechargement": f"https://wxs.ign.fr/{get_key()}/telechargement/prepackage/{name_paquet}/file/{name}.7z" , 
                         "Geometry": {'type': 'Polygon', 'coordinates': [[(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min), (x_min, y_max)]]}})
-        
     # creation du shapefile
     create_shp_file(f"{path_shp}/{file_shp}", colonne, data, 2154)
 
