@@ -30,7 +30,6 @@ const origin = [0, 12000000];
 proj4.defs("EPSG:2154", proj4_2154);
 const converter = proj4("EPSG:2154");
 // Param en dur
-const KEY = "c90xknypoz1flvgojchbphgt";
 const DATA_TYPE = "lidarhd";
 var map, key;
 
@@ -87,9 +86,15 @@ document.addEventListener("DOMContentLoaded", function () {
         listData(dataType);
     });
 
+    document.getElementById("nb_dalles").textContent = 0
+
     // On lance le listing des données
-    key = KEY;
-    listData(DATA_TYPE);
+    KEYS_LIDARHD.forEach(key_data => {
+        key = key_data
+        listData(DATA_TYPE);
+    });
+
+    
 });
 
 function listData(dataType) {
@@ -118,7 +123,8 @@ function listData(dataType) {
             var lidarHdResources = get_resources(data, dataType);
             // On affiche text
             document.getElementById("text_div").style.display = "block";
-            document.getElementById("nb_dalles").textContent = `${lidarHdResources.length}`;
+            nb_dalle = parseInt(document.getElementById("nb_dalles").textContent) + lidarHdResources.length;
+            document.getElementById("nb_dalles").textContent = nb_dalle;
 
             // Création du dallage
             var dallage = create_dallage(lidarHdResources);
@@ -227,7 +233,7 @@ function add_dallage(dallage) {
         }
     }).addTo(map);
     // Set view
-    map.fitBounds(geojson.getBounds());
+    // map.fitBounds(geojson.getBounds());
     return geojson;
 }
 

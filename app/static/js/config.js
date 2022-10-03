@@ -1,0 +1,1 @@
+const KEYS_LIDARHD = ["2s53j8r4gxyr0bfcounndiea", "c90xknypoz1flvgojchbphgt"]
