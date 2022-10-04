@@ -7,6 +7,7 @@ from io import BytesIO
 from zipfile import ZipFile
 import os
 from pathlib import Path
+from app.controllers.Config import Config
 
 from app.utils.create_shp import create_shp_file
 
@@ -18,6 +19,7 @@ def download_shp():
     PATH_SHP = "/tmp/api_dispo_produit_tmp_file"
     file_shp = "TA_diff_pkk_lidarhd"
     path_prj = Path(__file__).parent / "../static/files/TA_diff_pkk_lidarhd.prj"
+    path_key = Path(__file__).parent / "../../config.json"
 
     # recuperation des paquets lidar
     create_shp_lidar(PATH_SHP, file_shp)  
@@ -46,17 +48,16 @@ def lidar_geojson():
     return jsonify(geojson)
 
 def get_key():
-    key = "c90xknypoz1flvgojchbphgt"
+    key = Config.get_key_lidar()
     return key
 
-def get_paquets_lidar():
+def get_paquets_lidar(key):
     """récupere les paquets lidar
 
     Returns:
         list: list des dalles lidae
     """
     # on recupere le xml
-    key = get_key()
     r = requests.get(f"https://wxs.ign.fr/{key}/telechargement/prepackage?request=GetCapabilities")
     # on parse et on transforme le xml en dict
     obj = xmltodict.parse(r.content)
@@ -64,7 +65,6 @@ def get_paquets_lidar():
     json_lidar = json.loads(json_lidar)
     # on recupere les differents paquets lidar [list]
     paquets_lidar = json_lidar["Download_Capabilities"]["Capability"]["Resources"]["Resource"]
-    print(len(paquets_lidar))
     # on boucle sur chaque paquet pour recuperer les coordonnées
     return paquets_lidar
 
@@ -75,31 +75,32 @@ def create_shp_lidar(path_shp, file_shp):
         path_shp (str): chemin du shp
         file_shp (str): nom du fichier shp
     """
-    SIZE = 2000  
-    paquets_lidar = get_paquets_lidar()
+    SIZE = 2000
     data = []
     colonne = []
-    for key , paquet in enumerate(paquets_lidar) :
-        # on recupere le x et y du nom du paquet
-        name_paquet = paquet["Name"]
-        name = paquet["Name"].split("$")[-1]
-        x = name.split("-")[2].split("_")[0]
-        y = name.split("-")[2].split("_")[1]
-        
-        if isint(x) and isint(y):
+    for key_lidar in get_key():
+        paquets_lidar = get_paquets_lidar(key_lidar)
+        for key , paquet in enumerate(paquets_lidar) :
+            # on recupere le x et y du nom du paquet
+            name_paquet = paquet["Name"]
+            name = paquet["Name"].split("$")[-1]
+            x = name.split("-")[2].split("_")[0]
+            y = name.split("-")[2].split("_")[1]
             
-            # on convertit les bonnes coordonnées
-            x_min = int(x) * 1000
-            y_min = int(y) * 1000
-            x_max = x_min + SIZE
-            y_max = y_min - SIZE
+            if isint(x) and isint(y):
+                
+                # on convertit les bonnes coordonnées
+                x_min = int(x) * 1000
+                y_min = int(y) * 1000
+                x_max = x_min + SIZE
+                y_max = y_min - SIZE
 
-            # ce qui va etre envoyer dans ls shp
-            name_colonne = "nom_pkk"
-            colonne = [{"nom_colonne": name_colonne, "type": "C"}, {"nom_colonne": "url_telechargement", "type": "C"}]
-            data.append({name_colonne: name, 
-                        "url_telechargement": f"https://wxs.ign.fr/{get_key()}/telechargement/prepackage/{name_paquet}/file/{name}.7z" , 
-                        "Geometry": {'type': 'Polygon', 'coordinates': [[(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min), (x_min, y_max)]]}})
+                # ce qui va etre envoyer dans ls shp
+                name_colonne = "nom_pkk"
+                colonne = [{"nom_colonne": name_colonne, "type": "C"}, {"nom_colonne": "url_telechargement", "type": "C"}]
+                data.append({name_colonne: name, 
+                            "url_telechargement": f"https://wxs.ign.fr/{key_lidar}/telechargement/prepackage/{name_paquet}/file/{name}.7z" , 
+                            "Geometry": {'type': 'Polygon', 'coordinates': [[(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min), (x_min, y_max)]]}})
     # creation du shapefile
     create_shp_file(f"{path_shp}/{file_shp}", colonne, data, 2154)
 
@@ -107,33 +108,35 @@ def create_shp_lidar(path_shp, file_shp):
 def create_geojson_lidar():
     """Creation du geojson lidar
     """
-    key = get_key()
+    
     SIZE = 2000  
-    paquets_lidar = get_paquets_lidar()
     data = []
-    for paquet in paquets_lidar:
-        # on recupere le x et y du nom du paquet
-        name_paquet = paquet["Name"]
-        x = name_paquet.split("-")[2].split("_")[0]
-        y = name_paquet.split("-")[2].split("_")[1]
-        name = paquet["Name"].split("$")[-1]
+    for key_lidar in get_key():
+        paquets_lidar = get_paquets_lidar(key_lidar)
+        for paquet in paquets_lidar:
+            # on recupere le x et y du nom du paquet
+            name_paquet = paquet["Name"]
+            name = paquet["Name"].split("$")[-1]
+            x = name.split("-")[2].split("_")[0]
+            y = name.split("-")[2].split("_")[1]
+            
 
-        # on convertit les bonnes coordonnées
-        if isint(x) and isint(y):
-            x_min = int(x) * 1000
-            y_min = int(y) * 1000
-            x_max = x_min + SIZE
-            y_max = y_min - SIZE
+            # on convertit les bonnes coordonnées
+            if isint(x) and isint(y):
+                x_min = int(x) * 1000
+                y_min = int(y) * 1000
+                x_max = x_min + SIZE
+                y_max = y_min - SIZE
 
-            # on creer le json
-            data.append({name: {
-                "Geometry": {
-                    'type': 'Polygon', 
-                    'coordinates': [[(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min), (x_min, y_max)]]
+                # on creer le json
+                data.append({name: {
+                    "Geometry": {
+                        'type': 'Polygon', 
+                        'coordinates': [[(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min), (x_min, y_max)]]
+                        },
+                    "url_telechargement": f"https://wxs.ign.fr/{key_lidar}/telechargement/prepackage/{name_paquet}/file/{name}.7z"    
                     },
-                "url_telechargement": f"https://wxs.ign.fr/{key}/telechargement/prepackage/{name_paquet}/file/{name}.7z"    
-                },
-            })
+                })
     return data
 
 

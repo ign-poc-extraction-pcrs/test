@@ -87,29 +87,37 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     document.getElementById("nb_dalles").textContent = 0
-
-    // On lance le listing des données
-    KEYS_LIDARHD.forEach(key_data => {
-        key = key_data
-        listData(DATA_TYPE);
-    });
-
+    
+    // requete ajax pour recuperer les differentes clé lidar
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "api/get/config/key/lidar", true);
+    xhr.getResponseHeader("Content-type", "application/json");
+    xhr.onload = function() {
+        const obj = JSON.parse(this.responseText);
+        // On lance le listing des données
+        obj.result.forEach(key_data => {
+            key = key_data
+            listData(DATA_TYPE, key);
+        });
+    } 
+    xhr.send()
     
 });
 
-function listData(dataType) {
+function listData(dataType, key) {
     // On affiche la div de chargement
     document.getElementById("loading_div").style.display = "block";
     // On masque les div d'erreur et de formulaire
     document.getElementById("form_div").style.display = "none";
     document.getElementById("key_error_div").style.display = "none";
     document.getElementById('key_span').textContent = key;
-
+    console.log(`https://wxs.ign.fr/${key}/telechargement/prepackage?request=GetCapabilities`);
     // getFeature info
     fetch(`https://wxs.ign.fr/${key}/telechargement/prepackage?request=GetCapabilities`)
         .then(function (response) {
             if (response.ok) {
                 return response.text();
+                
             } else {
                 throw Error(response.statusText);
             }
@@ -127,7 +135,7 @@ function listData(dataType) {
             document.getElementById("nb_dalles").textContent = nb_dalle;
 
             // Création du dallage
-            var dallage = create_dallage(lidarHdResources);
+            var dallage = create_dallage(lidarHdResources, key);
 
             // Ajout du dallage
             add_dallage(dallage);
@@ -181,13 +189,14 @@ function get_files(data) {
     return files;
 }
 
-function create_dallage(resources) {
+function create_dallage(resources, key) {
     let dallage = {
         "type": "FeatureCollection",
         "features": [],
     }
 
     for (let resource of resources) {
+        resource["key"] = key
         var match_x_y = REGEX_X_Y.exec(resource.name);
         if (match_x_y) {
             var x_min = parseInt(match_x_y[1]) * 1000;
@@ -272,10 +281,11 @@ function clickFeature(e) {
     // On récupère l'élément cliqué
     var layer = e.target;
     var name = layer.feature["properties"].name;
+    key_lidar = layer.feature["properties"].key
     var match = REGEX_X_Y.exec(name);
     document.getElementById("name").textContent = match[0];
     // Url de la requête pour récupérer les détails de la ressource
-    var url = `https://wxs.ign.fr/${key}/telechargement/prepackage/${name}`;
+    var url = `https://wxs.ign.fr/${key_lidar}/telechargement/prepackage/${name}`;
     // Requête
     fetch(url)
         .then(function (response) {
