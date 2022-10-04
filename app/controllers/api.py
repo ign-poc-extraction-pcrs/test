@@ -44,7 +44,7 @@ def test(x_min=None, y_min=None, x_max=None, y_max=None):
     # si il n'y a aucun probleme avec la connexion à la base
     if bdd :
         #  on recupere les dalles qui sont dans la bbox envoyer
-        bdd.execute(f"SELECT id, id_chantier, nom  FROM dalle WHERE geom && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
+        bdd.execute(f"SELECT id, nom  FROM dalle WHERE geom && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
         dalles = bdd.fetchall()
         dalles = get_coordonees(dalles)
         dalles = new_format_dalle(dalles)
@@ -110,7 +110,7 @@ def get_coordonees(dalles):
             y_max = int(nom_split[3]) * 1000
             coordonnées.append({
                 "id": dalle["id"],
-                "chantier": dalle["id_chantier"],
+                # "chantier": dalle["id_chantier"],
                 "x_min": x_min, 
                 "x_max": x_min + SIZE, 
                 "y_min": y_max - SIZE, 
