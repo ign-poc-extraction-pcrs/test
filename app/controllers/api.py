@@ -80,8 +80,8 @@ def get_connexion_bdd():
         cursor: curseur pour executer des requetes à la base
     """
     try :
-        # conn = psycopg2.connect(database="test", user="postgres", host="localhost", password="root")
-        conn = psycopg2.connect(database="geoportail", user="pzgp", host="kriek2.ign.fr", password="sonia999", port="5433")
+        conn = psycopg2.connect(database="test", user="postgres", host="localhost", password="root")
+        # conn = psycopg2.connect(database="geoportail", user="pzgp", host="kriek2.ign.fr", password="sonia999", port="5433")
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     except psycopg2.OperationalError as e:
         return False
