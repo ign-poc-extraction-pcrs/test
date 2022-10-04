@@ -4,8 +4,19 @@ import os
 import psycopg2
 import psycopg2.extras
 from datetime import date
+from app.controllers.Config import Config
 
 api = Blueprint('api', __name__, url_prefix='/api')
+
+@api.route('/get/config/key/lidar')
+def get_config():
+    # recupere les clé lidar
+    statut = "failure"
+    key = Config.get_key_lidar()
+    if key :
+        statut = "success"
+
+    return jsonify({"statut": statut, "result": key})
 
 @api.route('/get/dalle')
 def get_dalle():
@@ -33,7 +44,7 @@ def test(x_min=None, y_min=None, x_max=None, y_max=None):
     # si il n'y a aucun probleme avec la connexion à la base
     if bdd :
         #  on recupere les dalles qui sont dans la bbox envoyer
-        bdd.execute(f"SELECT nom FROM dalle WHERE geom && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
+        bdd.execute(f"SELECT id, id_chantier, nom  FROM pcrs.dalle WHERE geom && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
         dalles = bdd.fetchall()
         dalles = get_coordonees(dalles)
         dalles = new_format_dalle(dalles)
@@ -45,6 +56,23 @@ def test(x_min=None, y_min=None, x_max=None, y_max=None):
     return jsonify({"statut": statut, "result": dalles})
 
 
+@api.route('/get/chantiers/<float(signed=True):x_min>/<float(signed=True):y_min>/<float(signed=True):x_max>/<float(signed=True):y_max>', methods=['GET', 'POST'])
+def get_chantier(x_min=None, y_min=None, x_max=None, y_max=None):
+    bdd = get_connexion_bdd()
+    dalles = []
+    # si il n'y a aucun probleme avec la connexion à la base
+    if bdd :
+        #  on recupere les dalles qui sont dans la bbox envoyer
+        bdd.execute(f"SELECT bloc, ST_AsGeoJson(st_transform(st_setsrid(geom_chantier, 2154),4326)) as polygon FROM pcrs.chantier WHERE geom_chantier && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
+        chantiers = bdd.fetchall()
+        statut = "success"
+        bdd.close()
+        bdd.close() 
+    else :
+        statut = "erreur"
+    return jsonify({"statut": statut, "result": chantiers})
+
+
 def get_connexion_bdd():
     """ Connexion à la base de données pour accéder aux dalles pcrs
 
@@ -52,8 +80,8 @@ def get_connexion_bdd():
         cursor: curseur pour executer des requetes à la base
     """
     try :
-        conn = psycopg2.connect(database="test", user="postgres", host="localhost", password="root")
-        # conn = psycopg2.connect(database="geoportail", user="pzgp", host="kriek2.ign.fr", password="sonia999", port="5433")
+        # conn = psycopg2.connect(database="test", user="postgres", host="localhost", password="root")
+        conn = psycopg2.connect(database="geoportail", user="pzgp", host="kriek2.ign.fr", password="sonia999", port="5433")
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     except psycopg2.OperationalError as e:
         return False
@@ -71,15 +99,18 @@ def get_coordonees(dalles):
     """
     SIZE = 1000
     coordonnées = []
+    nom_split = []
     for dalle in dalles:
         nom = dalle["nom"]
         # on recupere la partie du nom ou il y'a les coordonnées
-        dalle = dalle["nom"].split("-")
-        # si ce n'est pas une dalle
-        if len(dalle) > 4 and dalle[2].isdigit():
-            x_min = int(dalle[2]) * 1000
-            y_max = int(dalle[3]) * 1000
+        nom_split = dalle["nom"].split("-")
+        # si ce n'est pas une nom_split
+        if len(nom_split) > 4 and nom_split[2].isdigit():
+            x_min = int(nom_split[2]) * 1000
+            y_max = int(nom_split[3]) * 1000
             coordonnées.append({
+                "id": dalle["id"],
+                "chantier": dalle["id_chantier"],
                 "x_min": x_min, 
                 "x_max": x_min + SIZE, 
                 "y_min": y_max - SIZE, 
