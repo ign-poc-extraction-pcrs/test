@@ -126,6 +126,7 @@ function design_name_dalle_zoom() {
 }
 
 
+
 geojson = []
 geojson_chantier = []
 markers = null
@@ -227,6 +228,7 @@ function display_dalle() {
                 
             });
             map.addLayer(markers);
+            display_chantier()
         }
     }
         
