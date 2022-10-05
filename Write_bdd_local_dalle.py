@@ -18,12 +18,13 @@ class Write_bdd_local_dalle:
         path_json (str): le chemin ou sera sotcker le json
     """
 
-    def __init__(self, database, user, host, password) -> None:
+    def __init__(self, database, user, host, password, table) -> None:
         self.database = database
         self.user = user
         self.host = host
         self.password = password
-        self.path_json = 'app/static/json/copy_grille_dalle_version2.json'
+        self.table = table
+        self.path_json = f'app/static/json/copy_grille_{table}_version2.json'
 
     def get_dalle_json(self):
         """Recupere les dalles du json
@@ -51,8 +52,8 @@ class Write_bdd_local_dalle:
         try:
             self.get_connexion()
             for dalle in self.get_dalle_json()["dalles"]:
-                postgres_insert_query = """ INSERT INTO dalle (nom, geom) VALUES (%s,%s)"""
-                record_to_insert = (dalle["nom"], dalle["geom"])
+                postgres_insert_query = f""" INSERT INTO {self.table} (bloc, geom_chantier) VALUES (%s,%s)"""
+                record_to_insert = (dalle["bloc"], dalle["geom_chantier"])
                 self.cur.execute(postgres_insert_query, record_to_insert)
 
             self.conn.commit()
@@ -65,5 +66,5 @@ class Write_bdd_local_dalle:
         finally:
             self.close_connexion()
 
-a = Write_bdd_local_dalle(database="test", user="postgres", host="localhost", password="root")
+a = Write_bdd_local_dalle(database="test", user="postgres", host="localhost", password="root", table="chantier")
 a.insert_dalle()
