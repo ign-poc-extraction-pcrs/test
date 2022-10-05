@@ -111,6 +111,15 @@ function onEachFeature(feature, layer) {
     });
 }
 
+function onEachFeatureDallage(feature, layer) {
+    // Ajout écouteur d'événement sur l'élément
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: click
+    });
+}
+
 
 
 

@@ -126,31 +126,8 @@ function design_name_dalle_zoom() {
 }
 
 
-// // Make a request for a user with a given ID
-// axios.get('http://127.0.0.1:5000/api/get/dalle')
-//     .then(function (response) {
-//         dalles_json = response.data.result.dalles
-//         dalles = create_dalle(dalles_json)
-//         // permet d'affiche le dallage au dessus des autres couches
-//         map.createPane('dallage');
-//         map.getPane('dallage').style.zIndex = 500;
-
-//         // on la dalle à la carte
-//         geojson = L.geoJson(dalles, {
-//             style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
-//             onEachFeature: onEachFeature,
-//             pane: 'dallage'
-//         }).addTo(map);
-//     })
-//     .catch(function (error) {
-
-//         console.log(error);
-//     })
-//     .then(function () {
-//         // always executed
-//     });
-
 geojson = []
+geojson_chantier = []
 markers = null
 function display_dalle() {
     const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
@@ -192,7 +169,7 @@ function display_dalle() {
                     style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
                     onEachFeature: onEachFeature,
                     pane: 'dallage'
-                }).addTo(map);     
+                }).addTo(map);   
             
 
                 display_level_zoom()
@@ -276,6 +253,7 @@ function create_dalle(dalles_json) {
     id = 0
 
     for (let dalle of dalles_json) {
+
         var x_min = dalle["x_min"]
         var y_max = dalle["y_max"]
         var x_max = dalle["x_max"]
@@ -353,8 +331,70 @@ function nomenclature_download(dalle) {
     return { "min": min, "max": max, "annee": annee, "proj": proj, "resolution": resolution, "canaux": canaux }
 }
 
+function display_chantier() {
+    const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+    proj4.defs("EPSG:2154", proj4_2154);
+    const converter = proj4("EPSG:2154");
+
+
+    var northEast = map.getBounds()._northEast
+    var southWest = map.getBounds()._southWest
+
+    northEast = converter.forward([northEast.lng, northEast.lat])
+    southWest = converter.forward([southWest.lng, southWest.lat])
+    northWest = [northEast[0],southWest[1]]
+    southEast = [southWest[0],northEast[1]]
+
+    // on definit le dictionnaire avec la nomenclature leaflet et on ajoutera les différents polygons dans la clé attributs
+    let display_chantier = {
+        "type": "FeatureCollection",
+        "features": [],
+    }
+
+    display_none_dalle()
+    display_level_zoom()
+    map.removeLayer(geojson_chantier)
+
+    axios.get(`https://pcrs-dev.ign.fr/api/get/chantiers/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
+    .then(function (response) {
+        if(response.data.statut == "erreur"){
+            window.alert("Nous rencontrons un probléme, nous travaillons dessus")
+        }else{
+            chantiers = response.data.result
+            // on boucle sur les chantiers
+            chantiers.forEach(chantier => {
+                // on recupere le polygon en str, on le convertit en dictionnaire
+                chantier["polygon"] = JSON.parse(chantier["polygon"])
+                
+                // on ajoute à notre geojson dlaffichage des chantiers
+                dict_geojson = {"type": "Feature", "properties": {"nom": chantier["bloc"]}, "geometry": chantier["polygon"]}
+                display_chantier["features"].push(dict_geojson)
+            });
+            // permet d'affiche le dallage au dessus des autres couches
+            map.createPane('dallage');
+            map.getPane('dallage').style.zIndex = 500;
+            // on la dalle à la carte
+            geojson_chantier = L.geoJson(display_chantier, {
+                style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
+                pane: 'dallage'
+            }).addTo(map); 
+        }
+        
+    })
+    // .catch(function (error) {
+
+    //     console.log(error);
+    // })
+    // .then(function () {
+    //     // always executed
+    // });
+}
+
 // on veut afficher les dalles au chargement de la page
 display_dalle()
 map.on('moveend', function() { 
     display_dalle()
+    if (map.getZoom() < 15){
+        display_chantier()
+    }
 });
