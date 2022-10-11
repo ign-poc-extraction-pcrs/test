@@ -130,23 +130,9 @@ function design_name_dalle_zoom() {
 geojson = []
 geojson_chantier = []
 markers = null
-function display_dalle() {
-    const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
-    proj4.defs("EPSG:2154", proj4_2154);
-    const converter = proj4("EPSG:2154");
-
-
-    var northEast = map.getBounds()._northEast
-    var southWest = map.getBounds()._southWest
-
-    northEast = converter.forward([northEast.lng, northEast.lat])
-    southWest = converter.forward([southWest.lng, southWest.lat])
-    northWest = [northEast[0],southWest[1]]
-    southEast = [southWest[0],northEast[1]]
-
-    
+function display_dalle(northEast, southWest, converter, serveur) {
     // Make a request for a user with a given ID
-    axios.get(`https://pcrs-dev.ign.fr/api/get/dalles/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
+    axios.get(`${serveur}/api/get/dalles/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
     .then(function (response) {
         if(response.data.statut == "erreur"){
             window.alert("Nous rencontrons un probléme, nous travaillons dessus")
@@ -228,7 +214,6 @@ function display_dalle() {
                 
             });
             map.addLayer(markers);
-            display_chantier()
         }
     }
         
@@ -333,20 +318,7 @@ function nomenclature_download(dalle) {
     return { "min": min, "max": max, "annee": annee, "proj": proj, "resolution": resolution, "canaux": canaux }
 }
 
-function display_chantier() {
-    const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
-    proj4.defs("EPSG:2154", proj4_2154);
-    const converter = proj4("EPSG:2154");
-
-
-    var northEast = map.getBounds()._northEast
-    var southWest = map.getBounds()._southWest
-
-    northEast = converter.forward([northEast.lng, northEast.lat])
-    southWest = converter.forward([southWest.lng, southWest.lat])
-    northWest = [northEast[0],southWest[1]]
-    southEast = [southWest[0],northEast[1]]
-
+function display_chantier(northEast, southWest, serveur) {
     // on definit le dictionnaire avec la nomenclature leaflet et on ajoutera les différents polygons dans la clé attributs
     let display_chantier = {
         "type": "FeatureCollection",
@@ -354,10 +326,9 @@ function display_chantier() {
     }
 
     display_none_dalle()
-    display_level_zoom()
     map.removeLayer(geojson_chantier)
 
-    axios.get(`https://pcrs-dev.ign.fr/api/get/chantiers/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
+    axios.get(`${serveur}/api/get/chantiers/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
     .then(function (response) {
         if(response.data.statut == "erreur"){
             window.alert("Nous rencontrons un probléme, nous travaillons dessus")
@@ -383,20 +354,53 @@ function display_chantier() {
         }
         
     })
-    // .catch(function (error) {
+    .catch(function (error) {
 
-    //     console.log(error);
-    // })
-    // .then(function () {
-    //     // always executed
-    // });
+        console.log(error);
+    })
+    .then(function () {
+        // always executed
+    });
 }
 
+function init_moved() {
+    const proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+    proj4.defs("EPSG:2154", proj4_2154);
+    const converter = proj4("EPSG:2154");
+
+    var northEast = map.getBounds()._northEast
+    var southWest = map.getBounds()._southWest
+
+    northEast = converter.forward([northEast.lng, northEast.lat])
+    southWest = converter.forward([southWest.lng, southWest.lat])
+    northWest = [northEast[0],southWest[1]]
+    southEast = [southWest[0],northEast[1]]
+
+    return {"northEast": northEast, "southWest": southWest, "converter": converter}
+}
+
+function get_serveur() {
+    // requete ajax pour recuperer les differentes clé lidar
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "api/get/config/serveur", false);
+    xhr.getResponseHeader("Content-type", "application/json");
+    xhr.onload = function() {
+        const obj = JSON.parse(this.responseText);
+        serveur = obj.result
+    } 
+    xhr.send()
+    return serveur
+}
+
+serveur = get_serveur(); 
 // on veut afficher les dalles au chargement de la page
-display_dalle()
+display_dalle(init_moved()["northEast"], init_moved()["southWest"], init_moved()["converter"], serveur)
+display_chantier(init_moved()["northEast"], init_moved()["southWest"], serveur)
+
 map.on('moveend', function() { 
-    display_dalle()
+    moved_init = init_moved()
+    display_dalle(moved_init["northEast"], moved_init["southWest"], moved_init["converter"], serveur)
     if (map.getZoom() < 15){
-        display_chantier()
+        display_chantier(moved_init["northEast"], moved_init["southWest"], serveur)
     }
 });
