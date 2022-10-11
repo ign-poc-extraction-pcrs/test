@@ -3,16 +3,32 @@ import json
 import os
 import psycopg2
 import psycopg2.extras
+from pathlib import Path
 from datetime import date
 from app.controllers.Config import Config
+from app.controllers.download_lidar import PATH_KEY, KEY_JSON_LIDAR
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
+KEY_JSON_BDD = "bdd"
+KEY_JSON_SERVEUR = "host_serveur"
+PATH_KEY_SERVEUR = Path(__file__).parent / "../../config_serveur.json"
+
 @api.route('/get/config/key/lidar')
-def get_config():
+def get_config_lidar():
     # recupere les clé lidar
     statut = "failure"
-    key = Config.get_key_lidar()
+    key = Config.get_config_json(PATH_KEY, KEY_JSON_LIDAR)
+    if key :
+        statut = "success"
+
+    return jsonify({"statut": statut, "result": key})
+
+@api.route('/get/config/serveur')
+def get_config_serveur():
+    # recupere le serveur
+    statut = "failure"
+    key = Config.get_config_json(PATH_KEY_SERVEUR, KEY_JSON_SERVEUR)
     if key :
         statut = "success"
 
@@ -36,15 +52,30 @@ def get_dalle():
 
     return jsonify({"statut": statut, "result": data})
 
-
-@api.route('/get/dalles/<float(signed=True):x_min>/<float(signed=True):y_min>/<float(signed=True):x_max>/<float(signed=True):y_max>', methods=['GET', 'POST'])
-def test(x_min=None, y_min=None, x_max=None, y_max=None):
-    bdd = get_connexion_bdd()
-    dalles = []
+@api.route('/get/chantiers/<float(signed=True):x_min>/<float(signed=True):y_min>/<float(signed=True):x_max>/<float(signed=True):y_max>', methods=['GET', 'POST'])
+def get_chantier(x_min=None, y_min=None, x_max=None, y_max=None):
+    info_bdd = Config.get_config_json(PATH_KEY_SERVEUR, KEY_JSON_BDD)
+    bdd = get_connexion_bdd(info_bdd)
     # si il n'y a aucun probleme avec la connexion à la base
     if bdd :
         #  on recupere les dalles qui sont dans la bbox envoyer
-        bdd.execute(f"SELECT id, nom  FROM dalle WHERE geom && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
+        bdd.execute(f"SELECT bloc, ST_AsGeoJson(st_transform(st_setsrid(geom_chantier, 2154),4326)) as polygon FROM {info_bdd['schema_chantier']} WHERE geom_chantier && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
+        chantiers = bdd.fetchall()
+        statut = "success"
+        bdd.close()
+        bdd.close() 
+    else :
+        statut = "erreur"
+    return jsonify({"statut": statut, "result": chantiers})
+
+@api.route('/get/dalles/<float(signed=True):x_min>/<float(signed=True):y_min>/<float(signed=True):x_max>/<float(signed=True):y_max>', methods=['GET', 'POST'])
+def get_dalles(x_min=None, y_min=None, x_max=None, y_max=None):
+    info_bdd = Config.get_config_json(PATH_KEY_SERVEUR, KEY_JSON_BDD)
+    bdd = get_connexion_bdd(info_bdd)
+    # si il n'y a aucun probleme avec la connexion à la base
+    if bdd :
+        #  on recupere les dalles qui sont dans la bbox envoyer
+        bdd.execute(f"SELECT id, nom, ST_AsGeoJson(st_setsrid(geom, 2154)) as polygon FROM {info_bdd['schema_dalle']} WHERE geom && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
         dalles = bdd.fetchall()
         dalles = get_coordonees(dalles)
         dalles = new_format_dalle(dalles)
@@ -56,32 +87,15 @@ def test(x_min=None, y_min=None, x_max=None, y_max=None):
     return jsonify({"statut": statut, "result": dalles})
 
 
-@api.route('/get/chantiers/<float(signed=True):x_min>/<float(signed=True):y_min>/<float(signed=True):x_max>/<float(signed=True):y_max>', methods=['GET', 'POST'])
-def get_chantier(x_min=None, y_min=None, x_max=None, y_max=None):
-    bdd = get_connexion_bdd()
-    dalles = []
-    # si il n'y a aucun probleme avec la connexion à la base
-    if bdd :
-        #  on recupere les dalles qui sont dans la bbox envoyer
-        bdd.execute(f"SELECT bloc, ST_AsGeoJson(st_transform(st_setsrid(geom_chantier, 2154),4326)) as polygon FROM pcrs.chantier WHERE geom_chantier && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
-        chantiers = bdd.fetchall()
-        statut = "success"
-        bdd.close()
-        bdd.close() 
-    else :
-        statut = "erreur"
-    return jsonify({"statut": statut, "result": chantiers})
-
-
-def get_connexion_bdd():
+def get_connexion_bdd(info_bdd):
     """ Connexion à la base de données pour accéder aux dalles pcrs
 
     Returns:
         cursor: curseur pour executer des requetes à la base
     """
     try :
-        conn = psycopg2.connect(database="test", user="postgres", host="localhost", password="root")
-        # conn = psycopg2.connect(database="geoportail", user="pzgp", host="kriek2.ign.fr", password="sonia999", port="5433")
+        # conn = psycopg2.connect(database="test", user="postgres", host="localhost", password="root")
+        conn = psycopg2.connect(database=info_bdd["database"], user=info_bdd["user"], host=info_bdd["host"], password=info_bdd["password"], port=info_bdd["port"])
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     except psycopg2.OperationalError as e:
         return False
@@ -99,24 +113,21 @@ def get_coordonees(dalles):
     """
     SIZE = 1000
     coordonnées = []
-    nom_split = []
     for dalle in dalles:
-        nom = dalle["nom"]
-        # on recupere la partie du nom ou il y'a les coordonnées
-        nom_split = dalle["nom"].split("-")
-        # si ce n'est pas une nom_split
-        if len(nom_split) > 4 and nom_split[2].isdigit():
-            x_min = int(nom_split[2]) * 1000
-            y_max = int(nom_split[3]) * 1000
-            coordonnées.append({
-                "id": dalle["id"],
-                # "chantier": dalle["id_chantier"],
-                "x_min": x_min, 
-                "x_max": x_min + SIZE, 
-                "y_min": y_max - SIZE, 
-                "y_max": y_max,
-                "nom": nom
-            })
+        # on recupere le x et le y
+        polygon = json.loads(dalle["polygon"])["coordinates"][0][0]
+
+        x = int(polygon[0])
+        y = int(polygon[1])
+
+        coordonnées.append({
+            "id": dalle["id"],
+            "x_min": x, 
+            "x_max": x + SIZE, 
+            "y_min": y - SIZE, 
+            "y_max": y,
+            "nom": dalle["nom"]
+        })
     return coordonnées
 
 def new_format_dalle(dalles):
