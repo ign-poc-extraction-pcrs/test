@@ -59,7 +59,7 @@ def get_chantier(x_min=None, y_min=None, x_max=None, y_max=None):
     # si il n'y a aucun probleme avec la connexion à la base
     if bdd :
         #  on recupere les dalles qui sont dans la bbox envoyer
-        bdd.execute(f"SELECT bloc, ST_AsGeoJson(st_transform(st_setsrid(geom_chantier, 2154),4326)) as polygon FROM {info_bdd['schema_chantier']} WHERE geom_chantier && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max})")
+        bdd.execute(f"SELECT bloc, ST_AsGeoJson(st_transform(st_setsrid(geom_chantier, 2154),4326)) as polygon FROM {info_bdd['schema_chantier']} WHERE geom_chantier && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max}) AND mise_en_ligne = true")
         chantiers = bdd.fetchall()
         statut = "success"
         bdd.close()
@@ -141,3 +141,9 @@ def new_format_dalle(dalles):
     for dalle in dalles:
         new_format_dalles["dalles"].append(dalle)
     return dalles
+
+
+# SELECT count(pcrs.dalle.id)
+# FROM pcrs.dalle
+# JOIN pcrs.chantier ON dalle.id_chantier = chantier.id
+# WHERE dalle.id_chantier = 16
