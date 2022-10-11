@@ -13,13 +13,15 @@ from app.utils.create_shp import create_shp_file
 
 download_lidar = Blueprint('download_lidar', __name__, url_prefix='/download/lidar')
 
+KEY_JSON_LIDAR = "key_lidar"
+PATH_KEY = Path(__file__).parent / "../../config.json"
+
 @download_lidar.route('/shp', methods=['GET', 'POST'])
 def download_shp():
     # path and file du shp
     PATH_SHP = "/tmp/api_dispo_produit_tmp_file"
     file_shp = "TA_diff_pkk_lidarhd"
     path_prj = Path(__file__).parent / "../static/files/TA_diff_pkk_lidarhd.prj"
-    path_key = Path(__file__).parent / "../../config.json"
 
     # recuperation des paquets lidar
     create_shp_lidar(PATH_SHP, file_shp)  
@@ -46,10 +48,6 @@ def download_shp():
 def lidar_geojson():
     geojson = create_geojson_lidar()
     return jsonify(geojson)
-
-def get_key():
-    key = Config.get_key_lidar()
-    return key
 
 def get_paquets_lidar(key):
     """récupere les paquets lidar
@@ -78,7 +76,7 @@ def create_shp_lidar(path_shp, file_shp):
     SIZE = 2000
     data = []
     colonne = []
-    for key_lidar in get_key():
+    for key_lidar in Config.get_config_json(PATH_KEY, KEY_JSON_LIDAR):
         paquets_lidar = get_paquets_lidar(key_lidar)
         for key , paquet in enumerate(paquets_lidar) :
             # on recupere le x et y du nom du paquet
@@ -111,7 +109,7 @@ def create_geojson_lidar():
     
     SIZE = 2000  
     data = []
-    for key_lidar in get_key():
+    for key_lidar in Config.get_config_json(PATH_KEY, KEY_JSON_LIDAR):
         paquets_lidar = get_paquets_lidar(key_lidar)
         for paquet in paquets_lidar:
             # on recupere le x et y du nom du paquet

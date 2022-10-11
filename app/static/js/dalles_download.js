@@ -70,13 +70,10 @@ dalles_download.update = function (liste_dalle) {
             dalle.setAttribute("stroke-opacity", param_base["opacity"]) 
             dalle.setAttribute("stroke-dasharray", param_base["dash_array"]) 
             liste_dalle.forEach(element => {
-                console.log(id_dalle);
-                console.log(element.properties.id);
                 if(id_dalle == element.properties.id){
                     dalle_remove = element
                 }
             });
-            console.log(dalle_remove);
             liste_dalle = remove_dalle_liste(liste_dalle, dalle_remove)
             dalles_download.update(liste_dalle)
             new_liste_dalle = liste_dalle
