@@ -196,24 +196,24 @@ function display_dalle(northEast, southWest, converter, serveur) {
         }else{
             display_none_dalle()
             display_level_zoom()
-            if (markers != null){
-                map.removeLayer(markers)
-            }
+            // if (markers != null){
+            //     map.removeLayer(markers)
+            // }
 
-            markers = new L.MarkerClusterGroup();
+            // markers = new L.MarkerClusterGroup();
 
-            dalles_json.forEach(dalle => {
-                coordonnee = converter.inverse([dalle["x_max"], dalle["y_max"]])
-                marker = new L.Marker(new L.LatLng(coordonnee[1], coordonnee[0]));
-                // marker.bindPopup("dalle");
-                marker.on('click', function(e){
-                    map.setView(e.latlng, 15);
-                });
+            // dalles_json.forEach(dalle => {
+            //     coordonnee = converter.inverse([dalle["x_max"], dalle["y_max"]])
+            //     marker = new L.Marker(new L.LatLng(coordonnee[1], coordonnee[0]));
+            //     // marker.bindPopup("dalle");
+            //     marker.on('click', function(e){
+            //         map.setView(e.latlng, 15);
+            //     });
                 
-                markers.addLayer(marker);
+            //     markers.addLayer(marker);
                 
-            });
-            map.addLayer(markers);
+            // });
+            // map.addLayer(markers);
         }
     }
         
@@ -326,7 +326,7 @@ function display_chantier(northEast, southWest, serveur) {
     }
 
     display_none_dalle()
-    map.removeLayer(geojson_chantier)
+    old_geojson_chantier = geojson_chantier
 
     axios.get(`${serveur}/api/get/chantiers/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
     .then(function (response) {
@@ -352,6 +352,7 @@ function display_chantier(northEast, southWest, serveur) {
                 pane: 'dallage'
             }).addTo(map); 
         }
+        map.removeLayer(old_geojson_chantier)
         
     })
     .catch(function (error) {
