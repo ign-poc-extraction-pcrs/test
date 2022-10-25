@@ -43,8 +43,17 @@ dalles_download.update = function (liste_dalle) {
             form.appendChild(input_hidden)
         });
         const nb_dalle_limite = document.createElement("h5")
+        
+        
+        const button_remove_all_dalles = document.createElement("button")
+        button_remove_all_dalles.setAttribute("type", "submit")
+        button_remove_all_dalles.setAttribute("class", "button-remove-dalles")
+        button_remove_all_dalles.innerHTML += '<i class="fa-solid fa-trash"></i>'
+        
+        nb_dalle_limite.appendChild(button_remove_all_dalles)
         nb_dalle_limite.innerHTML += `Nombre de dalles : ${liste_dalle.length} <span style="font-size: 10px;">(${limit_select_dalle} max)</span>`
         form.appendChild(nb_dalle_limite)
+        
 
         const button = document.createElement("button")
         button.setAttribute("type", "submit")
@@ -60,15 +69,7 @@ dalles_download.update = function (liste_dalle) {
     button_remove_design = document.querySelectorAll(".remove_design_dalle");
     button_remove_design.forEach(button => {
         button.addEventListener('click', () => {
-            id_dalle = button.className.split(' ')[1];
-            dalle = document.querySelector(`.${id_dalle}`); 
-
-            dalle.setAttribute("stroke", param_base["fill_color"]) 
-            dalle.setAttribute("fill", param_base["color"]) 
-            dalle.setAttribute("width", param_base["weight"]) 
-            dalle.setAttribute("fill-opacity", param_base["fill_opacity"]) 
-            dalle.setAttribute("stroke-opacity", param_base["opacity"]) 
-            dalle.setAttribute("stroke-dasharray", param_base["dash_array"]) 
+            id_dalle = remove_dalle_design(button)
             liste_dalle.forEach(element => {
                 if(id_dalle == element.properties.id){
                     dalle_remove = element
@@ -80,6 +81,34 @@ dalles_download.update = function (liste_dalle) {
             statut = false
         })
     });
+
+    button_remove_all_dalles = document.querySelector(".button-remove-dalles");
+    if (button_remove_all_dalles !== null){
+        button_remove_all_dalles.addEventListener('click', () => {
+        button_remove_design.forEach(button => {
+            id_dalle = remove_dalle_design(button)
+
+            liste_dalle = []
+            dalles_download.update(liste_dalle)
+            new_liste_dalle = liste_dalle
+            statut = false
+            })
+        })
+    }
+    
+}
+
+function remove_dalle_design(button_remove_design) {
+    id_dalle = button_remove_design.className.split(' ')[1];
+    dalle = document.querySelector(`.${id_dalle}`); 
+
+    dalle.setAttribute("stroke", param_base["fill_color"]) 
+    dalle.setAttribute("fill", param_base["color"]) 
+    dalle.setAttribute("width", param_base["weight"]) 
+    dalle.setAttribute("fill-opacity", param_base["fill_opacity"]) 
+    dalle.setAttribute("stroke-opacity", param_base["opacity"]) 
+    dalle.setAttribute("stroke-dasharray", param_base["dash_array"]) 
+    return id_dalle
 }
 
 dalles_download.addTo(map)

@@ -83,3 +83,19 @@
   font-size: 18px;
 }
 
+.fa-solid{
+  color: white;
+}
+
+.button-remove-dalles{
+  border-radius: 20%;
+  background-color: #bf0606;
+  width: 30px;
+  border: 0;
+  cursor: pointer;
+  margin-right: 20px
+}
+
+.button-remove-dalles:hover{
+  background: #811600;
+}
