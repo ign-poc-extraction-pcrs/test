@@ -188,7 +188,7 @@ couche_optionnel.update = function () {
 
     var textAlert = document.createElement("span")
     textAlert.classList.add("text-alert-checkbox-nom-dalle")
-    textAlert.innerHTML = "Cochable au zoom 15 ou plus</br>"
+    textAlert.innerHTML = "Affichage nom au zoom 15 ou plus</br>"
     textAlert.style.opacity = "0.6"
     div_nom_dalle.appendChild(textAlert)
     // si le zoom est en dessous de 15 on ne donne pas la possibilité de checker la checkbox et donc d'afficher les nom des dalles
@@ -265,14 +265,15 @@ map.on('zoomend', function() {
     // si le zoom est plus grand ou égal à 15 alors on donne la possibilité de cocher la checkbox pour afficher ou non les nom de dalle
     if (currentZoom >= 15){
         input_nom_dalle.disabled = false
+        labels_polygon.forEach(label => {
+            label.style.display = "block"
+        })
     }else{
         // sinon a un zomm inferieur à 15 on enleve les nom de dalle, on décoche la checkbox et on ne donne pas la possibilité de 
         // re checker la checkbox
         labels_polygon.forEach(label => {
             label.style.display = "none"
         })
-        input_nom_dalle.checked = false
-        input_nom_dalle.disabled = true
         
     }
     design_name_dalle_zoom()
