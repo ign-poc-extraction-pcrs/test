@@ -6,3 +6,4 @@ run.py
 run_prod.py
 grille_dalle.json
 config_serveur.json
+file_path_dalle_lidar.json

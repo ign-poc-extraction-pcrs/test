@@ -99,3 +99,18 @@
 .button-remove-dalles:hover{
   background: #811600;
 }
+
+.fa-info{
+  color: black;
+}
+
+.button-infobox{
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  border-radius: 4px;
+  background-color: white;
+  border: 2px solid rgba(0,0,0,0.2);
+  background-clip: padding-box;
+}
+

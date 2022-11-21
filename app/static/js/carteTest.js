@@ -188,7 +188,7 @@ couche_optionnel.update = function () {
 
     var textAlert = document.createElement("span")
     textAlert.classList.add("text-alert-checkbox-nom-dalle")
-    textAlert.innerHTML = "Cochable au zoom 15 ou plus</br>"
+    textAlert.innerHTML = "Affichage nom au zoom 15 ou plus</br>"
     textAlert.style.opacity = "0.6"
     div_nom_dalle.appendChild(textAlert)
     // si le zoom est en dessous de 15 on ne donne pas la possibilité de checker la checkbox et donc d'afficher les nom des dalles
@@ -265,14 +265,15 @@ map.on('zoomend', function() {
     // si le zoom est plus grand ou égal à 15 alors on donne la possibilité de cocher la checkbox pour afficher ou non les nom de dalle
     if (currentZoom >= 15){
         input_nom_dalle.disabled = false
+        labels_polygon.forEach(label => {
+            label.style.display = "block"
+        })
     }else{
         // sinon a un zomm inferieur à 15 on enleve les nom de dalle, on décoche la checkbox et on ne donne pas la possibilité de 
         // re checker la checkbox
         labels_polygon.forEach(label => {
             label.style.display = "none"
         })
-        input_nom_dalle.checked = false
-        input_nom_dalle.disabled = true
         
     }
     design_name_dalle_zoom()
@@ -301,3 +302,76 @@ input_limit_commune.addEventListener('change', function() {
     }
 })
 
+
+// on positionne le bouton pour activer ou desactiver l'infobox en haut à gauche
+var info_box = L.control({position: "topleft"});
+
+// on creer le bouton
+info_box.onAdd = function (map) {
+
+    this._div = L.DomUtil.create('div', 'infobox');
+    if (!L.Browser.touch) {
+        L.DomEvent
+            .disableClickPropagation(this._div)
+            .disableScrollPropagation(this._div);
+    } else {
+        L.DomEvent.on(this._div, 'click', L.DomEvent.stopPropagation);
+    }
+    // creation de l'element bouton
+    var button_infobox = document.createElement("button")
+    // on ajoute le type et la classe pour le design
+    button_infobox.setAttribute("type", "submit")
+    button_infobox.setAttribute("class", "button-infobox f-info")
+    // on ajoute une icon via font awesome
+    button_infobox.innerHTML = '<i class="fa-solid fa-info"></i>'
+    this._div.appendChild(button_infobox)
+
+    return this._div;
+};
+// ajout button infobox al a map
+info_box.addTo(map)
+
+
+// on positionne l'infobox en haut à gauche
+var content_info_box = L.control({position: "topleft"});
+
+// on ecris l'info box
+content_info_box.onAdd = function (map) {
+
+    this._div = L.DomUtil.create('div', 'info content-infobox');
+    if (!L.Browser.touch) {
+        L.DomEvent
+            .disableClickPropagation(this._div)
+            .disableScrollPropagation(this._div);
+    } else {
+        L.DomEvent.on(this._div, 'click', L.DomEvent.stopPropagation);
+    }
+    // contenue de l'infobox
+    var p = document.createElement("p")
+    p.innerHTML = "En construction"
+    this._div.appendChild(p)
+
+    return this._div;
+};
+// ajout div infobox al a map
+content_info_box.addTo(map)
+// on assigne a la div infobox un display none pour l'afficher seulement quand on clique sur le bouton
+div_content_infobox = document.querySelector(".content-infobox")
+div_content_infobox.style.display = "none"
+div_content_infobox.style.marginTop = "2px"
+// Quand on clique sur le bouton infobox
+document.querySelector(".button-infobox").addEventListener("click",  function() {
+    button_infobox = document.querySelector(".button-infobox")
+    // si le bouton contient l'icone info alors quand on click dessus on change l'icone en croix et on affiche la div infobox
+    if (button_infobox.classList.contains("f-info")){
+        button_infobox.innerHTML = '<i style="color: red;" class="fa-solid fa-xmark"></i>'
+        button_infobox.setAttribute("class", "button-infobox f-xmark")
+        div_content_infobox.style.display = "block"
+    // sinon si le bouton contient l'icone croix alors quand on click dessus on change l'icone en info et on cache la div infobox    
+    }else if(button_infobox.classList.contains("f-xmark")){
+        button_infobox.innerHTML = '<i style="color: black;" class="fa-solid fa-info"></i>'
+        button_infobox.setAttribute("class", "button-infobox f-info")
+        div_content_infobox.style.display = "none"
+    }
+    
+})
