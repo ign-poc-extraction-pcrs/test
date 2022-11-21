@@ -104,32 +104,30 @@ def create_geojson_lidar():
     
     SIZE = 2000  
     data = []
-    for key_lidar in Config.get_config_json(PATH_KEY, KEY_JSON_LIDAR):
-        paquets_lidar = get_paquets_lidar(key_lidar)
-        for paquet in paquets_lidar:
-            # on recupere le x et y du nom du paquet
-            name_paquet = paquet["Name"]
-            name = paquet["Name"].split("$")[-1]
-            x = name.split("-")[2].split("_")[0]
-            y = name.split("-")[2].split("_")[1]
-            
+    for paquet_lidar in get_paquets_lidar():
+        # on recupere le x et y du nom du paquet
+        name_paquet = paquet_lidar["Name"]
+        name = paquet_lidar["Name"].split("$")[-1]
+        x = name.split("-")[2].split("_")[0]
+        y = name.split("-")[2].split("_")[1]
+        
 
-            # on convertit les bonnes coordonnées
-            if isint(x) and isint(y):
-                x_min = int(x) * 1000
-                y_min = int(y) * 1000
-                x_max = x_min + SIZE
-                y_max = y_min - SIZE
+        # on convertit les bonnes coordonnées
+        if isint(x) and isint(y):
+            x_min = int(x) * 1000
+            y_min = int(y) * 1000
+            x_max = x_min + SIZE
+            y_max = y_min - SIZE
 
-                # on creer le json
-                data.append({name: {
-                    "Geometry": {
-                        'type': 'Polygon', 
-                        'coordinates': [[(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min), (x_min, y_max)]]
-                        },
-                    "url_telechargement": f"https://wxs.ign.fr/{key_lidar}/telechargement/prepackage/{name_paquet}/file/{name}.7z"    
+            # on creer le json
+            data.append({name: {
+                "Geometry": {
+                    'type': 'Polygon', 
+                    'coordinates': [[(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min), (x_min, y_max)]]
                     },
-                })
+                "url_telechargement": f"https://wxs.ign.fr/{paquet_lidar['key']}/telechargement/prepackage/{name_paquet}/file/{name}.7z"    
+                },
+            })
     return data
 
 
