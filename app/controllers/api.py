@@ -86,6 +86,19 @@ def get_dalles(x_min=None, y_min=None, x_max=None, y_max=None):
         statut = "erreur"
     return jsonify({"statut": statut, "result": dalles})
 
+@api.route('/version3/get/dalle', methods=['GET', 'POST'])
+def get_dalle_lidar():
+    script_dir = os.path.dirname(__file__)
+    file_path_config = os.path.join(script_dir, "../static/json/file_path_dalle_lidar.json")
+    file_config = []
+    try:
+        with open(file_path_config) as json_file:
+            file_config = json.load(json_file)
+    except:
+        print("erreur dans la récuperation du json config.json")
+
+    return jsonify({"result": file_config})
+
 
 def get_connexion_bdd(info_bdd):
     """ Connexion à la base de données pour accéder aux dalles pcrs
