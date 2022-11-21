@@ -94,14 +94,28 @@ document.addEventListener("DOMContentLoaded", function () {
     
 });
 
+function get_serveur() {
+    // requete ajax pour recuperer les differentes clé lidar
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "api/get/config/serveur", false);
+    xhr.getResponseHeader("Content-type", "application/json");
+    xhr.onload = function() {
+        const obj = JSON.parse(this.responseText);
+        serveur = obj.result
+    } 
+    xhr.send()
+    return serveur
+}
+
 function listData(dataType) {
     // On affiche la div de chargement
     document.getElementById("loading_div").style.display = "block";
     // On masque les div d'erreur et de formulaire
     document.getElementById("form_div").style.display = "none";
     document.getElementById("key_error_div").style.display = "none";
+    serveur = get_serveur(); 
     // getFeature info
-    fetch(`http://127.0.0.1:5000/api/version3/get/dalle`)
+    fetch(`${serveur}/api/version3/get/dalle`)
         .then(function (response) {
             if (response.ok) {
                 return response.json();
