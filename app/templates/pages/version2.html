@@ -6,7 +6,109 @@
 {% endblock %}
 
 {% block body %}
-  <div id="map"></div>
+<div id="map"></div>
+
+<!-- The Modal -->
+<div id="modal_infobox" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>L’IGN met à disposition, sous forme de dalles extractibles, les orthophotographies PCRS actuellement consultables
+      sur
+      <a
+        href="https://www.geoportail.gouv.fr/carte?c=2.3582434179734504,46.691861418753035&z=7&l0=ELEVATION.SLOPES::GEOPORTAIL:OGC:WMTS(1)&l1=LIMITES_ADMINISTRATIVES_EXPRESS.LATEST::GEOPORTAIL:OGC:WMTS(1)&l2=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&l3=PCRS.LAMB93::GEOPORTAIL:OGC:WMTS(1)&permalink=yes">
+        Geoportail
+      </a>.
+    </p>
+    <p>Ces données ont les caractéristiques suivantes:</p>
+    <ul>
+      <li>Open Data</li>
+      <li>Dalles de 200m de côté</li>
+      <li>Pixel de résolution 5cm</li>
+      <li>Précision 10 cm</li>
+      <li>Projection Lambert 93</li>
+      <li>Format TIF JPEG75</li>
+    </ul>
+    <p>La production du PCRS se faisant par blocs, l’orthophotographie PCRS est mise à disposition également par blocs.
+      La mise à disposition d’un département entier peut donc s’étaler sur plusieurs années.</p>
+    <p>Un masque sur la carte générale permet d’indiquer là où du PCRS (produit par l’IGN ou par ses sous-traitants, ou
+      confié à l’IGN) est hébergé sur Géoportail.</p>
+    <p>L’affichage du masque par blocs est appelé à être remplacé par un mosaïquage affichant sous une forme simplifiée
+      (dalle de 5mx5m) la journée d’acquisition de l’image. Si le mosaïquage n’est pas disponible, seul le masque
+      informant de l’existence d’un PCRS sera fourni. </p>
+    <p>Les dalles 200mx200m n’apparaissent que là où du PCRS est hébergé sur Géoportail.</p>
+    <p>Le texte affiché pour une dalle correspond aux coordonnées hectométriques paires du coin nord-ouest (04924-66328
+      par exemple).</p>
+    <p>Dans le cas où le PCRS n’est pas encore en open data mais qu’il est hébergé sur Géoportail, les dalles 200mx200m
+      seront visibles mais pas le raster. Dans un tel cas, le fichier .zip ne fournira que les emprises des dalles
+      sélectionnées.</p>
+    <p>Les dalles extraites (10 au maximum) le sont sous forme de fichiers .zip. Quel que soit l’affichage retenu
+      (PlanIGNv2, Orthoimage ou PCRS), la donnée extraite sera du PCRS si elle est disponible.</p>
+    <p>hébergées sur de 200mx200m, les en open data hébergées Le CRAIG met à disposition un certain nombre de données en
+      Open Data, sous la <a
+        href="https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf">licence ouverte
+        (LO/OL)</a> Etalab. Ces données sont téléchargeables par WebDAV sur le <a href="https://drive.opendata.craig.fr/s/opendata">drive
+          opendata du CRAIG</a>, et représentent un volume total d'environ 2.2 To.</p>
+    <p>Il est conseillé d'utiliser un client WebDAV tel que <a href="https://winscp.net/eng/docs/lang:fr">WinSCP</a> pour accéder à ce serveur, notamment pour de gros
+      volumes de données, mais l'accès est aussi possible depuis un navigateur web.</p>
+    <p>Pour des questions de volume toujours, certaines données de notre catalogue en Open Data ne sont accessibles que
+      sur demande.</p>
+    <h3>Données disponibles sur le serveur</h3>
+    <ul>
+      <li>Les données <span class="bold">d'orthophotographie</span> (IRC/infrarouge et RVB/couleurs naturelles) depuis 2009 sur la région et les
+        agglomérations. Elles sont en projection Lambert 93 et au format ECW, JPEG2000 ou GeoTIFF en fonction des
+        millésimes.</li>
+      <li>Elles sont découpées en dalles de 1.5 Km de côté (750 m pour les agglomérations).</li>
+      <li>Les données de <span class="bold">MNT</span> sont disponibles en projection Lambert 93 au format ASCII. Des fichiers contenant
+        l'ensemble de chacune des zones sont aussi disponibles.</li>
+      <li>Le répertoire 'autres zones' contient les produits ayant servi aux projets <span class="bold">LiDARVERNE 2011, LiDARCHEO 2016,
+        LiDARCHEO 2017</span> ... .</li>
+      <li>Les nuages de points <span class="bold">LiDAR</span> sont disponibles au format LASZIP (.laz) sur l'agglomération du Puy en Velay ainsi
+        que les départements du Cantal et de la Haute-Loire.</li>
+      <li>Les <span class="bold">fiches de métadonnées</span> au format XML ISO19139 sont disponibles dans le <a href="https://ids.craig.fr/geocat/">catalogue de métadonnées du CRAIG</a>.
+      </li>
+    </ul>
+    <h3 class="title_modal">Pour télécharger un grand nombre de données</h3>
+    <p>L'utilisation de WinSCP est requise au dessus d'1 Go. Pour se connecter au drive opendata du CRAIG avec WinSCP,
+      voici les informations nécessaires au paramétrage :</p>
+    <ul>
+      <li>Protocole : <span class="bold">WebDAV</span></li>
+      <li>Hôte : <span class="bold">drive.opendata.craig.fr</span></li>
+      <li>Chiffrement : Cryptage SSL/TLS implicite</li>
+      <li>Identifiant : <span class="bold">opendata</span></li>
+      <li>Mot de passe : ne rien mettre</li>
+      <li>Enfin, dans le menu 'Avancé', dans le sous-menu 'Répertoires' entrez le chemin : <span class="bold">/public.php/webdav/</span></li>
+    </ul>
+    <h3 class="title_modal">Pour télécharger les données sur une emprise géographique</h3>
+    <p>Une <a href="https://ids.craig.fr/mapstore/#/viewer/openlayers/opendata">visionneuse cartographique</a> permet de repérer les dalles concernant une zone particulière et de ne récupérer
+      que celles-ci.</p>
+    <ol>
+      <li>Choisir la donnée parmi les différents dallages disponibles, et afficher la couche correspondante</li>
+      <li>Zoomer sur la zone recherchée (les campagnes complètes sont affichées au dessus du 1:200000)</li>
+      <li>Cliquer sur la carte : les liens de téléchargement direct des dalles disponibles à cet endroit apparaissent
+        dans le panneau de droite.</li>
+    </ol>
+    <p>Si une zone plus grande est désirée, vous pouvez faire une requête spatiale :</p>
+    <ol>
+      <li>Sélectionner la couche en cliquant sur son nom</li>
+      <li>Activer 'Filtrer les couches' de la couche choisie</li>
+      <li>Choisir un type de filtre dans la partie 'Zone d'intérêt'</li>
+      <li>Dessiner la zone voulue sur la carte</li>
+      <li>Choisir l'opération géométrique (contient, intersecte, etc...)</li>
+      <li>Valider le filtre avec le bouton 'Appliquer', la carte se met automatiquement à jour (au dessus du 1:200000)
+      </li>
+      <li>Enregistrer le filtre</li>
+      <li>Ouvrir la table attributaire - elle liste les dalles correspondant à la recherche. Un filtrage sur les
+        campagnes peut être effectué. Il ne reste plus qu'à télécharger les dalles voulues dans le drive !</li>
+    </ol>
+    <hr>
+    <p>Cet extracteur de dalles PCRS au pas de 200 </p>
+
+  </div>
+
+</div>
+
 {% endblock body %}
 
 {% block js %}
@@ -15,5 +117,6 @@
 <script src="{{ url_for('static',filename='js/design.js') }}"></script>
 <script src="{{ url_for('static',filename='js/carteTest.js') }}"></script>
 <script src="{{ url_for('static',filename='js/dalles_download.js') }}"></script>
+<script src="{{ url_for('static',filename='js/infobox.js') }}"></script>
 <script src="https://kit.fontawesome.com/67a3c07583.js" crossorigin="anonymous"></script>
 {% endblock js %}
