@@ -88,54 +88,53 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("nb_dalles").textContent = 0
     
-    // requete ajax pour recuperer les differentes clé lidar
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "api/get/config/key/lidar", true);
-    xhr.getResponseHeader("Content-type", "application/json");
-    xhr.onload = function() {
-        const obj = JSON.parse(this.responseText);
-        // On lance le listing des données
-        obj.result.forEach(key_data => {
-            key = key_data
-            listData(DATA_TYPE, key);
-        });
-    } 
-    xhr.send()
+
+    listData(DATA_TYPE);
+
     
 });
 
-function listData(dataType, key) {
+function get_serveur() {
+    // requete ajax pour recuperer les differentes clé lidar
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "api/get/config/serveur", false);
+    xhr.getResponseHeader("Content-type", "application/json");
+    xhr.onload = function() {
+        const obj = JSON.parse(this.responseText);
+        serveur = obj.result
+    } 
+    xhr.send()
+    return serveur
+}
+
+function listData(dataType) {
     // On affiche la div de chargement
     document.getElementById("loading_div").style.display = "block";
     // On masque les div d'erreur et de formulaire
     document.getElementById("form_div").style.display = "none";
     document.getElementById("key_error_div").style.display = "none";
-    document.getElementById('key_span').textContent = key;
-    console.log(`https://wxs.ign.fr/${key}/telechargement/prepackage?request=GetCapabilities`);
+    serveur = get_serveur(); 
     // getFeature info
-    fetch(`https://wxs.ign.fr/${key}/telechargement/prepackage?request=GetCapabilities`)
+    fetch(`${serveur}/api/version3/get/dalle`)
         .then(function (response) {
             if (response.ok) {
-                return response.text();
+                return response.json();
                 
             } else {
                 throw Error(response.statusText);
             }
         })
-        .then(function (xml) {
-            // On parse le document XML
-            var parser = new DOMParser();
-            var data = parser.parseFromString(xml, "text/xml");
-
+        .then(function (data) {
             // Récupération des ressources LidarHD
-            var lidarHdResources = get_resources(data, dataType);
+            var lidarHdResources = get_resources(data["result"], dataType);
+            console.log(lidarHdResources);
             // On affiche text
             document.getElementById("text_div").style.display = "block";
             nb_dalle = parseInt(document.getElementById("nb_dalles").textContent) + lidarHdResources.length;
             document.getElementById("nb_dalles").textContent = nb_dalle;
 
             // Création du dallage
-            var dallage = create_dallage(lidarHdResources, key);
+            var dallage = create_dallage(lidarHdResources);
 
             // Ajout du dallage
             add_dallage(dallage);
@@ -158,17 +157,13 @@ function listData(dataType, key) {
 function get_resources(data, dataType) {
     // Récupération des ressources LidarHD
     var lidarHdResources = [];
-    var resources = data.getElementsByTagName("Resources")[0].getElementsByTagName("Resource");
+    var resources = data
     for (let resource of resources) {
-        var keyValue = {};
-        for (let child of resource.childNodes) {
-            if (child.tagName) {
-                keyValue[child.tagName.toLowerCase()] = child.textContent;
-            }
+
+        if (resource.Name.toLowerCase().includes(dataType)) {
+            lidarHdResources.push(resource);
         }
-        if (keyValue.name.toLowerCase().includes(dataType)) {
-            lidarHdResources.push(keyValue);
-        }
+        
     }
     return lidarHdResources;
 }
@@ -189,15 +184,14 @@ function get_files(data) {
     return files;
 }
 
-function create_dallage(resources, key) {
+function create_dallage(resources) {
     let dallage = {
         "type": "FeatureCollection",
         "features": [],
     }
 
     for (let resource of resources) {
-        resource["key"] = key
-        var match_x_y = REGEX_X_Y.exec(resource.name);
+        var match_x_y = REGEX_X_Y.exec(resource.Name);
         if (match_x_y) {
             var x_min = parseInt(match_x_y[1]) * 1000;
             var y_max = parseInt(match_x_y[2]) * 1000;
@@ -222,7 +216,7 @@ function create_dallage(resources, key) {
                 "properties": resource,
             });
         } else {
-            console.error(resource.name);
+            console.error(resource.Name);
         }
     }
 
@@ -248,7 +242,7 @@ function add_dallage(dallage) {
 
 function show_popup(layer, type = "open") {
     "Fonction qui affiche une popup, au survol d'une dalle son nom."
-    var dalle_name = layer.feature["properties"].name;
+    var dalle_name = layer.feature["properties"].Name;
     var dalle_names = dalle_name.split("$");
     var title = dalle_names[0];
     var text = dalle_names[1];
@@ -280,7 +274,7 @@ function clickFeature(e) {
     document.getElementById("dalle_div").style.display = "none";
     // On récupère l'élément cliqué
     var layer = e.target;
-    var name = layer.feature["properties"].name;
+    var name = layer.feature["properties"].Name;
     key_lidar = layer.feature["properties"].key
     var match = REGEX_X_Y.exec(name);
     document.getElementById("name").textContent = match[0];
