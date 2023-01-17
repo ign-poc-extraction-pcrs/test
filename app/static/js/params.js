@@ -9,12 +9,12 @@ var proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000
 var bounds = L.bounds([-378305.81, 6093283.21], [1212610.74, 7186901.68]);
 // Source : https://github.com/IGNF/geoportal-extensions/blob/c606b749e060c5efc1a30137a1ed1d6d4ef47bfe/src/Leaflet/CRS/EPSG2154.js
 var resolutions = [104579.22454989408, 52277.53235379051, 26135.487078595408, 13066.891381800004, 6533.228604113456, 3266.5595244626675, 1633.2660045974187, 816.6295549860224, 408.31391467683596, 204.15674151090204, 102.07831678324082, 51.0391448966112, 25.519569074269395, 12.759783693647506, 6.379891635966491, 3.18994576530532, 1.5949728694977277, .7974864315474559, .398743214900604, .19937160727567999, .099685803696052, .049842901818919996];
-var origin = [0, 12000000];
+var origine = [0, 12000000];
 
 // Création du crs_2154
 var crs_2154 = new L.Proj.CRS('EPSG:2154', proj4_2154, {
     resolutions: resolutions,
-    origin: origin,
+    origin: origine,
     bounds: bounds
 });
 
@@ -35,7 +35,7 @@ var baselayers = {
     OrthoImage: L.tileLayer.wms('https://wxs.ign.fr/essentiels/geoportail/r/wms?', {
         layers: 'ORTHOIMAGERY.ORTHOPHOTOS',
     }),
-    PCRS: L.tileLayer.wms('https://wxs.ign.fr/ortho/geoportail/r/wms?', {
+    Pcrs: L.tileLayer.wms('https://wxs.ign.fr/ortho/geoportail/r/wms?', {
         layers: 'PCRS.LAMB93',
     })
 
@@ -79,17 +79,39 @@ var params_design = {
     }
 }
 
-function popup(layer, type = "open") {
+
+function popup(layer, statut = "open", type = "dalle") {
     "function qui affiche une popup, au survol d'une dalle son nom"
     nom_dalle = layer.feature["properties"].nom;
-    template = `<h4>${nom_dalle}</h4>`
-
-    if (type == "open") {
-        layer.bindPopup(template).openPopup()
+    // si le type est  une dalle on affiche le nom de la dalle
+    if (type == "dalle"){
+        template = `<h4>${nom_dalle}</h4>`
+    }else{
+        // si c'est un chantier on veut afficher le nom du chantier ainsi que le nombre de dalle qu'il contient
+        id_chantier = layer.feature["properties"].id;
+        fetch(`http://127.0.0.1:5000/api/get/number/dalle/${id_chantier}`)
+        .then(function (response) {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw Error(response.statusText);
+            }
+        }).then(function (dalle) {
+            template = `<h4>${nom_dalle}</h4> <h4>${dalle.result.count}</h4>`
+            layer.bindPopup(template).openPopup()
+        })
+        .catch(function() {
+            console.log("api indisponible");
+        });
+       
+    }
+    if (statut == "open") {
+        if (typeof template !== 'undefined'){
+            layer.bindPopup(template).openPopup()
+        }
     } else {
         layer.bindPopup(template).closePopup()
     }
-
 }
 
 // reprojection en epsg2154
@@ -340,7 +362,7 @@ function display_chantier(northEast, southWest, serveur) {
                 chantier["polygon"] = JSON.parse(chantier["polygon"])
                 
                 // on ajoute à notre geojson dlaffichage des chantiers
-                dict_geojson = {"type": "Feature", "properties": {"nom": chantier["bloc"]}, "geometry": chantier["polygon"]}
+                dict_geojson = {"type": "Feature", "properties": {"nom": chantier["bloc"], "id": chantier["id"]}, "geometry": chantier["polygon"]}
                 display_chantier["features"].push(dict_geojson)
             });
             // permet d'affiche le dallage au dessus des autres couches
@@ -349,6 +371,7 @@ function display_chantier(northEast, southWest, serveur) {
             // on la dalle à la carte
             geojson_chantier = L.geoJson(display_chantier, {
                 style: style(param_base["color"], param_base["weight"], param_base["opacity"], param_base["fill_color"], param_base["dash_array"], param_base["fill_opacity"]),
+                onEachFeature: onEachFeatureDallage,
                 pane: 'dallage'
             }).addTo(map); 
         }

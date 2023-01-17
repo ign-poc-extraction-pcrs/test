@@ -59,7 +59,7 @@ def get_chantier(x_min=None, y_min=None, x_max=None, y_max=None):
     # si il n'y a aucun probleme avec la connexion à la base
     if bdd :
         #  on recupere les dalles qui sont dans la bbox envoyer
-        bdd.execute(f"SELECT bloc, ST_AsGeoJson(st_transform(st_setsrid(geom_chantier, 2154),4326)) as polygon FROM {info_bdd['schema_chantier']} WHERE geom_chantier && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max}) AND mise_en_ligne = true")
+        bdd.execute(f"SELECT id, bloc, ST_AsGeoJson(st_transform(st_setsrid(geom_chantier, 2154),4326)) as polygon FROM {info_bdd['schema_chantier']} WHERE geom_chantier && ST_MakeEnvelope({x_min}, {y_min}, {x_max}, {y_max}) AND mise_en_ligne = true")
         chantiers = bdd.fetchall()
         statut = "success"
         bdd.close()
@@ -79,6 +79,22 @@ def get_dalles(x_min=None, y_min=None, x_max=None, y_max=None):
         dalles = bdd.fetchall()
         dalles = get_coordonees(dalles)
         dalles = new_format_dalle(dalles)
+        statut = "success"
+        bdd.close()
+        bdd.close() 
+    else :
+        statut = "erreur"
+    return jsonify({"statut": statut, "result": dalles})
+
+@api.route('/get/number/dalle/<int:id_chantier>', methods=['GET', 'POST'])
+def get_dalles_in_chantier(id_chantier):
+    info_bdd = Config.get_config_json(PATH_KEY_SERVEUR, KEY_JSON_BDD)
+    bdd = get_connexion_bdd(info_bdd)
+    # si il n'y a aucun probleme avec la connexion à la base
+    if bdd :
+        #  on recupere les dalles qui sont dans la bbox envoyer
+        bdd.execute(f"SELECT count(pcrs.dalle.id) FROM pcrs.dalle JOIN pcrs.chantier ON dalle.id_chantier = chantier.id WHERE dalle.id_chantier = {id_chantier}")
+        dalles = bdd.fetchone()
         statut = "success"
         bdd.close()
         bdd.close() 
