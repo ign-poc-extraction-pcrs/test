@@ -4,6 +4,21 @@ limit_select_dalle = 10
 // taille dalle
 pas = 200
 
+function get_serveur() {
+    // requete ajax pour recuperer les differentes clé lidar
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "api/get/config/serveur", false);
+    xhr.getResponseHeader("Content-type", "application/json");
+    xhr.onload = function() {
+        const obj = JSON.parse(this.responseText);
+        serveur = obj.result
+    } 
+    xhr.send()
+    return serveur
+}
+
+serveur = get_serveur(); 
+
 // Source : https://epsg.io/2154.proj4
 var proj4_2154 = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
 var bounds = L.bounds([-378305.81, 6093283.21], [1212610.74, 7186901.68]);
@@ -89,7 +104,7 @@ function popup(layer, statut = "open", type = "dalle") {
     }else{
         // si c'est un chantier on veut afficher le nom du chantier ainsi que le nombre de dalle qu'il contient
         id_chantier = layer.feature["properties"].id;
-        fetch(`http://127.0.0.1:5000/api/get/number/dalle/${id_chantier}`)
+        fetch(`${serveur}/api/get/number/dalle/${id_chantier}`)
         .then(function (response) {
             if (response.ok) {
                 return response.json();
@@ -403,20 +418,7 @@ function init_moved() {
     return {"northEast": northEast, "southWest": southWest, "converter": converter}
 }
 
-function get_serveur() {
-    // requete ajax pour recuperer les differentes clé lidar
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "api/get/config/serveur", false);
-    xhr.getResponseHeader("Content-type", "application/json");
-    xhr.onload = function() {
-        const obj = JSON.parse(this.responseText);
-        serveur = obj.result
-    } 
-    xhr.send()
-    return serveur
-}
 
-serveur = get_serveur(); 
 // on veut afficher les dalles au chargement de la page
 display_dalle(init_moved()["northEast"], init_moved()["southWest"], init_moved()["converter"], serveur)
 display_chantier(init_moved()["northEast"], init_moved()["southWest"], serveur)
