@@ -5,6 +5,7 @@ import psycopg2
 import psycopg2.extras
 from pathlib import Path
 from datetime import date
+import urllib.request
 from app.controllers.Config import Config
 from app.controllers.download_lidar import PATH_KEY, KEY_JSON_LIDAR
 
@@ -99,6 +100,12 @@ def get_dalle_lidar():
 
     return jsonify({"result": file_config})
 
+@api.route('/version5/get/dalle', methods=['GET', 'POST'])
+def get_dalle_lidar_classe():
+    paquets = get_dalle_classe()
+
+    return jsonify({"result": paquets})
+
 
 def get_connexion_bdd(info_bdd):
     """ Connexion à la base de données pour accéder aux dalles pcrs
@@ -155,8 +162,40 @@ def new_format_dalle(dalles):
         new_format_dalles["dalles"].append(dalle)
     return dalles
 
+def get_dalle_classe():
+    """recupere les dalles classées
 
-# SELECT count(pcrs.dalle.id)
-# FROM pcrs.dalle
-# JOIN pcrs.chantier ON dalle.id_chantier = chantier.id
-# WHERE dalle.id_chantier = 16
+    Returns:
+        dict: retourne tous les paquets lidar classé avec leur code
+    """
+    # on recupere le chemin du geojson
+    script_dir = os.path.dirname(__file__)
+    file_path_config = os.path.join(script_dir, "../static/json/lidar_classe.geojson")
+    # variable dans laquel sera stocker le geojson
+    data = []
+    try:
+        with open(file_path_config) as json_file:
+            data = json.load(json_file)
+    except:
+        print("erreur dans la récuperation du geojson lidar_classe.geojson")
+    # bloc disponible sur https://lidar-publications.cegedim.cloud/, à modifier pour le rendre dynamique
+    blocs = ["GP", "HP", "IO", "IP", "LN"]
+    # les paquets qui seront envoyés par l'api
+    paquets = {}
+    for bloc in data["features"]:
+        # print(bloc["properties"]["Avancement"])
+        nom_bloc = bloc["properties"]["Nom_bloc"]
+        # si le nom du bloc n'est pas en key dans le dict alors qu'on creer la key qui contiendra tous les paquets du code actuel -> list
+        if nom_bloc not in paquets:
+            paquets[nom_bloc] = []
+        
+        # if bloc["properties"]["Avancement"] == "Donnée brute diffusée":
+        if nom_bloc in blocs:
+            # on recupere les paquets par code
+            data = urllib.request.urlopen(f"https://lidar-publications.cegedim.cloud/{nom_bloc}.txt")
+            # on parcours chaque ligne pour inserer chaque paquets dans le code concerné
+            for line in data:
+                # on decode les lignne : bytes -> string
+                paquets[nom_bloc].append(line.decode("utf-8").split("\n")[0])
+    
+    return paquets
