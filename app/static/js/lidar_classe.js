@@ -294,6 +294,11 @@ function show_files(dalle) {
     // Récupération de la liste de fichiers
     var ulFiles = document.getElementById('files');
 
+    // Suppression des enfants
+    for (let child of ulFiles.childNodes) {
+        ulFiles.removeChild(child);
+    }
+
     var li = document.createElement('li');
     var a = document.createElement('a');
     a.textContent = `${dalle.bloc}/${dalle.dalle_name}`;
