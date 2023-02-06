@@ -14,26 +14,7 @@
       <div id="map"></div>
   </div>
   <div id="side" class="col-3">
-      <h4 class="mt-4">Données classé Lidar&nbsp;HD</h4>
-      <div id="form_div">
-          <h5>Affichage des données disponibles</h5>
-          <form>
-              <div class="form-group">
-                  <label for="key_input">Entrez votre clé pour continuer !</label>
-                  <input type="text" class="form-control" id="key_input" aria-describedby="emailHelp"
-                      placeholder="Entrez votre clé">
-              </div>
-              <div class="form-group">
-                  <label for="dataType">Lister les données</label>
-                  <select class="form-control" id="dataType">
-                      <option value="lidarhd">Lidar HD</option>
-                  </select>
-              </div>
-              <div class="mt-3">
-                  <button type="submit" class="btn btn-primary">Afficher les données</button>
-              </div>
-          </form>
-      </div>
+      <h4 class="mt-4">Données classées Lidar&nbsp;HD</h4>
       <div id="text_div" style="display: none;" class="mt-4">
           <h5><span id="nb_dalles"></span> dalles trouvées</h5>
           <p>Cliquez sur une dalle pour afficher les données à télécharger...</p>
@@ -54,6 +35,15 @@
           <h5>Clé invalide !</h5>
           <p>La clé <span id="key_span"></span> n'est pas valide ou n'a pas les droits requis.</p>
       </div>
+      <div class="mt-4 download_shp">
+        <form action="/download/lidar/shp/classe" method="post">
+            <div class="box_download">
+                <button class="button_download"><img height="50px" width="50px"
+                        src="{{ url_for('static',filename='icon/download.svg') }}" alt=""></button>
+                <span>Télécharger le tableau d’assemblage en shapefile</span>
+            </div>
+        </form>
+    </div>
       <!-- <form action="/download/lidar/geojson" method="post">
               <button class="geojson"><i class="fa fa-envelope"></i><span class="space"></span></button>
           </form> -->
