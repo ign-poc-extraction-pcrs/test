@@ -77,20 +77,14 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("You clicked the map at: [" + coord.lat + ", " + coord.lng + "]");
     });
 
-    document.getElementById('form_div').addEventListener('submit', function(e) {
-        e.preventDefault();
-        // Récupération de la clé et du type de données demandées
-        key = document.getElementById('key_input').value;
-        var dataType = document.getElementById('dataType').value.toLowerCase();
-        // On lance la fonction
-        listData(dataType);
-    });
-
-    document.getElementById("nb_dalles").textContent = 0
-    
-
-    listData(DATA_TYPE);
-
+    geojson = []
+    geojson_blocs = []
+    create_dallage_blocs(map.getZoom())
+    map.on('moveend', function() {
+        zoom = map.getZoom()
+        console.log(zoom);
+        listData(zoom);
+     });
     
 });
 
@@ -107,11 +101,15 @@ function get_serveur() {
     return serveur
 }
 
-function listData(dataType) {
+function listData(zoom) {
+    old_geojson = geojson
+    // map.removeLayer(old_geojson_blocs)
+    map.removeLayer(old_geojson)
+    if (zoom >= 10) {
+    console.log(1);
     // On affiche la div de chargement
     document.getElementById("loading_div").style.display = "block";
     // On masque les div d'erreur et de formulaire
-    document.getElementById("form_div").style.display = "none";
     document.getElementById("key_error_div").style.display = "none";
     serveur = get_serveur(); 
     // getFeature info
@@ -129,27 +127,26 @@ function listData(dataType) {
             var lidarHdResources = get_resources(data["result"]);
             // On affiche text
             document.getElementById("text_div").style.display = "block";
-            nb_dalle = parseInt(document.getElementById("nb_dalles").textContent) + lidarHdResources.length;
+            nb_dalle = lidarHdResources.length;
             document.getElementById("nb_dalles").textContent = nb_dalle;
 
             // Création du dallage
             var dallage = create_dallage(lidarHdResources);
 
             // Ajout du dallage
-            add_dallage(dallage);
+            geojson = add_dallage(dallage);
+        }).finally(function () {
+            // On masque loading
+            document.getElementById("loading_div").style.display = "none";
         })
-        // .catch(function() {
-        //     // On affiche les div de formulaire et d'erreur, on masque celle de dalle et de text
-        //     document.getElementById("form_div").style.display = "block";
-        //     document.getElementById("key_error_div").style.display = "block";
-        //     document.getElementById("dalle_div").style.display = "none";
-        //     document.getElementById("text_div").style.display = "none";
-
-        // }).finally(function () {
-        //     // On masque loading
-        //     document.getElementById("loading_div").style.display = "none";
-        // })
-        // ;
+        ;
+    }else{
+        console.log(2);
+        // On cache le text
+        document.getElementById("text_div").style.display = "none";
+        create_dallage_blocs(zoom)
+    }
+    
 }
 
 
@@ -314,3 +311,49 @@ function bytesToSize(bytes) {
     var size = (bytes / Math.pow(1024, i)).toFixed(2).replace('.', ',');
     return `${size} ${sizes[i]}`;
 };
+
+function create_dallage_blocs(zoom, geojson_blocs) {
+    if (zoom < 10){
+        serveur = get_serveur(); 
+        // getFeature info
+        fetch(`${serveur}/api/version5/get/blocs`)
+            .then(function (response) {
+                if (response.ok) {
+                    return response.json();
+                    
+                } else {
+                    throw Error(response.statusText);
+                }
+            })
+            .then(function (data) {
+                let dallage = {
+                    "type": "FeatureCollection",
+                    "features": [],
+                }
+
+                data["result"].forEach(bloc => {
+                    coordinates = []
+                    bloc.geometry.coordinates[0][0].forEach(geom => {
+                        coordinates.push(converter.inverse([geom[0], geom[1]]))
+                    });
+
+                    dallage["features"].push({
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [coordinates]
+                        },
+                        "properties": {
+                            "bloc": bloc.properties.Nom_bloc,
+                        }
+                    });
+                });
+                console.log(dallage);
+                // Add layer
+                var geojson_blocs = L.geoJson(dallage, {
+                    style: DESIGN.base,
+                }).addTo(map);
+            })
+            ;
+    }
+}
