@@ -169,7 +169,6 @@ def create_shp_lidar_classe(path_shp, file_shp):
         data = urllib.request.urlopen(f"https://lidar-publications.cegedim.cloud/{nom_bloc}.txt")
         # on parcours chaque ligne pour inserer chaque paquets dans le code concerné
         for line in data:
-            print(line.decode("utf-8").split("\n")[0])
             # on decode les lignne : bytes -> string
             paquets.append(line.decode("utf-8").split("\n")[0])
     
