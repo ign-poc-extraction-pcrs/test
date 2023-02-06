@@ -14,6 +14,8 @@ api = Blueprint('api', __name__, url_prefix='/api')
 KEY_JSON_BDD = "bdd"
 KEY_JSON_SERVEUR = "host_serveur"
 PATH_KEY_SERVEUR = Path(__file__).parent / "../../config_serveur.json"
+# bloc disponible sur https://lidar-publications.cegedim.cloud/, à modifier pour le rendre dynamique
+BLOCS = ["GP", "HP", "IO", "IP", "LN", "KN", "KP", "LR"]
 
 @api.route('/get/config/key/lidar')
 def get_config_lidar():
@@ -123,6 +125,13 @@ def get_dalle_lidar_classe():
     return jsonify({"result": paquets})
 
 
+@api.route('/version5/get/blocs', methods=['GET', 'POST'])
+def get_blocs_lidar_classe():
+    blocs = get_blocs_classe()
+
+    return jsonify({"result": blocs})
+
+
 def get_connexion_bdd(info_bdd):
     """ Connexion à la base de données pour accéder aux dalles pcrs
 
@@ -194,8 +203,6 @@ def get_dalle_classe():
             data = json.load(json_file)
     except:
         print("erreur dans la récuperation du geojson lidar_classe.geojson")
-    # bloc disponible sur https://lidar-publications.cegedim.cloud/, à modifier pour le rendre dynamique
-    blocs = ["GP", "HP", "IO", "IP", "LN"]
     # les paquets qui seront envoyés par l'api
     paquets = {}
     for bloc in data["features"]:
@@ -206,7 +213,7 @@ def get_dalle_classe():
             paquets[nom_bloc] = []
         
         # if bloc["properties"]["Avancement"] == "Donnée brute diffusée":
-        if nom_bloc in blocs:
+        if nom_bloc in BLOCS:
             # on recupere les paquets par code
             data = urllib.request.urlopen(f"https://lidar-publications.cegedim.cloud/{nom_bloc}.txt")
             # on parcours chaque ligne pour inserer chaque paquets dans le code concerné
@@ -215,3 +222,29 @@ def get_dalle_classe():
                 paquets[nom_bloc].append(line.decode("utf-8").split("\n")[0])
     
     return paquets
+
+
+def get_blocs_classe():
+    """ Recupere les blocs disponible dans le geojson -> lidar_classe.geojson
+
+    Returns:
+        List: Listes des blocs disponible
+    """
+    # on recupere le chemin du geojson
+    script_dir = os.path.dirname(__file__)
+    file_path_config = os.path.join(script_dir, "../static/json/lidar_classe2.geojson")
+    # list dans lesquels seront stocker les blocs disponibles
+    blocs_available = []
+
+    try :
+        with open(file_path_config) as json_file:
+            blocs = json.load(json_file)
+            # on parcours la liste des blocs 
+            for bloc in blocs["features"] :
+                # si le bloc est dans la liste on l'ajoute à notre liste 
+                if bloc["properties"]["Nom_bloc"] in BLOCS :
+                    blocs_available.append(bloc)
+    except:
+        print("erreur dans la récuperation du json config.json")
+
+    return blocs_available
