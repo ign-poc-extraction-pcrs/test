@@ -1,7 +1,7 @@
 // Paramètres
 const REGEX_X_Y = new RegExp('([0-9]{4})_([0-9]{4}_LA93)');
 // const REGEX_DEP = new RegExp('D[0-9AB]{3}'); // TODO : R93, R94, R01-06, FRA, FRX, FXX, GLP, MTQ, SBA, SMA, MYT, REU, SPM, GUF
-const SIZE = 2000;
+const SIZE = 1000;
 const DESIGN = {
     "base": {
         "fillColor": "white",
