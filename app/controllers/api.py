@@ -120,18 +120,19 @@ def get_dalle_lidar():
 
     return jsonify({"result": file_config})
 
-@api.route('/version5/get/dalle', methods=['GET', 'POST'])
-def get_dalle_lidar_classe():
-    paquets = get_dalle_in_bloc()
+@api.route('/version5/get/dalle/<float(signed=True):x_min>/<float(signed=True):y_min>/<float(signed=True):x_max>/<float(signed=True):y_max>', methods=['GET', 'POST'])
+def get_dalle_lidar_classe(x_min=None, y_min=None, x_max=None, y_max=None):
+    bbox_windows = (x_min, y_min, x_max, y_max)
+    paquets = get_dalle_in_bloc(bbox_windows)
 
-    return jsonify({"result": paquets})
+    return jsonify({"result": paquets["paquet_within_bloc"], "count_dalle": paquets["count_dalle"] })
 
 
 @api.route('/version5/get/blocs', methods=['GET', 'POST'])
 def get_blocs_lidar_classe():
     blocs = get_blocs_classe()
 
-    return jsonify({"result": blocs})
+    return jsonify({"result": blocs, "count_bloc":len(BLOCS)})
 
 
 def get_connexion_bdd(info_bdd):
@@ -251,11 +252,14 @@ def get_blocs_classe():
 
     return blocs_available
 
-def get_dalle_in_bloc():
+def get_dalle_in_bloc(bbox_windows):
     """Recupere les dalles dans les blocs (on enleve ceux qui dépasse)
 
+    Args:
+        bbox_windows (tuple): bbox de la fenetre, va permettre de ne recuperer seulement que les dalles qui sont dans la fenetre
+
     Returns:
-        list: Dalles dans les blocs
+        dict: Dalles dans les blocs + nombre de dalle en tout
     """
     # on recupere tous les blocs et toutes les classes
     paquets = get_dalle_classe()
@@ -264,6 +268,7 @@ def get_dalle_in_bloc():
     size = 1000
     # dict qui contiendra les dalles qui sont dans le bloc
     paquet_within_bloc = {}
+    count_dalle = 0
     # on balaye tous les paquets et blocs
     for paquet in paquets:
         for bloc in blocs:
@@ -284,10 +289,11 @@ def get_dalle_in_bloc():
                     if name_bloc not in paquet_within_bloc:
                         paquet_within_bloc[name_bloc] = []
                     # si la dalle est dans le bloc alors on la garde, on enleve les dalles qui dépassent du bloc
-                    if get_bboxes_within_multipolygon((x_min, y_min, x_max, y_max), bloc["geometry"]):
+                    if get_bboxes_within_multipolygon((x_min, y_min, x_max, y_max), bloc["geometry"]) and get_bboxes_within_bboxes((x_min, y_min, x_max, y_max), bbox_windows):
                         paquet_within_bloc[name_bloc].append(dalle)
+                    count_dalle += 1
 
-    return paquet_within_bloc
+    return {"paquet_within_bloc": paquet_within_bloc, "count_dalle": count_dalle}
 
 
 
@@ -308,5 +314,24 @@ def get_bboxes_within_multipolygon(bbox, multipolygon):
     bbox_polygon = shapely.geometry.box(*bbox)
     # on regarde si la bbox est dans le polygon
     if multipolygon_shape.contains(bbox_polygon):
+        return True
+    return False
+
+def get_bboxes_within_bboxes(bbox, bbox_windows):
+    """_summary_
+
+    Args:
+        bbox (tuple): bbox -> (x_min, y_min, x_max, y_max)
+        bbox_windows (tuple): bbox fenetre
+
+    Returns:
+        bool: on retourne True si la bbbox est dans le polygon
+    """
+    # on transforme notre polygon en geometry
+    bbox_windows = shapely.geometry.box(*bbox_windows)
+    # on transforme notre bbox en geometry
+    bbox_polygon = shapely.geometry.box(*bbox)
+    # on regarde si la bbox est dans le polygon
+    if bbox_windows.contains(bbox_polygon):
         return True
     return False

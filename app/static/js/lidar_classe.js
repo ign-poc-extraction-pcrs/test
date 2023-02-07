@@ -81,9 +81,14 @@ document.addEventListener("DOMContentLoaded", function () {
     geojson_blocs = []
     create_dallage_blocs(map.getZoom())
     map.on('moveend', function() {
+        var northEast = map.getBounds()._northEast
+        var southWest = map.getBounds()._southWest
+
+        northEast = converter.forward([northEast.lng, northEast.lat])
+        southWest = converter.forward([southWest.lng, southWest.lat])
         zoom = map.getZoom()
         console.log(zoom);
-        listData(zoom);
+        listData(zoom, northEast, southWest);
      });
     
 });
@@ -101,9 +106,8 @@ function get_serveur() {
     return serveur
 }
 
-function listData(zoom) {
+function listData(zoom, northEast, southWest) {
     old_geojson = geojson
-    // map.removeLayer(old_geojson_blocs)
     map.removeLayer(old_geojson)
     if (zoom >= 10) {
     console.log(1);
@@ -113,7 +117,7 @@ function listData(zoom) {
     document.getElementById("key_error_div").style.display = "none";
     serveur = get_serveur(); 
     // getFeature info
-    fetch(`${serveur}/api/version5/get/dalle`)
+    fetch(`${serveur}/api/version5/get/dalle/${northEast[0]}/${southWest[1]}/${southWest[0]}/${northEast[1]}`)
         .then(function (response) {
             if (response.ok) {
                 return response.json();
@@ -129,6 +133,7 @@ function listData(zoom) {
             document.getElementById("text_div").style.display = "block";
             nb_dalle = lidarHdResources.length;
             document.getElementById("nb_dalles").textContent = nb_dalle;
+            document.getElementById("nb_dalles_find").textContent = data["count_dalle"];
 
             // Création du dallage
             var dallage = create_dallage(lidarHdResources);
@@ -314,6 +319,8 @@ function bytesToSize(bytes) {
 
 function create_dallage_blocs(zoom, geojson_blocs) {
     if (zoom < 10){
+        var old_geojson_blocs = geojson_blocs
+        
         serveur = get_serveur(); 
         // getFeature info
         fetch(`${serveur}/api/version5/get/blocs`)
@@ -348,11 +355,13 @@ function create_dallage_blocs(zoom, geojson_blocs) {
                         }
                     });
                 });
-                console.log(dallage);
+                // map.removeLayer(old_geojson_blocs)
                 // Add layer
                 var geojson_blocs = L.geoJson(dallage, {
                     style: DESIGN.base,
                 }).addTo(map);
+
+                document.getElementById("nb_bloc").textContent = data["count_bloc"];
             })
             ;
     }
