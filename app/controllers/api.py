@@ -6,8 +6,10 @@ import psycopg2.extras
 from pathlib import Path
 from datetime import date
 import urllib.request
+import shapely.geometry
 from app.controllers.Config import Config
 from app.controllers.download_lidar import PATH_KEY, KEY_JSON_LIDAR
+
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
@@ -15,7 +17,7 @@ KEY_JSON_BDD = "bdd"
 KEY_JSON_SERVEUR = "host_serveur"
 PATH_KEY_SERVEUR = Path(__file__).parent / "../../config_serveur.json"
 # bloc disponible sur https://lidar-publications.cegedim.cloud/, à modifier pour le rendre dynamique
-BLOCS = ["GP", "HP", "IO", "IP", "LN", "KN", "KP", "LR"]
+BLOCS = ["GP", "HP", "IO", "IP", "LN", "KN", "KP", "LR", "MQ", "RP"]
 
 @api.route('/get/config/key/lidar')
 def get_config_lidar():
@@ -92,7 +94,7 @@ def get_dalles(x_min=None, y_min=None, x_max=None, y_max=None):
 @api.route('/version3/get/dalle', methods=['GET', 'POST'])
 def get_dalle_lidar():
     script_dir = os.path.dirname(__file__)
-    file_path_config = os.path.join(script_dir, "../static/json/file_path_dalle_lidar.json")
+    file_path_config = os.path.join(script_dir, "../static/json/file_path_dalle_lidar_probleme.json")
     file_config = []
     try:
         with open(file_path_config) as json_file:
@@ -104,7 +106,7 @@ def get_dalle_lidar():
 
 @api.route('/version5/get/dalle', methods=['GET', 'POST'])
 def get_dalle_lidar_classe():
-    paquets = get_dalle_classe()
+    paquets = get_dalle_in_bloc()
 
     return jsonify({"result": paquets})
 
@@ -232,3 +234,63 @@ def get_blocs_classe():
         print("erreur dans la récuperation du json config.json")
 
     return blocs_available
+
+def get_dalle_in_bloc():
+    """Recupere les dalles dans les blocs (on enleve ceux qui dépasse)
+
+    Returns:
+        list: Dalles dans les blocs
+    """
+    # on recupere tous les blocs et toutes les classes
+    paquets = get_dalle_classe()
+    blocs = get_blocs_classe()
+    # taille des dalles
+    size = 1000
+    # dict qui contiendra les dalles qui sont dans le bloc
+    paquet_within_bloc = {}
+    # on balaye tous les paquets et blocs
+    for paquet in paquets:
+        for bloc in blocs:
+            name_bloc = bloc["properties"]["Nom_bloc"]
+            # si le paquet appartient au bloc
+            if name_bloc == paquet:
+                # on recupere toutes les dalles du bloc
+                dalles = paquets[paquet]
+                # on balaye les dalles
+                for dalle in dalles:
+                    # on recupere le x_min, y_min, x_max, y_max pour former une bbox
+                    split_dalle = dalle.split("_")
+                    x_min = int(split_dalle[2]) * 1000
+                    y_max = int(split_dalle[3]) * 1000
+                    x_max = x_min + size
+                    y_min = y_max - size
+                    # si la clé du bloc n'est pas le dictionnaire alors on le creer
+                    if name_bloc not in paquet_within_bloc:
+                        paquet_within_bloc[name_bloc] = []
+                    # si la dalle est dans le bloc alors on la garde, on enleve les dalles qui dépassent du bloc
+                    if get_bboxes_within_multipolygon((x_min, y_min, x_max, y_max), bloc["geometry"]):
+                        paquet_within_bloc[name_bloc].append(dalle)
+
+    return paquet_within_bloc
+
+
+
+
+def get_bboxes_within_multipolygon(bbox, multipolygon):
+    """_summary_
+
+    Args:
+        bbox (tuple): bbox -> (x_min, y_min, x_max, y_max)
+        multipolygon (geojson): peu aussi être un polygon
+
+    Returns:
+        bool: on retourne True si la bbbox est dans le polygon
+    """
+    # on transforme notre polygon en geometry
+    multipolygon_shape = shapely.geometry.shape(multipolygon)
+    # on transforme notre bbox en geometry
+    bbox_polygon = shapely.geometry.box(*bbox)
+    # on regarde si la bbox est dans le polygon
+    if multipolygon_shape.contains(bbox_polygon):
+        return True
+    return False
