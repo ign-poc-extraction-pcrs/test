@@ -190,16 +190,18 @@ function create_dallage(resources) {
 
     for (let resource of resources) {
 
-        var match_x_y = REGEX_X_Y.exec(resource);
+        name_dalle = resource["name"]
+        var match_x_y = REGEX_X_Y.exec(name_dalle);
 
         if (match_x_y) {
             var x_min = parseInt(match_x_y[1]) * 1000;
             var y_max = parseInt(match_x_y[2].split("_")[0]) * 1000;
             var x_max = x_min + SIZE;
             var y_min = y_max - SIZE;
-            var dalle = resource.split("/")
+            var dalle = name_dalle.split("/")
             var bloc = dalle[dalle.length -2]
             var dalle_name = dalle[dalle.length -1]
+            var year = dalle_name.split("_")[1]
 
             dallage["features"].push({
                 "type": "Feature",
@@ -219,7 +221,7 @@ function create_dallage(resources) {
                 "properties": {
                     "url" : resource,
                     "bloc": bloc,
-                    "dalle_name": dalle_name
+                    "dalle_name": `LHD_C_LA93-IGN69_${x_min / 1000}-${y_max / 1000}_${year}_v1.laz`
                 }
             });
         } else {
@@ -250,9 +252,8 @@ function add_dallage(dallage) {
 function show_popup(layer, type = "open") {
     "Fonction qui affiche une popup, au survol d'une dalle son nom."
     var target = layer.feature["properties"]
-    var bloc = target.bloc;
     var dalle_name = target.dalle_name;
-    template = `<h6>${bloc}</h6><p>${dalle_name}</p>`
+    template = `<p>${dalle_name}</p>`
 
     if (type == "open") {
         layer.bindPopup(template).openPopup()
@@ -303,7 +304,7 @@ function show_files(dalle) {
 
     var li = document.createElement('li');
     var a = document.createElement('a');
-    a.textContent = `${dalle.bloc}/${dalle.dalle_name}`;
+    a.textContent = `${dalle.dalle_name}`;
     a.setAttribute('href', dalle.url);
     li.appendChild(a);
     ulFiles.appendChild(li);
