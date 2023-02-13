@@ -5,14 +5,18 @@ import psycopg2
 import psycopg2.extras
 from pathlib import Path
 from datetime import date
+import shapely.geometry
 from app.controllers.Config import Config
 from app.controllers.download_lidar import PATH_KEY, KEY_JSON_LIDAR
+from app.utils.dalle_lidar_classe import BLOCS, get_blocs_classe, get_dalle_classe
+
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
 KEY_JSON_BDD = "bdd"
 KEY_JSON_SERVEUR = "host_serveur"
 PATH_KEY_SERVEUR = Path(__file__).parent / "../../config_serveur.json"
+
 
 @api.route('/get/config/key/lidar')
 def get_config_lidar():
@@ -89,7 +93,7 @@ def get_dalles(x_min=None, y_min=None, x_max=None, y_max=None):
 @api.route('/version3/get/dalle', methods=['GET', 'POST'])
 def get_dalle_lidar():
     script_dir = os.path.dirname(__file__)
-    file_path_config = os.path.join(script_dir, "../static/json/file_path_dalle_lidar.json")
+    file_path_config = os.path.join(script_dir, "../static/json/file_path_dalle_lidar_probleme.json")
     file_config = []
     try:
         with open(file_path_config) as json_file:
@@ -98,6 +102,20 @@ def get_dalle_lidar():
         print("erreur dans la récuperation du json config.json")
 
     return jsonify({"result": file_config})
+
+@api.route('/version5/get/dalle/<float(signed=True):x_min>/<float(signed=True):y_min>/<float(signed=True):x_max>/<float(signed=True):y_max>', methods=['GET', 'POST'])
+def get_dalle_lidar_classe(x_min=None, y_min=None, x_max=None, y_max=None):
+    bbox_windows = (x_min, y_min, x_max, y_max)
+    paquets = get_dalle_in_bloc(bbox_windows)
+
+    return jsonify({"result": paquets["paquet_within_bloc"], "count_dalle": paquets["count_dalle"] })
+
+
+@api.route('/version5/get/blocs', methods=['GET', 'POST'])
+def get_blocs_lidar_classe():
+    blocs = get_blocs_classe()
+
+    return jsonify({"result": blocs, "count_bloc":len(BLOCS)})
 
 
 def get_connexion_bdd(info_bdd):
@@ -155,8 +173,50 @@ def new_format_dalle(dalles):
         new_format_dalles["dalles"].append(dalle)
     return dalles
 
+def get_dalle_in_bloc(bbox_windows):
+    """Recupere les dalles dans les blocs (on enleve ceux qui dépasse)
 
-# SELECT count(pcrs.dalle.id)
-# FROM pcrs.dalle
-# JOIN pcrs.chantier ON dalle.id_chantier = chantier.id
-# WHERE dalle.id_chantier = 16
+    Args:
+        bbox_windows (tuple): bbox de la fenetre, va permettre de ne recuperer seulement que les dalles qui sont dans la fenetre
+
+    Returns:
+        dict: Dalles dans les blocs + nombre de dalle en tout
+    """
+    script_dir = os.path.dirname(__file__)
+    file_path_json = os.path.join(script_dir, "../static/json/dalle_lidar_classe.geojson")
+    paquet_within_bloc = {}
+
+    with open(file_path_json) as file:
+        dalles = json.load(file)
+    
+    dalles_paquets = dalles["paquet_within_bloc"]
+    for bloc in dalles_paquets:
+        if bloc not in paquet_within_bloc:
+            paquet_within_bloc[bloc] = []
+
+        for dalle in dalles_paquets[bloc]:
+            if get_bboxes_within_bboxes(tuple(dalle["bbox"]), bbox_windows):
+                paquet_within_bloc[bloc].append(dalle)
+
+    return {"paquet_within_bloc": paquet_within_bloc, "count_dalle": dalles["count_dalle"]}
+
+
+
+def get_bboxes_within_bboxes(bbox, bbox_windows):
+    """_summary_
+
+    Args:
+        bbox (tuple): bbox -> (x_min, y_min, x_max, y_max)
+        bbox_windows (tuple): bbox fenetre
+
+    Returns:
+        bool: on retourne True si la bbbox est dans le polygon
+    """
+    # on transforme notre polygon en geometry
+    bbox_windows = shapely.geometry.box(*bbox_windows)
+    # on transforme notre bbox en geometry
+    bbox_polygon = shapely.geometry.box(*bbox)
+    # on regarde si la bbox est dans le polygon
+    if bbox_windows.contains(bbox_polygon):
+        return True
+    return False

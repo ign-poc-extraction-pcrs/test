@@ -31,6 +31,10 @@ def version3():
 def version4():
     return render_template('pages/version4.html')
 
+@pcrs.route('/version5', methods=['GET'])
+def version5():
+    return render_template('pages/version5.html')
+
 @pcrs.route('/download/<int:x_min>-<int:y_min>-<int:x_max>-<int:y_max>-<annee>-<proj>-<resolution>-<canaux>')
 @pcrs.route('/download', methods=['GET', 'POST'])
 def download(x_min=None, y_min=None, x_max=None, y_max=None, annee=None, proj=None, resolution=None, canaux=None):
