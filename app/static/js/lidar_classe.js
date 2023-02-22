@@ -110,7 +110,6 @@ function listData(zoom, northEast, southWest) {
     old_geojson = geojson
     map.removeLayer(old_geojson)
     if (zoom >= 10) {
-    console.log(1);
     // On affiche la div de chargement
     document.getElementById("loading_div").style.display = "block";
     // On masque les div d'erreur et de formulaire
@@ -146,7 +145,6 @@ function listData(zoom, northEast, southWest) {
         })
         ;
     }else{
-        console.log(2);
         // On cache le text
         document.getElementById("text_div").style.display = "none";
         create_dallage_blocs(zoom)
@@ -228,7 +226,6 @@ function create_dallage(resources) {
             console.error(resource.Name);
         }
     }
-    console.log(dallage);
     return dallage;
 }
 
@@ -305,7 +302,7 @@ function show_files(dalle) {
     var li = document.createElement('li');
     var a = document.createElement('a');
     a.textContent = `${dalle.dalle_name}`;
-    a.setAttribute('href', dalle.url);
+    a.setAttribute('href', dalle.url.name);
     li.appendChild(a);
     ulFiles.appendChild(li);
 }
