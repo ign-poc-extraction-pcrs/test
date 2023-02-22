@@ -93,7 +93,7 @@ def get_dalles(x_min=None, y_min=None, x_max=None, y_max=None):
 @api.route('/version3/get/dalle', methods=['GET', 'POST'])
 def get_dalle_lidar():
     script_dir = os.path.dirname(__file__)
-    file_path_config = os.path.join(script_dir, "../static/json/file_path_dalle_lidar_probleme.json")
+    file_path_config = os.path.join(script_dir, "../static/json/file_path_dalle_lidar.json")
     file_config = []
     try:
         with open(file_path_config) as json_file:
