@@ -52,8 +52,8 @@ class Write_bdd_local_dalle:
         try:
             self.get_connexion()
             for dalle in self.get_dalle_json()["dalles"]:
-                postgres_insert_query = f""" INSERT INTO {self.table} (bloc, geom_chantier) VALUES (%s,%s)"""
-                record_to_insert = (dalle["bloc"], dalle["geom_chantier"])
+                postgres_insert_query = f""" INSERT INTO {self.table} (nom, geom) VALUES (%s,%s)"""
+                record_to_insert = (dalle["nom"], dalle["geom"])
                 self.cur.execute(postgres_insert_query, record_to_insert)
 
             self.conn.commit()
@@ -66,5 +66,5 @@ class Write_bdd_local_dalle:
         finally:
             self.close_connexion()
 
-a = Write_bdd_local_dalle(database="test", user="postgres", host="localhost", password="root", table="chantier")
+a = Write_bdd_local_dalle(database="messi", user="postgres", host="localhost", password="root", table="dalle")
 a.insert_dalle()
