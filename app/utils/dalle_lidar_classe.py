@@ -118,7 +118,7 @@ def get_dalle_in_bloc():
 
                     bbox = (x_min, y_min, x_max, y_max)
                     # si la dalle est dans le bloc alors on la garde, on enleve les dalles qui dépassent du bloc
-                    if get_bboxes_within_multipolygon(bbox, bloc["geometry"]) :
+                    if bbox_in_geojson(bbox, bloc["geometry"]) :
                         paquet_within_bloc[name_bloc].append({"name": dalle, "bbox": bbox})
                     count_dalle += 1
     
@@ -128,7 +128,7 @@ def get_dalle_in_bloc():
 
 
 def get_bboxes_within_multipolygon(bbox, multipolygon):
-    """_summary_
+    """Recupere les dalles contenu dans une geometry avec un recouvrement de 100%
 
     Args:
         bbox (tuple): bbox -> (x_min, y_min, x_max, y_max)
@@ -146,4 +146,23 @@ def get_bboxes_within_multipolygon(bbox, multipolygon):
         return True
     return False
 
-get_dalle_in_bloc()
+def bbox_in_geojson(bbox, geojson):
+    """Recupere les dalles contenu dans une geometry même avec si le recouvrement n'est pas de 100%
+
+    Args:
+        bbox (tuple): bbox -> (x_min, y_min, x_max, y_max)
+        multipolygon (geojson): peu aussi être un polygon
+
+    Returns:
+        bool: on retourne True si la bbbox est dans le polygon
+    """
+    bbox_poly = shapely.geometry.box(*bbox)
+    geojson_poly = shapely.geometry.shape(geojson)
+    # calcule l'aire de l'intersection entre la bbox et la géométrie GeoJSON
+    intersection_area = bbox_poly.intersection(geojson_poly).area
+    # si il y'a un recouvrement d'au moins 1%
+    if intersection_area >= 0.01:
+        return True
+
+if __name__ == "__main__":
+    get_dalle_in_bloc()
