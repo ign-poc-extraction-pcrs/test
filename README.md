@@ -240,6 +240,23 @@ Ajouter :
 00 02 * * * rm chemin/absolu/test/app/static/img/*
 ```
 
+### Procédure pour recharger les données Lidar (version3)
+
+Se connecter avec son compte sur cegedim 
+```
+user@ftp-cegedim
+```
+
+Se connecter à la machine de prod 
+```
+ssh pcrs-admin@extraction_wms_pcrs
+```
+
+Lancer la commande pour recharger les dalles lidar et prier pour que les getcap marchent
+```
+python3 /home/pcrs-admin/test/app/utils/dalle_lidar.py
+```
+
 ### Mise à jour en prod
 
 Il faut aller dans le depot git, puis git pull et redémarrer le serveur dans le screen
