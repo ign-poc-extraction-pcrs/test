@@ -94,14 +94,23 @@ def get_dalles(x_min=None, y_min=None, x_max=None, y_max=None):
 def get_dalle_lidar():
     script_dir = os.path.dirname(__file__)
     file_path_config = os.path.join(script_dir, "../static/json/file_path_dalle_lidar.json")
+    file_path_config_91s = os.path.join(script_dir, "../static/json/file_path_dalle_lidar_91s.json")
     file_config = []
+    file_config_91s = []
     try:
         with open(file_path_config) as json_file:
             file_config = json.load(json_file)
     except:
         print("erreur dans la récuperation du json config.json")
+    
+    try:
+        with open(file_path_config_91s) as json_file_91s:
+            file_config_91s = json.load(json_file_91s)
+    except:
+        print("erreur dans la récuperation du json config.json")
 
-    return jsonify({"result": file_config})
+    list_dalle = file_config + file_config_91s
+    return jsonify({"result": list_dalle})
 
 @api.route('/version5/get/dalle/<float(signed=True):x_min>/<float(signed=True):y_min>/<float(signed=True):x_max>/<float(signed=True):y_max>', methods=['GET', 'POST'])
 def get_dalle_lidar_classe(x_min=None, y_min=None, x_max=None, y_max=None):
