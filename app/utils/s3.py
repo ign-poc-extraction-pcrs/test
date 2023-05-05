@@ -56,17 +56,25 @@ class BucketAdpater:
         Returns:
             list: une liste de dictionnaires contenant le contenu de chaque fichier index.json
         """
+        # on recupere les blocs
         objects = self.s3_client.list_objects_v2(Bucket=self.bucket_name, Prefix='', Delimiter=delimiter)
+        # dict qui sera transformer en json pour stocker les dalles
         index_json_files = {"paquet_within_bloc": {}}
+        # list qui stockera les dalles
         dalles = []
+        # permet de compter le nombre de dalle
         count_dalle = 0
+        # on boucle sur les blocs
         for obj in objects["CommonPrefixes"]:
             dalles = []
             if obj['Prefix'] != "test/":
+                # on recupere le nom du bloc
                 name_bloc = obj['Prefix'].split("/")[0]
+                # on recupere les dalles du bloc sur le s3
                 file_content = self.read_file(f"{name_bloc}/{name_file}")
                 if file_content:
                     for bloc in tqdm(file_content["features"]):
+                        # on recupere la dalle reformater
                         dalle = self.reformat_dalle(bloc["properties"]["file"], name_bloc)
                         if dalle :
                             dalles.append(dalle)
@@ -83,6 +91,15 @@ class BucketAdpater:
             json.dump(index_json_files, f)
     
     def reformat_dalle(self, dalle, name_bloc):
+        """on reformate les dalles
+
+        Args:
+            dalle (_type_): nom de la dalle
+            name_bloc (_type_): nom du bloc
+
+        Returns:
+            dict: le nom de la dalle et la bbox
+        """
         size = 1000
         # on recupere le x_min, y_min, x_max, y_max pour former une bbox
         split_dalle = dalle.split("_")[3].split("-")
