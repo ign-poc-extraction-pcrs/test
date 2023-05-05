@@ -1,5 +1,7 @@
 // Paramètres
 const REGEX_X_Y = new RegExp('([0-9]{4})_([0-9]{4}_LA93)');
+const REGEX_X_Y_s3 = new RegExp('(IGN69_[0-9]{4})-([0-9]{4})')
+;
 // const REGEX_DEP = new RegExp('D[0-9AB]{3}'); // TODO : R93, R94, R01-06, FRA, FRX, FXX, GLP, MTQ, SBA, SMA, MYT, REU, SPM, GUF
 const SIZE = 1000;
 const DESIGN = {
@@ -87,7 +89,6 @@ document.addEventListener("DOMContentLoaded", function () {
         northEast = converter.forward([northEast.lng, northEast.lat])
         southWest = converter.forward([southWest.lng, southWest.lat])
         zoom = map.getZoom()
-        console.log(zoom);
         listData(zoom, northEast, southWest);
      });
     
@@ -189,7 +190,13 @@ function create_dallage(resources) {
     for (let resource of resources) {
 
         name_dalle = resource["name"]
+
         var match_x_y = REGEX_X_Y.exec(name_dalle);
+        if(match_x_y == null){
+            match_x_y = REGEX_X_Y_s3.exec(name_dalle)
+            match_x_y[1] = match_x_y[1].split("_")[1]
+            match_x_y[2] = match_x_y[2] + "_LA93"
+        }
 
         if (match_x_y) {
             var x_min = parseInt(match_x_y[1]) * 1000;
