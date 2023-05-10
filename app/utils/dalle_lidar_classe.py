@@ -52,14 +52,14 @@ def get_blocs_classe():
     Returns:
         List: Listes des blocs disponible
     """
-    BLOCS = []
+    BLOCS = ["MQ", "GN"]
 
-    html_content = requests.get("https://storage.sbg.cloud.ovh.net/v1/AUTH_63234f509d6048bca3c9fd7928720ca1/ppk-lidar/").text
-    soup = BeautifulSoup(html_content, "lxml")
+    # html_content = requests.get("https://storage.sbg.cloud.ovh.net/v1/AUTH_63234f509d6048bca3c9fd7928720ca1/ppk-lidar/").text
+    # soup = BeautifulSoup(html_content, "lxml")
 
-    for link in soup.find_all("a"):
-        if link.text != "test/":
-            BLOCS.append(link.text.split("/")[0])
+    # for link in soup.find_all("a"):
+    #     if link.text != "test/":
+    #         BLOCS.append(link.text.split("/")[0])
             
     # on recupere le chemin du geojson
     script_dir = os.path.dirname(__file__)
