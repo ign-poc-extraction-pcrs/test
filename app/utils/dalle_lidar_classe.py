@@ -52,7 +52,7 @@ def get_blocs_classe():
     Returns:
         List: Listes des blocs disponible
     """
-    BLOCS = ["MQ", "GN"]
+    BLOCS = ["GN"]
 
     # html_content = requests.get("https://storage.sbg.cloud.ovh.net/v1/AUTH_63234f509d6048bca3c9fd7928720ca1/ppk-lidar/").text
     # soup = BeautifulSoup(html_content, "lxml")
