@@ -206,15 +206,15 @@ function create_dallage(resources) {
             var dalle = name_dalle.split("/")
             var bloc = dalle[dalle.length -2]
             var dalle_name = dalle[dalle.length -1]
-            var year = dalle_name.split("_")[1]
-
+            var dalle_name_split = dalle_name.split("_")
+            var year = dalle_name_split[dalle_name_split.length - 1]
+            var type = dalle_name_split[1]
             name_x_min= x_min.toString()
             if (name_x_min.length == 6) {
                 name_x_min = `0${parseInt(name_x_min)/1000}`
             }else{
                 name_x_min = `${parseInt(name_x_min)/1000}`
             }
-            console.log(name_x_min);
 
             dallage["features"].push({
                 "type": "Feature",
@@ -234,7 +234,7 @@ function create_dallage(resources) {
                 "properties": {
                     "url" : resource,
                     "bloc": bloc,
-                    "dalle_name": `LHD_C_LA93-IGN69_${name_x_min}-${y_max / 1000}_${year}_v1.laz`
+                    "dalle_name": `LHD_${type}_LA93-IGN69_${name_x_min}-${y_max / 1000}_${year}`
                 }
             });
         } else {
