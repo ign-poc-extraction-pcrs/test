@@ -234,7 +234,7 @@ function create_dallage(resources) {
                 "properties": {
                     "url" : resource,
                     "bloc": bloc,
-                    "dalle_name": `LHD_FFX_${name_x_min}_${y_max / 1000}_PTS_${type}_LAMB93_IGN69.laz`
+                    "dalle_name": `LHD_FXX_${name_x_min}_${y_max / 1000}_PTS_${type}_LAMB93_IGN69.laz`
                 }
             });
         } else {
