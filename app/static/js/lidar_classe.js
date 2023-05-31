@@ -207,7 +207,7 @@ function create_dallage(resources) {
             var bloc = dalle[dalle.length -2]
             var dalle_name = dalle[dalle.length -1]
             var dalle_name_split = dalle_name.split("_")
-            var year = dalle_name_split[dalle_name_split.length - 1]
+            var year = dalle_name_split[dalle_name_split.length - 1].split(".")[0]
             var type = dalle_name_split[1]
             name_x_min= x_min.toString()
             if (name_x_min.length == 6) {
@@ -234,7 +234,7 @@ function create_dallage(resources) {
                 "properties": {
                     "url" : resource,
                     "bloc": bloc,
-                    "dalle_name": `LHD_${type}_LA93-IGN69_${name_x_min}-${y_max / 1000}_${year}`
+                    "dalle_name": `LHD_FFX_${name_x_min}_${y_max / 1000}_PTS_${type}_LAMB93_IGN69.laz`
                 }
             });
         } else {
