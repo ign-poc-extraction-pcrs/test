@@ -52,7 +52,7 @@ def get_blocs_classe():
     Returns:
         List: Listes des blocs disponible
     """
-    BLOCS = ["GN","JE","LN","MP","MQ","OM","OP","PK","PL","PO","RG" "SE"]
+    BLOCS = ["GN","JE","LN","MP","MQ","OM","OP","PK","PL","PO", "RG", "SE"]
 
     # html_content = requests.get("https://storage.sbg.cloud.ovh.net/v1/AUTH_63234f509d6048bca3c9fd7928720ca1/ppk-lidar/").text
     # soup = BeautifulSoup(html_content, "lxml")
@@ -75,6 +75,7 @@ def get_blocs_classe():
                 # si le bloc est dans la liste on l'ajoute à notre liste 
                 if bloc["properties"]["Nom_bloc"] in BLOCS :
                     blocs_available.append(bloc)
+                    print(bloc["properties"]["Nom_bloc"])
     except:
         print("erreur dans la récuperation du json config.json")
 
