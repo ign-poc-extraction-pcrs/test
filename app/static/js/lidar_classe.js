@@ -320,6 +320,13 @@ function show_files(dalle) {
     a.setAttribute('href', dalle.url.name);
     li.appendChild(a);
     ulFiles.appendChild(li);
+
+     // Écouter le clic sur le bouton
+    const bouton = document.getElementById("copy-url");
+    bouton.addEventListener("click", function() {
+    const texteARecuperer = dalle.url.name;
+    copierTexte(texteARecuperer);
+    });
 }
 
 function bytesToSize(bytes) {
@@ -387,3 +394,28 @@ function create_dallage_blocs(zoom, geojson_blocs) {
             ;
     }
 }
+
+// Fonction pour copier le texte dans le presse-papiers
+function copierTexte(texte) {
+    // Créer un élément de texte temporaire
+    const tempInput = document.createElement("textarea");
+    tempInput.value = texte;
+  
+    // Ajouter l'élément temporaire à la page
+    document.body.appendChild(tempInput);
+  
+    // Sélectionner et copier le texte
+    tempInput.select();
+    document.execCommand("copy");
+  
+    // Supprimer l'élément temporaire
+    document.body.removeChild(tempInput);
+
+    const animationSuccess = document.getElementById("animationSuccess");
+    animationSuccess.classList.remove("hidden");
+    setTimeout(function() {
+    animationSuccess.classList.add("hidden");
+    }, 1000);
+  }
+  
+ 
