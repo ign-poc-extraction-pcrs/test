@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
     geojson_blocs = []
     create_dallage_blocs(map.getZoom())
     map.on('moveend', function() {
+        // create_dallage_blocs(map.getZoom())
         var northEast = map.getBounds()._northEast
         var southWest = map.getBounds()._southWest
 
@@ -110,7 +111,9 @@ function get_serveur() {
 function listData(zoom, northEast, southWest) {
     old_geojson = geojson
     map.removeLayer(old_geojson)
+   
     if (zoom >= 10) {
+    map.removeLayer(geojson_blocs)
     // On affiche la div de chargement
     document.getElementById("loading_div").style.display = "block";
     // On masque les div d'erreur et de formulaire
@@ -341,10 +344,10 @@ function bytesToSize(bytes) {
     return `${size} ${sizes[i]}`;
 };
 
-function create_dallage_blocs(zoom, geojson_blocs) {
+function create_dallage_blocs(zoom) {
+    var old_geojson_blocs = geojson_blocs
+    map.removeLayer(old_geojson_blocs)
     if (zoom < 10){
-        var old_geojson_blocs = geojson_blocs
-        
         serveur = get_serveur(); 
         // getFeature info
         fetch(`${serveur}/api/version5/get/blocs`)
@@ -379,24 +382,28 @@ function create_dallage_blocs(zoom, geojson_blocs) {
                         }
                     });
                 });
-                // map.removeLayer(old_geojson_blocs)
-                // Add layer
-                var geojson_blocs = L.geoJson(dallage, {
-                    style: DESIGN.base,
-                }).addTo(map);
-
-                geojson_blocs.eachLayer(function(layer) {
-                    // Ajout du gestionnaire d'événements click à chaque couche
-                    layer.on("click", function (e) {
-                        // Zoom sur la couche GeoJSON cliquée
-                        map.setView(e.target.getBounds().getCenter(), 10);
-                    });
-                });
-
+                
+                geojson_blocs = add_dallage_bloc(dallage)
                 document.getElementById("nb_bloc").textContent = data["count_bloc"];
             })
             ;
     }
+}
+
+function add_dallage_bloc(dallage) {
+    // Add layer
+    var geojson_blocs = L.geoJson(dallage, {
+        style: DESIGN.base,
+    }).addTo(map);
+
+    geojson_blocs.eachLayer(function(layer) {
+        // Ajout du gestionnaire d'événements click à chaque couche
+        layer.on("click", function (e) {
+            // Zoom sur la couche GeoJSON cliquée
+            map.setView(e.target.getBounds().getCenter(), 10);
+        });
+    });
+    return geojson_blocs
 }
 
 // Fonction pour copier le texte dans le presse-papiers
