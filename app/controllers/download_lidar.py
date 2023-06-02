@@ -162,23 +162,32 @@ def create_geojson_lidar():
 
 def create_shp_lidar_classe(path_shp, file_shp):
     # bloc disponible sur https://lidar-publications.cegedim.cloud/, à modifier pour le rendre dynamique
-    BLOCS = ["GP", "HP", "IO", "IP", "LN", "KN", "KP", "LR"]
+    # BLOCS = ["GP", "HP", "IO", "IP", "LN", "KN", "KP", "LR"]
     paquets = []
-    for nom_bloc in BLOCS:
-        # on recupere les paquets par code
-        data = urllib.request.urlopen(f"https://lidar-publications.cegedim.cloud/{nom_bloc}.txt")
-        # on parcours chaque ligne pour inserer chaque paquets dans le code concerné
-        for line in data:
-            # on decode les lignne : bytes -> string
-            paquets.append(line.decode("utf-8").split("\n")[0])
+    # for nom_bloc in BLOCS:
+    #     # on recupere les paquets par code
+    #     data = urllib.request.urlopen(f"https://lidar-publications.cegedim.cloud/{nom_bloc}.txt")
+    #     # on parcours chaque ligne pour inserer chaque paquets dans le code concerné
+    #     for line in data:
+    #         # on decode les lignne : bytes -> string
+    #         paquets.append(line.decode("utf-8").split("\n")[0])
+    script_dir = os.path.dirname(__file__)
+    file_path_config = os.path.join(script_dir, "../static/json/dalle_lidar_classe_s3_2.geojson")
+    with open(file_path_config) as json_file:
+        paquets_lidar = json.load(json_file)
     
+    for bloc in paquets_lidar["paquet_within_bloc"]:
+        for paquet in paquets_lidar["paquet_within_bloc"][bloc] :
+            paquets.append(paquet["name"])
+
     SIZE = 1000  
     data = []
     for paquet_lidar in paquets:
         # on recupere le x et y du nom du paquet
-        name_paquet = f"{paquet_lidar.split('/')[-2]}/{paquet_lidar.split('/')[-1]}"
-        x = name_paquet.split("_")[2]
-        y = name_paquet.split("_")[3]
+        name_paquet = f"{paquet_lidar.split('/')[-1]}"
+        x = name_paquet.split("_")[3].split("-")[0]
+        y = name_paquet.split("_")[3].split("-")[1]
+        type_paquet = name_paquet.split("_")[1]
         
 
         # on convertit les bonnes coordonnées
@@ -191,8 +200,8 @@ def create_shp_lidar_classe(path_shp, file_shp):
             # ce qui va etre envoyer dans ls shp
             name_colonne = "nom_pkk"
             colonne = [{"nom_colonne": name_colonne, "type": "C"}, {"nom_colonne": "url_telechargement", "type": "C"}]
-            data.append({name_colonne: name_paquet, 
-                        "url_telechargement": f"https://lidar-publications.cegedim.cloud/s3/{name_paquet}" , 
+            data.append({name_colonne: f"LHD_FXX_{x}_{y}_PTS_{type_paquet}_LAMB93_IGN69.laz", 
+                        "url_telechargement": paquet["name"] , 
                         "Geometry": {'type': 'Polygon', 'coordinates': [[(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min), (x_min, y_max)]]}})
 
     create_shp_file(f"{path_shp}/{file_shp}", colonne, data, 2154)
