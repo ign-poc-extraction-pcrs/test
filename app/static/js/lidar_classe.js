@@ -308,18 +308,22 @@ function clickFeature(e) {
 function show_files(dalle) {
     // Récupération de la liste de fichiers
     var ulFiles = document.getElementById('files');
+    x = dalle.dalle_name.split('_')[2]
+    y = dalle.dalle_name.split('_')[3]
 
     // Suppression des enfants
     for (let child of ulFiles.childNodes) {
         ulFiles.removeChild(child);
     }
 
-    var li = document.createElement('li');
+    var button = document.createElement('button');
+    button.className = "download_dalle";
     var a = document.createElement('a');
-    a.textContent = `${dalle.dalle_name}`;
+    a.textContent = `Télécharger la dalle ${x}_${y}`;
     a.setAttribute('href', dalle.url.name);
-    li.appendChild(a);
-    ulFiles.appendChild(li);
+
+    button.appendChild(a)
+    ulFiles.appendChild(button);
 
      // Écouter le clic sur le bouton
     const bouton = document.getElementById("copy-url");
