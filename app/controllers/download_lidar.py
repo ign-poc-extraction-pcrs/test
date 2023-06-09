@@ -196,12 +196,11 @@ def create_shp_lidar_classe(path_shp, file_shp):
             y_min = int(y) * 1000
             x_max = x_min + SIZE
             y_max = y_min - SIZE
-
             # ce qui va etre envoyer dans ls shp
             name_colonne = "nom_pkk"
             colonne = [{"nom_colonne": name_colonne, "type": "C"}, {"nom_colonne": "url_telechargement", "type": "C"}]
             data.append({name_colonne: f"LHD_FXX_{x}_{y}_PTS_{type_paquet}_LAMB93_IGN69.laz", 
-                        "url_telechargement": paquet["name"] , 
+                        "url_telechargement": paquet_lidar , 
                         "Geometry": {'type': 'Polygon', 'coordinates': [[(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min), (x_min, y_max)]]}})
 
     create_shp_file(f"{path_shp}/{file_shp}", colonne, data, 2154)
