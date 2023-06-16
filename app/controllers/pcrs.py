@@ -37,7 +37,7 @@ def version5():
 
 @pcrs.route('/version_lidarhd_classe', methods=['GET'])
 def lidar_classe():
-    return render_template('pages/version5.html')
+    return render_template('pages/maintenance.html')
 
 @pcrs.route('/download/<int:x_min>-<int:y_min>-<int:x_max>-<int:y_max>-<annee>-<proj>-<resolution>-<canaux>')
 @pcrs.route('/download', methods=['GET', 'POST'])
