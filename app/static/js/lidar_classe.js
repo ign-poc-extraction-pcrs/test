@@ -1,6 +1,6 @@
 // Paramètres
-const REGEX_X_Y = new RegExp('([0-9]{4})_([0-9]{4}_LA93)');
-const REGEX_X_Y_s3 = new RegExp('(IGN69_[0-9]{4})-([0-9]{4})')
+const REGEX_X_Y = new RegExp('([0-9]{4})_([0-9]{4}_PTS)');
+// const REGEX_X_Y_s3 = new RegExp('(IGN69_[0-9]{4})-([0-9]{4})')
 ;
 // const REGEX_DEP = new RegExp('D[0-9AB]{3}'); // TODO : R93, R94, R01-06, FRA, FRX, FXX, GLP, MTQ, SBA, SMA, MYT, REU, SPM, GUF
 const SIZE = 1000;
@@ -193,31 +193,17 @@ function create_dallage(resources) {
     for (let resource of resources) {
 
         name_dalle = resource["name"]
-
+        console.log(resource);
         var match_x_y = REGEX_X_Y.exec(name_dalle);
-        if(match_x_y == null){
-            match_x_y = REGEX_X_Y_s3.exec(name_dalle)
-            match_x_y[1] = match_x_y[1].split("_")[1]
-            match_x_y[2] = match_x_y[2] + "_LA93"
-        }
 
         if (match_x_y) {
-            var x_min = parseInt(match_x_y[1]) * 1000;
+            var x_min = parseInt(match_x_y[0]) * 1000;
             var y_max = parseInt(match_x_y[2].split("_")[0]) * 1000;
             var x_max = x_min + SIZE;
             var y_min = y_max - SIZE;
             var dalle = name_dalle.split("/")
-            var bloc = dalle[dalle.length -2]
-            var dalle_name = dalle[dalle.length -1]
-            var dalle_name_split = dalle_name.split("_")
-            var year = dalle_name_split[dalle_name_split.length - 1].split(".")[0]
-            var type = dalle_name_split[1]
-            name_x_min= x_min.toString()
-            if (name_x_min.length == 6) {
-                name_x_min = `0${parseInt(name_x_min)/1000}`
-            }else{
-                name_x_min = `${parseInt(name_x_min)/1000}`
-            }
+            var dalle_name = dalle[dalle.length - 1]
+            var bloc = dalle[dalle.length - 2]
 
             dallage["features"].push({
                 "type": "Feature",
@@ -237,7 +223,7 @@ function create_dallage(resources) {
                 "properties": {
                     "url" : resource,
                     "bloc": bloc,
-                    "dalle_name": `LHD_FXX_${name_x_min}_${y_max / 1000}_PTS_${type}_LAMB93_IGN69.laz`
+                    "dalle_name": dalle_name
                 }
             });
         } else {
