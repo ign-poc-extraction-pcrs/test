@@ -8,7 +8,7 @@ from zipfile import ZipFile
 import os
 from pathlib import Path
 from app.controllers.Config import Config
-import urllib.request
+import re
 
 from app.utils.create_shp import create_shp_file
 
@@ -182,12 +182,12 @@ def create_shp_lidar_classe(path_shp, file_shp):
 
     SIZE = 1000  
     data = []
-    for paquet_lidar in paquets:
-        # on recupere le x et y du nom du paquet
-        name_paquet = f"{paquet_lidar.split('/')[-1]}"
-        x = name_paquet.split("_")[3].split("-")[0]
-        y = name_paquet.split("_")[3].split("-")[1]
-        type_paquet = name_paquet.split("_")[1]
+    for paquet_lidar in paquets:        # on recupere le x et y du nom du paquet
+        pattern = r"\d{4}_\d{4}"
+        resultat = re.search(pattern, paquet_lidar)
+        coordonnees = resultat.group().split("_")
+        x = coordonnees[0]
+        y = coordonnees[1]
         
 
         # on convertit les bonnes coordonnées
@@ -199,7 +199,7 @@ def create_shp_lidar_classe(path_shp, file_shp):
             # ce qui va etre envoyer dans ls shp
             name_colonne = "nom_pkk"
             colonne = [{"nom_colonne": name_colonne, "type": "C"}, {"nom_colonne": "url_telechargement", "type": "C"}]
-            data.append({name_colonne: f"LHD_FXX_{x}_{y}_PTS_{type_paquet}_LAMB93_IGN69.laz", 
+            data.append({name_colonne: paquet_lidar.split("/")[-1], 
                         "url_telechargement": paquet_lidar , 
                         "Geometry": {'type': 'Polygon', 'coordinates': [[(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min), (x_min, y_max)]]}})
 
