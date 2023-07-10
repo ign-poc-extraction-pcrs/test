@@ -17,14 +17,14 @@ def get_dalle_classe():
     """
     # on recupere le chemin du geojson
     script_dir = os.path.dirname(__file__)
-    file_path_config = os.path.join(script_dir, "../static/json/lidar_classe.geojson")
+    file_path_config = os.path.join(script_dir, "../static/json/lidar_classe_index.geojson")
     # variable dans laquel sera stocker le geojson
     data = []
     try:
         with open(file_path_config) as json_file:
             data = json.load(json_file)
     except:
-        print("erreur dans la récuperation du geojson lidar_classe.geojson")
+        print("erreur dans la récuperation du geojson lidar_classe_index.geojson")
     # les paquets qui seront envoyés par l'api
     paquets = {}
     for bloc in data["features"]:
@@ -63,19 +63,20 @@ def get_blocs_classe():
             
     # on recupere le chemin du geojson
     script_dir = os.path.dirname(__file__)
-    file_path_config = os.path.join(script_dir, "../static/json/lidar_classe2.geojson")
+    file_path_config = os.path.join(script_dir, "../static/json/lidar_classe_index.geojson")
     # list dans lesquels seront stocker les blocs disponibles
     blocs_available = []
 
     try :
         with open(file_path_config) as json_file:
             blocs = json.load(json_file)
-            # on parcours la liste des blocs 
-            for bloc in blocs["features"] :
-                # si le bloc est dans la liste on l'ajoute à notre liste 
-                if bloc["properties"]["Nom_bloc"] in BLOCS :
-                    blocs_available.append(bloc)
-                    print(bloc["properties"]["Nom_bloc"])
+        # on parcours la liste des blocs 
+        for bloc in blocs["features"] :
+            print(bloc["properties"]["Nom_bloc"])
+            # si le bloc est dans la liste on l'ajoute à notre liste 
+            if bloc["properties"]["Nom_bloc"] in BLOCS :
+                blocs_available.append(bloc)
+                print(bloc["properties"]["Nom_bloc"])
     except:
         print("erreur dans la récuperation du json config.json")
 
