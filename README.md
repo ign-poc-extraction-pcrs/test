@@ -262,12 +262,12 @@ Se mettre à la racine du projet dans la branche lidar
 Creer .env dans app/utils/ et inserer les paramétres pour accéder au S3
 
 installer dépendance dans environnement virtuel de préference
-```
+```sh
 pip install -r app/utils/requirements.txt
 ```
 
 Lancer le script pour récuperer les dalles dans le s3 et creer/remplacer le fichier json app/static/json/dalle_lidar_classe_s3_2.geojson
-```
+```sh
 python3 app/utils/s3.py
 ```
 
@@ -276,15 +276,23 @@ Ouvrir le script app/utils/lidar_classe.py et modifier la ligne 55 en ajoutant l
 On push sur git et on merge request sur dev puis sur prod
 
 On copie le json app/static/json/dalle_lidar_classe_s3_2.geojson dans le client cegedim puis sur la machine de dev et de prod
-```
+```sh
 scp -r -p app/static/json/dalle_lidar_classe_s3_2.geojson name_user@ftp-cegedim:~/
 ssh name_user@ftp-cegedim
 scp -r -p dalle_lidar_classe_s3_2.geojson pcrs-admin@CELPPCRS01FT1:~/test/app/static/json/   (dev)
 scp -r -p dalle_lidar_classe_s3_2.geojson pcrs-admin@extraction_wms_pcrs:~/test/app/static/json/    (prod)
 ```
 
-Pour mettre à jours la prod
+On copie le json app/static/json/lidar_classe_index.geojson dans le client cegedim puis sur la machine de dev et de prod
+```sh
+scp -r -p app/static/json/lidar_classe_index.geojson name_user@ftp-cegedim:~/
+ssh name_user@ftp-cegedim
+scp -r -p lidar_classe_index.geojson pcrs-admin@CELPPCRS01FT1:~/test/app/static/json/   (dev)
+scp -r -p lidar_classe_index.geojson pcrs-admin@extraction_wms_pcrs:~/test/app/static/json/    (prod)
 ```
+
+Pour mettre à jours la prod
+```sh
 ssh ssh pcrs-admin@extraction_wms_pcrs
 screen -r prod_pcrs
 ctrl + c
