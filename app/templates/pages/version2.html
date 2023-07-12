@@ -6,7 +6,52 @@
 {% endblock %}
 
 {% block body %}
-  <div id="map"></div>
+<div id="map"></div>
+
+<!-- The Modal -->
+<div id="modal_infobox" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>L’IGN met à disposition, sous forme de dalles extractibles, les orthophotographies PCRS actuellement consultables
+      sur
+      <a
+        href="https://www.geoportail.gouv.fr/carte?c=2.3582434179734504,46.691861418753035&z=7&l0=ELEVATION.SLOPES::GEOPORTAIL:OGC:WMTS(1)&l1=LIMITES_ADMINISTRATIVES_EXPRESS.LATEST::GEOPORTAIL:OGC:WMTS(1)&l2=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&l3=PCRS.LAMB93::GEOPORTAIL:OGC:WMTS(1)&permalink=yes"
+        target="_blank">
+        Geoportail
+      </a>.
+    </p>
+    <p>Ces données ont les caractéristiques suivantes:</p>
+    <ul>
+      <li>Open Data</li>
+      <li>Dalles de 200m de côté</li>
+      <li>Pixel de résolution 5cm</li>
+      <li>Précision 10 cm</li>
+      <li>Projection Lambert 93</li>
+      <li>Format TIF JPEG75</li>
+    </ul>
+    <p>La production du PCRS se faisant par blocs, l’orthophotographie PCRS est mise à disposition également par blocs.
+      La mise à disposition d’un département entier peut donc s’étaler sur plusieurs années.</p>
+    <p>Un masque sur la carte générale permet d’indiquer là où du PCRS (produit par l’IGN ou par ses sous-traitants, ou
+      confié à l’IGN) est hébergé sur Géoportail.</p>
+    <p>L’affichage du masque par blocs est appelé à être remplacé par un mosaïquage affichant sous une forme simplifiée
+      (dalle de 5mx5m) la journée d’acquisition de l’image. Si le mosaïquage n’est pas disponible, seul le masque
+      informant de l’existence d’un PCRS sera fourni. </p>
+    <p>Les dalles 200mx200m n’apparaissent que là où du PCRS est hébergé sur Géoportail.</p>
+    <p>Le texte affiché pour une dalle correspond aux coordonnées hectométriques paires du coin nord-ouest (04924-66328
+      par exemple).</p>
+    <p>Dans le cas où le PCRS n’est pas encore en open data mais qu’il est hébergé sur Géoportail, les dalles 200mx200m
+      seront visibles mais pas le raster. Dans un tel cas, le fichier .zip ne fournira que les emprises des dalles
+      sélectionnées.</p>
+    <p>Les dalles extraites (10 au maximum) le sont sous forme de fichiers .zip. Quel que soit l’affichage retenu
+      (PlanIGNv2, Orthoimage ou PCRS), la donnée extraite sera du PCRS si elle est disponible.</p>
+    
+
+  </div>
+
+</div>
+
 {% endblock body %}
 
 {% block js %}
@@ -15,5 +60,6 @@
 <script src="{{ url_for('static',filename='js/design.js') }}"></script>
 <script src="{{ url_for('static',filename='js/carteTest.js') }}"></script>
 <script src="{{ url_for('static',filename='js/dalles_download.js') }}"></script>
+<script src="{{ url_for('static',filename='js/infobox.js') }}"></script>
 <script src="https://kit.fontawesome.com/67a3c07583.js" crossorigin="anonymous"></script>
 {% endblock js %}
