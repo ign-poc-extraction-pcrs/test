@@ -8,7 +8,7 @@ from datetime import date
 import shapely.geometry
 from app.controllers.Config import Config
 from app.controllers.download_lidar import PATH_KEY, KEY_JSON_LIDAR
-from app.utils.dalle_lidar_classe import BLOCS, get_blocs_classe, get_dalle_classe
+from app.utils.dalle_lidar_classe import get_blocs_classe
 
 
 api = Blueprint('api', __name__, url_prefix='/api')
