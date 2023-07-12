@@ -111,23 +111,33 @@ function onEachFeature(feature, layer) {
     });
 }
 
+// function highlightFeatureChantier(e) {
+//     var layer = e.target;
+//     popup(layer, "open", "chantier")
+// }
+
+// function resetHighlightChantier(e) {
+//     var layer = e.target
+//     popup(layer, "close", "chantier")
+// }
+
+function clickChantier(e) {
+    var layer = e.target;
+    popup(layer, "open", "chantier")
+}
+
 function onEachFeatureDallage(feature, layer) {
     // Ajout écouteur d'événement sur l'élément
     layer.on({
-        mouseover: highlightFeature,
-        mouseout: resetHighlight,
-        click: click
+        // mouseover: highlightFeatureChantier,
+        // mouseout: resetHighlightChantier,
+        click: clickChantier
     });
 }
 
 
 
-
-
 labels_polygon = document.querySelectorAll(".label-nom")
-
-
-
 
 
 // menu qui va afficher les couches optionnels
