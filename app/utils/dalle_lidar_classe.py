@@ -5,10 +5,6 @@ import shapely.geometry
 import requests
 from bs4 import BeautifulSoup
 
-# bloc disponible sur https://lidar-publications.cegedim.cloud/, à modifier pour le rendre dynamique
-BLOCS = []
-
-
 def get_dalle_classe():
     """recupere les dalles classées
 
@@ -17,14 +13,14 @@ def get_dalle_classe():
     """
     # on recupere le chemin du geojson
     script_dir = os.path.dirname(__file__)
-    file_path_config = os.path.join(script_dir, "../static/json/lidar_classe.geojson")
+    file_path_config = os.path.join(script_dir, "../static/json/lidar_classe_index.geojson")
     # variable dans laquel sera stocker le geojson
     data = []
     try:
         with open(file_path_config) as json_file:
             data = json.load(json_file)
     except:
-        print("erreur dans la récuperation du geojson lidar_classe.geojson")
+        print("erreur dans la récuperation du geojson lidar_classe_index.geojson")
     # les paquets qui seront envoyés par l'api
     paquets = {}
     for bloc in data["features"]:
@@ -52,34 +48,17 @@ def get_blocs_classe():
     Returns:
         List: Listes des blocs disponible
     """
-    BLOCS = ["GN","JE","LN","MP","MQ","OM","OP","PK","PL","PO", "RG", "SE", "UT", "OE", "QH", "RF", "QG"]
-
-    # html_content = requests.get("https://storage.sbg.cloud.ovh.net/v1/AUTH_63234f509d6048bca3c9fd7928720ca1/ppk-lidar/").text
-    # soup = BeautifulSoup(html_content, "lxml")
-
-    # for link in soup.find_all("a"):
-    #     if link.text != "test/":
-    #         BLOCS.append(link.text.split("/")[0])
-            
-    # on recupere le chemin du geojson
+    # on récupère le chemin du geojson
     script_dir = os.path.dirname(__file__)
-    file_path_config = os.path.join(script_dir, "../static/json/lidar_classe2.geojson")
-    # list dans lesquels seront stocker les blocs disponibles
-    blocs_available = []
+    file_path_config = os.path.join(script_dir, "../static/json/lidar_classe_index.geojson")
 
     try :
         with open(file_path_config) as json_file:
             blocs = json.load(json_file)
-            # on parcours la liste des blocs 
-            for bloc in blocs["features"] :
-                # si le bloc est dans la liste on l'ajoute à notre liste 
-                if bloc["properties"]["Nom_bloc"] in BLOCS :
-                    blocs_available.append(bloc)
-                    print(bloc["properties"]["Nom_bloc"])
+        # on retourne la liste des blocs
+        return blocs['features']
     except:
-        print("erreur dans la récuperation du json config.json")
-
-    return blocs_available
+        print("erreur dans la récupération du json lidar_classe_index.json")
 
 def get_dalle_in_bloc():
     """Recupere les dalles dans les blocs (on enleve ceux qui dépasse)

@@ -10,3 +10,4 @@ config_serveur.json
 file_path_dalle_lidar.json
 dalle_lidar_classe.geojson
 dalle_lidar_classe_s3_2.geojson
+lidar_classe_index.geojson
