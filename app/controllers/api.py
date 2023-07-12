@@ -135,7 +135,7 @@ def get_connexion_bdd(info_bdd):
     """
     try :
         # conn = psycopg2.connect(database="test", user="postgres", host="localhost", password="root")
-        conn = psycopg2.connect(database=info_bdd["database"], user=info_bdd["user"], host=info_bdd["host"], password=info_bdd["password"], port=info_bdd["port"])
+        conn = psycopg2.connect(database=info_bdd["database"], user=info_bdd["user"], host=info_bdd["host"], password=info_bdd["password"])
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     except psycopg2.OperationalError as e:
         return False
