@@ -275,20 +275,12 @@ Ouvrir le script app/utils/lidar_classe.py et modifier la ligne 55 en ajoutant l
 
 On push sur git et on merge request sur dev puis sur prod
 
-On copie le json app/static/json/dalle_lidar_classe_s3_2.geojson dans le client cegedim puis sur la machine de dev et de prod
+On copie les json `app/static/json/dalle_lidar_classe_s3_2.geojson` et `app/static/json/lidar_classe_index.geojson` dans le client cegedim puis sur la machine de dev et de prod :
 ```sh
-scp -r -p app/static/json/dalle_lidar_classe_s3_2.geojson name_user@ftp-cegedim:~/
+scp -r -p app/static/json/dalle_lidar_classe_s3_2.geojson app/static/json/lidar_classe_index.geojson name_user@ftp-cegedim:~/
 ssh name_user@ftp-cegedim
-scp -r -p dalle_lidar_classe_s3_2.geojson pcrs-admin@CELPPCRS01FT1:~/test/app/static/json/   (dev)
-scp -r -p dalle_lidar_classe_s3_2.geojson pcrs-admin@extraction_wms_pcrs:~/test/app/static/json/    (prod)
-```
-
-On copie le json app/static/json/lidar_classe_index.geojson dans le client cegedim puis sur la machine de dev et de prod
-```sh
-scp -r -p app/static/json/lidar_classe_index.geojson name_user@ftp-cegedim:~/
-ssh name_user@ftp-cegedim
-scp -r -p lidar_classe_index.geojson pcrs-admin@CELPPCRS01FT1:~/test/app/static/json/   (dev)
-scp -r -p lidar_classe_index.geojson pcrs-admin@extraction_wms_pcrs:~/test/app/static/json/    (prod)
+scp -r -p dalle_lidar_classe_s3_2.geojson app/static/json/lidar_classe_index.geojson pcrs-admin@CELPPCRS01FT1:~/test/app/static/json/   (dev)
+scp -r -p dalle_lidar_classe_s3_2.geojson app/static/json/lidar_classe_index.geojson pcrs-admin@extraction_wms_pcrs:~/test/app/static/json/    (prod)
 ```
 
 Pour mettre à jours la prod
