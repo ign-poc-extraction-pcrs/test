@@ -279,8 +279,8 @@ On copie les json `app/static/json/dalle_lidar_classe_s3_2.geojson` et `app/stat
 ```sh
 scp -r -p app/static/json/dalle_lidar_classe_s3_2.geojson app/static/json/lidar_classe_index.geojson name_user@ftp-cegedim:~/
 ssh name_user@ftp-cegedim
-scp -r -p dalle_lidar_classe_s3_2.geojson app/static/json/lidar_classe_index.geojson pcrs-admin@CELPPCRS01FT1:~/test/app/static/json/   (dev)
-scp -r -p dalle_lidar_classe_s3_2.geojson app/static/json/lidar_classe_index.geojson pcrs-admin@extraction_wms_pcrs:~/test/app/static/json/    (prod)
+scp -r -p dalle_lidar_classe_s3_2.geojson lidar_classe_index.geojson pcrs-admin@CELPPCRS01FT1:~/test/app/static/json/   (dev)
+scp -r -p dalle_lidar_classe_s3_2.geojson lidar_classe_index.geojson pcrs-admin@extraction_wms_pcrs:~/test/app/static/json/    (prod)
 ```
 
 Pour mettre à jours la prod
