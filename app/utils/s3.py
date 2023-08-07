@@ -141,9 +141,12 @@ class BucketAdpater:
         for bloc, dalles in index_json_files['paquet_within_bloc'].items():
             print(f"{bloc}... ({len(dalles)} dalles)")
             if dalles:
+                # On fusionne l'emprise + on passe en multi polygon pour tout le temps gérer le même cas
                 polygon = unary_union([box(*dalle['bbox']) for dalle in dalles])
-                new_polygon = Polygon(polygon.exterior.coords).normalize()
-                multi_polygon = MultiPolygon([new_polygon])
+                if type(polygon) == Polygon:
+                    polygon = MultiPolygon([polygon])
+                # pour chaque polygon (du multi), on ne va récupérer que l'exterior ring et normaliser
+                multi_polygon = MultiPolygon([Polygon(polygon.exterior.coords).normalize() for polygon in polygon.geoms])
                 # Pour chaque dalle
                 data['features'].append({
                     "type": "Feature",
