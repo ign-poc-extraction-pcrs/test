@@ -120,6 +120,7 @@ class BucketAdpater:
 
 
     def export_bloc_extent(self):
+        print("Exportation du fichier d'emprises...")
         script_dir = os.path.dirname(__file__)
         file_path_json = os.path.join(script_dir, "../static/json/dalle_lidar_classe_s3_2.geojson")
         with open(file_path_json, 'r') as f:
@@ -138,21 +139,24 @@ class BucketAdpater:
         }
         # pour chaque bloc
         for bloc, dalles in index_json_files['paquet_within_bloc'].items():
-            polygon = unary_union([box(*dalle['bbox']) for dalle in dalles])
-            new_polygon = Polygon(polygon.exterior.coords).normalize()
-            multi_polygon = MultiPolygon([new_polygon])
-            # Pour chaque dalle
-            data['features'].append({
-                "type": "Feature",
-                "properties": {
-                    "Nom_bloc": bloc,
-                    "Superficie": int(area(multi_polygon) / 1000000),
-                },
-                "geometry": json.loads(to_geojson(multi_polygon))
-            })
+            print(f"{bloc}... ({len(dalles)} dalles)")
+            if dalles:
+                polygon = unary_union([box(*dalle['bbox']) for dalle in dalles])
+                new_polygon = Polygon(polygon.exterior.coords).normalize()
+                multi_polygon = MultiPolygon([new_polygon])
+                # Pour chaque dalle
+                data['features'].append({
+                    "type": "Feature",
+                    "properties": {
+                        "Nom_bloc": bloc,
+                        "Superficie": int(area(multi_polygon) / 1000000),
+                    },
+                    "geometry": json.loads(to_geojson(multi_polygon))
+                })
         file_path_json = os.path.join(script_dir, "../static/json/lidar_classe_index.geojson")
         with open(file_path_json, 'w') as f:
             json.dump(data, f, indent=4)
+        print(f"{len(data['features'])} blocs exportés")
 
 
 if __name__ == "__main__":
