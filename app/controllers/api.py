@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, current_app
 import json
 import os
 import psycopg2
@@ -51,7 +51,7 @@ def get_dalle():
             data = json.load(json_file)
         statut = "success"
     except:
-        print("erreur dans la récuperation du json")
+        print(f"erreur dans la récuperation du json {file_path}")
         statut = "failure"
 
     return jsonify({"statut": statut, "result": data})
@@ -67,7 +67,7 @@ def get_chantier(x_min=None, y_min=None, x_max=None, y_max=None):
         chantiers = bdd.fetchall()
         statut = "success"
         bdd.close()
-        bdd.close() 
+        bdd.close()
     else :
         statut = "erreur"
     return jsonify({"statut": statut, "result": chantiers})
@@ -122,7 +122,7 @@ def get_dalle_lidar_classe(x_min=None, y_min=None, x_max=None, y_max=None):
 
 @api.route('/version5/get/blocs', methods=['GET', 'POST'])
 def get_blocs_lidar_classe():
-    blocs = get_blocs_classe()
+    blocs = current_app.bloc_index #get_blocs_classe()
 
     return jsonify({"result": blocs, "count_bloc":len(blocs)})
 
@@ -173,43 +173,45 @@ def get_coordonees(dalles):
 def new_format_dalle(dalles):
     # creation du dictionnaire qui sera envoyer par l'api
     new_format_dalles = {
-                            "date": str(date.today()),
-                            "len_dalles": len(dalles),
-                            "dalles": []
-                            }
+        "date": str(date.today()),
+        "len_dalles": len(dalles),
+        "dalles": []
+    }
     # on insere le format que l'on veut des dalles dans le dictionnaire
     for dalle in dalles:
         new_format_dalles["dalles"].append(dalle)
     return dalles
 
-def get_dalle_in_bloc(bbox_windows):
+def get_dalle_in_bloc(bbox_windows_temp):
     """Recupere les dalles dans les blocs (on enleve ceux qui dépasse)
 
     Args:
-        bbox_windows (tuple): bbox de la fenetre, va permettre de ne recuperer seulement que les dalles qui sont dans la fenetre
+        bbox_windows_temp (tuple): bbox de la fenetre, va permettre de ne recuperer seulement que les dalles qui sont dans la fenetre
 
     Returns:
         dict: Dalles dans les blocs + nombre de dalle en tout
     """
-    script_dir = os.path.dirname(__file__)
-    file_path_json_s3 = os.path.join(script_dir, "../static/json/dalle_lidar_classe_s3_2.geojson")
+    bbox_windows = shapely.geometry.box(*bbox_windows_temp)
+
+    # Truc qu'on va renvoyer
     paquet_within_bloc = {}
-    
-    with open(file_path_json_s3) as file:
-        dalles_s3 = json.load(file)
-
-    dalles_s3 = dalles_s3["paquet_within_bloc"]
     count = 0
+    count_bloc = 0
     
-    for bloc in dalles_s3:
-        if bloc not in paquet_within_bloc:
-            paquet_within_bloc[bloc] = []
-
-        for dalle in dalles_s3[bloc]:
-            count += 1
-            if get_bboxes_within_bboxes(tuple(dalle["bbox"]), bbox_windows):
-                paquet_within_bloc[bloc].append(dalle)
-
+    # Pour chaque bloc
+    for bloc in current_app.dalles_s3:
+        # S'il est dans l'emprise
+        if bbox_windows.intersects(current_app.bloc_emprise[bloc]):
+            count_bloc += 1
+            # On crée l'entrée
+            if bloc not in paquet_within_bloc:
+                paquet_within_bloc[bloc] = []
+            # Puis on voit pour ajouter les dalles
+            for dalle in current_app.dalles_s3[bloc]:
+                count += 1
+                if get_bboxes_within_bboxes(tuple(dalle["bbox"]), bbox_windows):
+                    paquet_within_bloc[bloc].append(dalle)
+    print(f"bbox : {count_bloc} blocs / {count} dalles")
     return {"paquet_within_bloc": paquet_within_bloc, "count_dalle": count}
 
 
@@ -218,14 +220,12 @@ def get_bboxes_within_bboxes(bbox, bbox_windows):
     """_summary_
 
     Args:
-        bbox (tuple): bbox -> (x_min, y_min, x_max, y_max)
+        bbox (box): bbox -> (x_min, y_min, x_max, y_max)
         bbox_windows (tuple): bbox fenetre
 
     Returns:
         bool: on retourne True si la bbbox est dans le polygon
     """
-    # on transforme notre polygon en geometry
-    bbox_windows = shapely.geometry.box(*bbox_windows)
     # on transforme notre bbox en geometry
     bbox_polygon = shapely.geometry.box(*bbox)
     # on regarde si la bbox est dans le polygon
