@@ -193,7 +193,7 @@ function create_dallage(resources) {
     for (let resource of resources) {
 
         name_dalle = resource["name"]
-        console.log(resource);
+        //console.log(resource);
         var match_x_y = REGEX_X_Y.exec(name_dalle);
 
         if (match_x_y) {
@@ -257,7 +257,7 @@ function show_popup(layer, type = "open") {
     template = `<p>${dalle_name}</p>`
 
     if (type == "open") {
-        layer.bindPopup(template).openPopup()
+        layer.bindPopup(template, {autoPan: false}).openPopup()
     } else {
         layer.closePopup()
     }
